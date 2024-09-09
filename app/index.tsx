@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { useFonts } from "expo-font";
 import CustomLogo from "@/components/CustomLogo";
+import loginApi from "@/api/loginApi";
 
 export default function Index() {
 

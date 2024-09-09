@@ -7,7 +7,8 @@ module.exports = {
         primary: "#331612",
         background: "#FEFAF9",
         black: "#1B1514",
-        placeholder: "#828282"
+        placeholder: "#828282",
+        brown: "#B0795A"
       },
     },
   },
