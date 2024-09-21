@@ -27,7 +27,7 @@ export default function Index() {
     }).start();
 
     const timeout = setTimeout(() => {
-      router.push("/login")
+      router.push("/(tabsCustomer)/createOrder")
     }, 5000);
 
     return () => clearTimeout(timeout);
