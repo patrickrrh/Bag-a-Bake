@@ -4,11 +4,11 @@
     "slug": "bag-a-bake-frontend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo-bag-a-bake.png",
+    "icon": "./assets/images/logoBagABake.png",
     "scheme": "bagabake",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/logo-bag-a-bake.png",
+      "image": "./assets/images/logoBagABake.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,14 +17,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo-bag-a-bake.png",
+        "foregroundImage": "./assets/images/logoBagABake.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo-bag-a-bake.png"
+      "favicon": "./assets/images/logoBagABake.png"
     },
     "plugins": [
       "expo-router",
@@ -32,6 +32,9 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "baseURL": "http://10.0.2.2:3000/api"
     }
   }
 }
