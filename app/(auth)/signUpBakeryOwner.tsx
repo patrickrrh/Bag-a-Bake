@@ -13,33 +13,61 @@ import * as ImagePicker from 'expo-image-picker';
 import UploadButton from '@/components/UploadButton'
 import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
+import { checkEmptyForm } from '@/utils/commonFunctions'
 
-const SignUpPemilikBakeri = () => {
+type ErrorState = {
+    userName: string | null;
+    userPhoneNumber: string | null;
+    email: string | null;
+    password: string | null;
+    confirmPassword: string | null;
+};
+
+const SignUpBakeryOwner = () => {
 
     const [form, setForm] = useState({
-        idPeran: 2,
-        username: '',
+        roleId: 2,
+        userName: '',
+        userPhoneNumber: '',
         email: '',
         password: '',
-        profilePicture: '',
+        userImage: '',
     })
     const [confirmPassword, setConfirmPassword] = useState('')
 
-    const [error, setError] = useState<string | null>(null)
+    const emptyError: ErrorState = {
+        userName: null,
+        userPhoneNumber: null,
+        email: null,
+        password: null,
+        confirmPassword: null,
+    }
+    const [error, setError] = useState<ErrorState>(emptyError);
 
     const [isSubmitting, setisSubmitting] = useState(false);
 
-    const validatePassword = () => {
-        if (form.password !== confirmPassword) {
-            setError('Password tidak cocok')
-            return false;
-        } else {
-            setError(null)
-            router.push({
-                pathname: '/(auth)/signUpToko' as any,
-                params: { ...form }
-            })
+    const checkForm = () => {
+        setisSubmitting(true);
+        const errors = checkEmptyForm(form, confirmPassword);
+        if (Object.values(errors).some(error => error !== null)) {
+            setError(errors as ErrorState);
+            setisSubmitting(false);
+            return;
         }
+        if (form.password !== confirmPassword) {
+            setError((prevError) => ({
+                ...prevError,
+                confirmPassword: 'Password tidak cocok',
+            }));
+            setisSubmitting(false);
+            return;
+        }
+
+        router.push({
+            pathname: '/(auth)/signUpBakery' as any,
+            params: { ...form },
+        })
+        setisSubmitting(false);
     }
 
     const pickImage = async () => {
@@ -51,7 +79,7 @@ const SignUpPemilikBakeri = () => {
         })
 
         if (!result.canceled) {
-            setForm({ ...form, profilePicture: result.assets[0].uri })
+            setForm({ ...form, userImage: result.assets[0].uri })
         }
     };
 
@@ -67,7 +95,7 @@ const SignUpPemilikBakeri = () => {
     const footerContent = (
         <>
             <TextHeadline label='Sudah memiliki akun?' />
-            <Link href="/(auth)/login">
+            <Link href="/(auth)/signIn">
                 <TextLink label='Masuk disini' />
             </Link>
         </>
@@ -76,10 +104,10 @@ const SignUpPemilikBakeri = () => {
     return (
         <AuthLayout headerContent={headerContent} footerContent={footerContent}>
             <View className="mt-4 w-full items-center">
-                {form.profilePicture ? (
+                {form.userImage ? (
                     <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
                         <Image
-                            source={{ uri: form.profilePicture }}
+                            source={{ uri: form.userImage }}
                             className="w-full h-full rounded-full"
                         />
                     </View>
@@ -97,47 +125,64 @@ const SignUpPemilikBakeri = () => {
 
             <FormField
                 label='Nama Pengguna'
-                value={form.username}
-                onChangeText={(text) => setForm({ ...form, username: text })}
+                onChangeText={(text) => {
+                    setForm({ ...form, userName: text });
+                    setError((prevError) => ({ ...prevError, userName: null }));
+                }}
                 keyboardType='default'
                 moreStyles='mt-7'
+                error={error.userName}
+            />
+            <FormField
+                label='Nomor Telepon'
+                onChangeText={(text) => {
+                    setForm({ ...form, userPhoneNumber: text });
+                    setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
+                }}
+                keyboardType='phone-pad'
+                moreStyles='mt-7'
+                error={error.userPhoneNumber}
             />
             <FormField
                 label='Email'
-                value={form.email}
-                onChangeText={(text) => setForm({ ...form, email: text })}
+                onChangeText={(text) => {
+                    setForm({ ...form, email: text });
+                    setError((prevError) => ({ ...prevError, email: null }));
+                }}
                 keyboardType='email-address'
                 moreStyles='mt-7'
+                error={error.email}
             />
             <FormField
                 label='Password'
-                value={form.password}
-                onChangeText={(text) => setForm({ ...form, password: text })}
+                onChangeText={(text) => {
+                    setForm({ ...form, password: text });
+                    setError((prevError) => ({ ...prevError, password: null }));
+                }}
                 keyboardType='default'
                 moreStyles='mt-7'
+                error={error.password}
             />
             <FormField
                 label='Konfirmasi Password'
-                value={form.password}
-                onChangeText={(text) => setConfirmPassword(text)}
+                onChangeText={(text) => {
+                    setConfirmPassword(text);
+                    setError((prevError) => ({ ...prevError, confirmPassword: null }));
+                }}
                 keyboardType='default'
                 moreStyles='mt-7'
+                error={error.confirmPassword}
             />
 
             <CustomButton
-                label='Lanjut'
-                handlePress={() => validatePassword()}
+                label='Daftar'
+                handlePress={() => checkForm()}
                 buttonStyles='mt-10 w-full'
                 isLoading={isSubmitting}
             />
 
-            {error && (
-                <View className="mt-4 flex-row justify-center w-full">
-                    <ErrorMessage label={error} />
-                </View>
-            )}
         </AuthLayout>
     )
 }
 
-export default SignUpPemilikBakeri
+export default SignUpBakeryOwner

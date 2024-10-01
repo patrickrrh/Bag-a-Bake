@@ -15,27 +15,46 @@ import AuthLayout from './authLayout';
 import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '@/app/context/AuthContext';
 import SplashScreen from '@/components/SplashScreen';
+import { checkEmptyForm } from '@/utils/commonFunctions';
 
+type ErrorState = {
+  email: string | null;
+  password: string | null;
+};
 
-const Login = () => {
+const SignIn = () => {
 
-  const { login, logout } = useAuth();
+  const { signIn, signOut } = useAuth();
 
-  const [form, setForm] = useState({
+  const emptyForm = {
     email: '',
     password: ''
-  });
-  const [error, setError] = useState(null)
+  }
+  const [form, setForm] = useState(emptyForm)
+
+  const emptyError: ErrorState = {
+    email: null,
+    password: null,
+  };
+  const [error, setError] = useState<ErrorState>(emptyError);
 
   const [isSubmitting, setisSubmitting] = useState(false);
-  const [isSplashVisible, setSplashVisible] = useState(true);
+  const [isSplashVisible, setisSplashVisible] = useState(true);
 
-  const handleLoginAPI = () => {
-    login(form.email, form.password);
+  const handleSignInAPI = () => {
+    setisSubmitting(true);
+
+    const errors = checkEmptyForm(form);
+    if (Object.values(errors).some(error => error !== null)) {
+      setError(errors as ErrorState);
+      return;
+    }
+
+    signIn(form);
   };
 
-  const handleLogout = async () => {
-    logout();
+  const handleSignOut = async () => {
+    signOut();
   }
 
   const headerContent = (
@@ -59,10 +78,9 @@ const Login = () => {
     </>
   );
 
-
   useEffect(() => {
     const timer = setTimeout(() => {
-      setSplashVisible(false);
+      setisSplashVisible(false);
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -77,16 +95,22 @@ const Login = () => {
     <AuthLayout headerContent={headerContent} footerContent={footerContent}>
       <FormField
         label='Email'
-        value={form.email}
-        onChangeText={(text) => setForm({ ...form, email: text })}
+        onChangeText={(text) => {
+          setForm({ ...form, email: text });
+          setError((prevError) => ({ ...prevError, email: null }));
+        }}
         keyboardType='email-address'
         moreStyles='mt-7'
+        error={error.email}
       />
       <FormField
         label='Password'
-        value={form.password}
-        onChangeText={(text) => setForm({ ...form, password: text })}
+        onChangeText={(text) => {
+          setForm({ ...form, password: text });
+          setError((prevError) => ({ ...prevError, password: null }));
+        }}
         moreStyles='mt-7'
+        error={error.password}
       />
 
       <View className="mt-6 flex-row justify-end">
@@ -97,28 +121,28 @@ const Login = () => {
 
       <CustomButton
         label='MASUK'
-        handlePress={handleLoginAPI}
+        handlePress={handleSignInAPI}
         buttonStyles='mt-8'
         isLoading={isSubmitting}
       />
 
       <CustomButton
         label='logout sementara'
-        handlePress={handleLogout}
+        handlePress={handleSignOut}
         buttonStyles='mt-4'
         isLoading={isSubmitting}
       />
 
-      {
+      {/* {
         error && (
           <View className="mt-4 flex-row justify-center">
             <ErrorMessage label={error} />
           </View>
         )
-      }
+      } */}
     </AuthLayout>
 
   );
 };
 
-export default Login;
+export default SignIn;

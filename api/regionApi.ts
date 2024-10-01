@@ -19,7 +19,6 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
 
 export default function registerApi() {
     return {
-        signUp: createApiFunction("post", "sign_up"),
-        signIn: createApiFunction("post", "sign_in"),
+        getRegion: createApiFunction("get", "get/region"),
     }
 }
