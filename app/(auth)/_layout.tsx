@@ -7,9 +7,9 @@ const AuthLayout = () => {
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='login'/>
+        <Stack.Screen name='signIn'/>
         <Stack.Screen name='signUp'/>
-        <Stack.Screen name='signUpPembeli'/>
+        <Stack.Screen name='signUpCustomer'/>
         <Stack.Screen name='signUpPemilikBakeri'/>
         <Stack.Screen name='signUpToko'/>
       </Stack>

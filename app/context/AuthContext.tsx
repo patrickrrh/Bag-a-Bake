@@ -2,28 +2,29 @@ import { createContext, PropsWithChildren, useContext, useEffect, useState } fro
 import authenticationApi from '@/api/authenticationApi';
 import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
+import Toast from 'react-native-toast-message';
 
 const AuthContext = createContext<{
-    login: (email: string, password: string) => void;
+    signIn: (data: object) => void;
     signUp: (data: object) => void;
-    logout: () => void;
+    signOut: () => void;
     isAuthenticated: boolean | null;
     isLoading: boolean;
-    justLoggedIn: boolean;
+    justSignedIn: boolean;
 }>({
-    login: (email: string, password: string) => null,
+    signIn: (data: object) => null,
     signUp: (data: object) => null,
-    logout: () => null,
+    signOut: () => null,
     isAuthenticated: null,
     isLoading: false,
-    justLoggedIn: false
+    justSignedIn: false
 })
 
 export function AuthProvider({ children }: PropsWithChildren) {
 
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [justLoggedIn, setJustLoggedIn] = useState(false);
+    const [justSignedIn, setJustSignedIn] = useState(false);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -48,7 +49,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }, []);
 
     console.log("Auth Provider", isAuthenticated)
-    console.log("Login Status:", justLoggedIn)
+    console.log("Login Status:", justSignedIn)
+
+    const showToast = () => {
+        Toast.show({
+            type: 'error',
+            text1: 'Oops!',
+            text2:  'error',
+        });
+    }
 
     if (isLoading) {
         return (
@@ -58,10 +67,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
         );
     }
 
-    const login = async (email: string, password: string) => {
+    const signIn = async (data: object) => {
         setIsLoading(true);
         try {
-            const response = await authenticationApi().login({ email, password });
+            const response = await authenticationApi().signIn(data);
             if (response.error) {
                 throw new Error(response.error);
             } else {
@@ -73,14 +82,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
             console.error('Login failed:', error);
         } finally {
             setIsLoading(false);
-            setJustLoggedIn(true);
+            setJustSignedIn(true);
         }
     }
 
     const signUp = async (data: object) => {
         setIsLoading(true);
         try {
-            const response = await authenticationApi().register(data);
+            const response = await authenticationApi().signUp(data);
             if (response.error) {
                 throw new Error(response.error);
             } else {
@@ -89,23 +98,24 @@ export function AuthProvider({ children }: PropsWithChildren) {
                 setIsAuthenticated(true);
             }
         } catch (error) {
+            console.log("masuk disini", error)
             console.error('Registration failed:', error);
+            showToast();
         } finally {
             setIsLoading(false);
-            setJustLoggedIn(true);
+            setJustSignedIn(true);
         }
     }
 
-    const logout = async () => {
-        console.log("is triggered logout");
+    const signOut = async () => {
         await SecureStore.deleteItemAsync("accessToken");
         await SecureStore.deleteItemAsync("refreshToken");
         setIsAuthenticated(false);
-        setJustLoggedIn(false);
+        setJustSignedIn(false);
     };
 
     return (
-        <AuthContext.Provider value={{ login, signUp, logout, isAuthenticated, isLoading, justLoggedIn }}>
+        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn }}>
             {children}
         </AuthContext.Provider>
     )

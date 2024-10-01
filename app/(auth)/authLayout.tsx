@@ -1,6 +1,7 @@
 import { View, Text, ScrollView } from 'react-native'
 import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 type Props = {
     children: React.ReactNode;
@@ -9,31 +10,36 @@ type Props = {
 }
 
 const AuthLayout: React.FC<Props> = ({ children, headerContent, footerContent }) => {
-  return (
-    <SafeAreaView className="bg-background h-full flex-1">
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <View className="flex-1 justify-center px-8">
-                
-                {/* Header */}
-                <View>
-                    {headerContent}
-                </View>
+    return (
+        <SafeAreaView className="bg-background h-full flex-1" >
 
-                {/* Content */}
-                <View className='mt-4'>
-                    {children}
-                </View>
-
-                {/* Footer */}
-                <View style={{ flex: 1 }} className='mt-20' />
-                <View className="flex-row justify-center space-x-2 mb-8">
-                    {footerContent}
-                </View>
-
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+                <Toast topOffset={50} />
             </View>
-        </ScrollView>
-    </SafeAreaView>
-  )
+
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View className="flex-1 justify-center px-8">
+
+                    {/* Header */}
+                    <View>
+                        {headerContent}
+                    </View>
+
+                    {/* Content */}
+                    <View className='mt-4'>
+                        {children}
+                    </View>
+
+                    {/* Footer */}
+                    <View style={{ flex: 1 }} className='mt-20' />
+                    <View className="flex-row justify-center space-x-2 mb-8">
+                        {footerContent}
+                    </View>
+
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    )
 }
 
 export default AuthLayout
