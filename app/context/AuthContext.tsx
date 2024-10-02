@@ -80,7 +80,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const signUp = async (data: object) => {
         setIsLoading(true);
         try {
+            console.log("data" , data);
             const response = await authenticationApi().register(data);
+            console.log("response" , response);
             if (response.error) {
                 throw new Error(response.error);
             } else {

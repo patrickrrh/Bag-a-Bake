@@ -109,6 +109,13 @@ const Login = () => {
         isLoading={isSubmitting}
       />
 
+      <CustomButton
+        label='Tambahkan Produk'
+        handlePress={() => router.push('/(tabsSeller)/createProduct')} 
+        buttonStyles='mt-4'
+        isLoading={false} 
+      />
+
       {
         error && (
           <View className="mt-4 flex-row justify-center">

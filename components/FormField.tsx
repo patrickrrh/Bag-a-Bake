@@ -4,7 +4,7 @@ import TextFormLabel from './texts/TextFormLabel'
 import { images } from '@/constants/images'
 
 interface Props {
-    label: string;
+    label?: string;
     value: string;
     placeholder?: string;
     onChangeText: (text: string) => void;
@@ -18,7 +18,7 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
 
   return (
     <View className={`space-y-1 ${moreStyles}`}>
-      <TextFormLabel label={label} />
+      <TextFormLabel label={label || '          '} />
       <View className='w-full h-[40px] px-4 bg-white rounded-[8px] items-center border border-gray-200 focus:border-primary flex-row'>
         <TextInput
             className='flex-1 text-black text-base'
