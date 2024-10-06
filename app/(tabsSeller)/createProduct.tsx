@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
+import BackButton from '@/components/BackButton';
 import FormField from '@/components/FormField';
 import UploadButton from '@/components/UploadButton';
 import { Picker } from '@react-native-picker/picker';
@@ -49,9 +50,8 @@ const CreateProduct = () => {
     <SafeAreaView className="flex-1 p-4">
     <ScrollView contentContainerStyle={{ padding: 16 }}>
       {/* Back Button */}
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text>{'< Back'}</Text>
-      </TouchableOpacity>
+ 
+      <BackButton handlePress={() => console.log('Back button pressed')} />
 
       {/* Title */}
       <Text className="text-xl font-bold mt-4">Tambahkan Produk</Text>
@@ -70,7 +70,9 @@ const CreateProduct = () => {
       </View>
 
       {/* Upload Photo Button */}
-      <UploadButton label="Unggah Foto Produk" handlePress={pickImage} />
+      <View className="mt-4 w-full items-center">
+      <UploadButton label="Unggah Foto" handlePress={pickImage} />
+      </View>
 
      {/* Product Name Field */}
     <FormField

@@ -33,7 +33,7 @@ apiClient.interceptors.response.use(
                     return Promise.reject(error);
                 }
                 
-                const { data } = await apiClient.post("/refreshToken", { refreshToken });
+                const { data } = await apiClient.post("/refresh_token", { refreshToken });
 
                 await SecureStore.getItemAsync("accessToken", data.accessToken);
                 await SecureStore.getItemAsync("refreshToken", data.refreshToken);

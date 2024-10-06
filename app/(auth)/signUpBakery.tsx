@@ -15,7 +15,7 @@ import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
 import { useAuth } from '@/app/context/AuthContext'
 
-const SignUpToko = () => {
+const SignUpBakery = () => {
 
     const { signUp } = useAuth();
 
@@ -66,6 +66,7 @@ const SignUpToko = () => {
 
     const headerContent = (
         <>
+            <Button title='Go Back' onPress={() => router.back()}/>
             <TextHeader label="2/2 - Daftar Akun" />
             <View className='mt-2'>
                 <TextHeadline label="Selamat datang! Silakan lengkapi data toko Anda." />
@@ -161,4 +162,4 @@ const SignUpToko = () => {
     )
 }
 
-export default SignUpToko
+export default SignUpBakery

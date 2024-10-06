@@ -6,20 +6,20 @@ import SplashScreen from '@/components/SplashScreen'
 
 const Home = () => {
 
-  const { justLoggedIn } = useAuth();
+  const { justSignedIn } = useAuth();
   const [isSubmitting, setisSubmitting] = useState(false);
   const [isSplashVisible, setSplashVisible] = useState(false);
 
-  const { logout } = useAuth();
+  const { signOut } = useAuth();
 
   const handleLogout = async () => {
-    logout();
+    signOut();
   }
 
-  console.log("login status di home:", justLoggedIn)
+  console.log("login status di home:", justSignedIn)
 
   useEffect(() => {
-    if (!justLoggedIn) {
+    if (!justSignedIn) {
       setSplashVisible(true);
       const timer = setTimeout(() => {
         setSplashVisible(false);
@@ -27,7 +27,7 @@ const Home = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [justLoggedIn]);
+  }, [justSignedIn]);
 
   if (isSplashVisible) {
     return <SplashScreen />;

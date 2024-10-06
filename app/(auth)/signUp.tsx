@@ -15,14 +15,8 @@ import AuthLayout from './authLayout';
 const SignUp = () => {
 
   const [selectedRole, setSelectedRole] = useState(0)
-  const [form, setForm] = useState({
-    username: '',
-    telepon: '',
-    email: '',
-    password: ''
-  })
 
-  const [error, setError] = useState(null)
+  const [error, setError] = useState('')
 
   const [isSubmitting, setisSubmitting] = useState(false);
 
@@ -38,7 +32,7 @@ const SignUp = () => {
   const footerContent = (
     <>
       <TextHeadline label='Sudah memiliki akun?' />
-      <Link href="/(auth)/login">
+      <Link href="/(auth)/signIn">
         <TextLink label='Masuk disini' />
       </Link>
     </>
@@ -50,27 +44,20 @@ const SignUp = () => {
         <RoleCard
           label="Pembeli"
           isSelected={selectedRole === 1}
-          onPress={() => setSelectedRole(1)}
+          onPress={() => { 
+            setSelectedRole(1);
+            setError('');
+          }}
         />
         <RoleCard
           label="Pemilik Bakeri"
           isSelected={selectedRole === 2}
-          onPress={() => setSelectedRole(2)}
+          onPress={() => {
+            setSelectedRole(2);
+            setError('');
+          }}
         />
       </View>
-
-      <CustomButton
-        label='LANJUT'
-        handlePress={() => {
-          if (selectedRole === 1) {
-            router.push('/(auth)/signUpPembeli')
-          } else {
-            router.push('/(auth)/signUpPemilikBakeri')
-          }
-        }}
-        buttonStyles='mt-8 w-full'
-        isLoading={isSubmitting}
-      />
 
       {
         error && (
@@ -79,6 +66,27 @@ const SignUp = () => {
           </View>
         )
       }
+
+      <CustomButton
+        label='LANJUT'
+        handlePress={() => {
+          setisSubmitting(true)
+          if (selectedRole === 0) {
+            setError('Pilih peran Anda');
+            setisSubmitting(false);
+            return;
+          } else if (selectedRole === 1) {
+            router.push('/(auth)/signUpCustomer')
+            setisSubmitting(false);
+          } else if (selectedRole === 2) {
+            router.push('/(auth)/signUpBakeryOwner')
+            setisSubmitting(false);
+          }
+        }}
+        buttonStyles='mt-8 w-full'
+        isLoading={isSubmitting}
+      />
+      
     </AuthLayout >
   );
 }
