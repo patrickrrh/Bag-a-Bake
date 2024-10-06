@@ -14,42 +14,85 @@ import UploadButton from '@/components/UploadButton'
 import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
 import { useAuth } from '@/app/context/AuthContext'
+import CustomDropdown from '@/components/CustomDropdown'
+import regionApi from '@/api/regionApi';
+import { checkEmptyForm } from '@/utils/commonFunctions'
+import TextAreaField from '@/components/TextAreaField'
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { format, toZonedTime } from 'date-fns-tz';
+import TimeField from '@/components/TimeField'
+
+type ErrorState = {
+    bakeryName: string | null;
+    bakeryImage: string | null;
+    bakeryDescription: string | null;
+    bakeryPhoneNumber: string | null;
+    openingTime: string | null;
+    closingTime: string | null;
+    bakeryRegionId: number | null;
+};
+
+type Region = {
+    regionName: string;
+    regionId: number;
+};
 
 const SignUpBakery = () => {
 
     const { signUp } = useAuth();
 
     const router = useRouter();
-    const { username, email, password, profilePicture } = useLocalSearchParams();
+    const { userName, userPhoneNumber, email, password, userImage, roleId } = useLocalSearchParams();
 
     const [form, setForm] = useState({
-        namaToko: '',
-        jamBuka: '',
-        jamTutup: '',
-        alamatToko: '',
-        noTeleponToko: '',
-        deskripsiToko: '',
-        gambarToko: '',
+        bakeryName: '',
+        bakeryImage: '',
+        bakeryDescription: '',
+        bakeryPhoneNumber: '',
+        openingTime: '',
+        closingTime: '',
+        bakeryRegionId: 0,
     })
-    const [confirmPassword, setConfirmPassword] = useState('')
 
-    const [error, setError] = useState<string | null>(null)
+    const [region, setRegion] = useState<Region[]>([]);
+
+    const emptyError: ErrorState = {
+        bakeryName: null,
+        bakeryImage: null,
+        bakeryDescription: null,
+        bakeryPhoneNumber: null,
+        openingTime: null,
+        closingTime: null,
+        bakeryRegionId: null,
+    }
+    const [error, setError] = useState<ErrorState>(emptyError)
 
     const [isSubmitting, setisSubmitting] = useState(false);
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [timeFieldType, setTimeFieldType] = useState<'openingTime' | 'closingTime'>('openingTime');
 
-    const handleSignUpAPI = () => {
-        signUp(form);
-      };   
+    const handleGetRegionAPI = async () => {
+        try {
+            const response = await regionApi().getRegion();
+            if (response.status === 200) {
+                setRegion(response.data);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     useEffect(() => {
         setForm((prevForm) => ({
             ...prevForm,
-            username: username,
+            userName: userName,
+            userPhoneNumber: userPhoneNumber,
             email: email,
             password: password,
-            profilePicture: profilePicture,
+            userImage: userImage,
+            roleId: parseInt(roleId as string),
         }));
-    }, [username, email, password, profilePicture]);
+    }, [userName, userPhoneNumber, email, password, userImage, roleId]);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -59,14 +102,42 @@ const SignUpBakery = () => {
             quality: 1,
         })
 
+        if (result) {
+            setError((prevError) => ({
+                ...prevError,
+                bakeryImage: null
+            }))
+        }
+
         if (!result.canceled) {
-            setForm({ ...form, gambarToko: result.assets[0].uri })
+            setForm({ ...form, bakeryImage: result.assets[0].uri })
         }
     };
 
+
+    const handleSignUpAPI = () => {
+        try {
+            setisSubmitting(true);
+
+            const errors = checkEmptyForm(form);
+            if (Object.values(errors).some(error => error !== null)) {
+                setError(errors as ErrorState);
+                setisSubmitting(false);
+                return;
+            }
+
+            signUp(form);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setisSubmitting(false);
+        }
+    };
+
+    console.log("errorsnya", error)
+
     const headerContent = (
         <>
-            <Button title='Go Back' onPress={() => router.back()}/>
             <TextHeader label="2/2 - Daftar Akun" />
             <View className='mt-2'>
                 <TextHeadline label="Selamat datang! Silakan lengkapi data toko Anda." />
@@ -77,87 +148,142 @@ const SignUpBakery = () => {
     const footerContent = (
         <>
             <TextHeadline label='Sudah memiliki akun?' />
-            <Link href="/(auth)/login">
+            <Link href="/(auth)/signIn">
                 <TextLink label='Masuk disini' />
             </Link>
         </>
     );
 
+    useEffect(() => {
+        handleGetRegionAPI();
+    }, [])
+
+    console.log("form", form)
+
+    const showDatePicker = (type: 'openingTime' | 'closingTime') => {
+        setTimeFieldType(type);
+        setDatePickerVisibility(true);
+    };
+
+    const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+    };
+
+    const handleSelectTime = (time: any) => {
+        const timezone = toZonedTime(time, 'Asia/Jakarta');
+        const formattedTime = format(timezone, 'HH:mm');
+
+        if (timeFieldType === 'openingTime') {
+            setForm((prevForm) => ({ ...prevForm, openingTime: formattedTime }));
+            setError((prevError) => ({ ...prevError, openingTime: null }));
+        } else {
+            setForm((prevForm) => ({ ...prevForm, closingTime: formattedTime }));
+            setError((prevError) => ({ ...prevError, closingTime: null }));
+        }
+
+        hideDatePicker();
+    };
+    
+    console.log("region", region)
+
     return (
         <AuthLayout headerContent={headerContent} footerContent={footerContent}>
             <FormField
                 label='Nama Toko'
-                value={form.namaToko}
-                onChangeText={(text) => setForm({ ...form, namaToko: text })}
+                value={form.bakeryName}
+                onChangeText={(text) => {
+                    setForm((prevForm) => ({ ...prevForm, bakeryName: text }));
+                    setError((prevError) => ({ ...prevError, bakeryName: null }));
+                }}
                 keyboardType='default'
                 moreStyles='mt-7'
+                error={error.bakeryName}
             />
             <View className="flex-row space-x-4">
-                <View className="flex-1">
-                    <FormField
-                        label="Jam Buka"
-                        value={form.jamBuka}
-                        onChangeText={(text) => setForm({ ...form, jamBuka: text })}
-                        keyboardType="default"
-                        moreStyles="mt-7"
+                <View className='flex-1'>
+                    <TimeField
+                        label='Jam Buka'
+                        value={form.openingTime}
+                        onPress={() => showDatePicker('openingTime')}
+                        error={error.openingTime}
+                        moreStyles='mt-7'
                     />
                 </View>
                 <View className="flex-1">
-                    <FormField
-                        label="Jam Tutup"
-                        value={form.jamTutup}
-                        onChangeText={(text) => setForm({ ...form, jamTutup: text })}
-                        keyboardType="default"
-                        moreStyles="mt-7"
+                    <TimeField
+                        label='Jam Tutup'
+                        value={form.closingTime}
+                        onPress={() => showDatePicker('closingTime')}
+                        error={error.closingTime}
+                        moreStyles='mt-7'
                     />
                 </View>
             </View>
-            <FormField
-                label='Alamat Toko'
-                value={form.alamatToko}
-                onChangeText={(text) => setForm({ ...form, alamatToko: text })}
-                keyboardType='default'
+            <CustomDropdown
+                label='Lokasi'
+                value={form.bakeryRegionId.toString()}
+                data={region}
+                placeholder='Pilih lokasi toko Anda'
+                labelField='regionName'
+                valueField='regionId'
+                onChange={(text) => {
+                    setForm((prevForm) => ({ ...prevForm, bakeryRegionId: Number(text) }));
+                    setError((prevError) => ({ ...prevError, bakeryRegionId: null }));
+                }}
                 moreStyles='mt-7'
+                error={error.bakeryRegionId}
             />
             <FormField
-                label='Nomor Telepon'
-                value={form.noTeleponToko}
-                onChangeText={(text) => setForm({ ...form, noTeleponToko: text })}
+                label='Nomor Telepon Toko'
+                value={form.bakeryPhoneNumber}
+                onChangeText={(text) => {
+                    setForm((prevForm) => ({ ...prevForm, bakeryPhoneNumber: text }));
+                    setError((prevError) => ({ ...prevError, bakeryPhoneNumber: null }));
+                }}
                 keyboardType='phone-pad'
                 moreStyles='mt-7'
+                error={error.bakeryPhoneNumber}
             />
-            <FormField
+            <TextAreaField
                 label='Deskripsi Toko'
-                value={form.deskripsiToko}
-                onChangeText={(text) => setForm({ ...form, deskripsiToko: text })}
+                value={form.bakeryDescription}
+                onChangeText={(text) => {
+                    setForm((prevForm) => ({ ...prevForm, bakeryDescription: text }));
+                    setError((prevError) => ({ ...prevError, bakeryDescription: null }));
+                }}
                 keyboardType='default'
                 moreStyles='mt-7'
+                error={error.bakeryDescription}
             />
 
             <View className="mt-8 w-full flex-row space-x-4">
                 <UploadButton label="Unggah Foto" handlePress={pickImage} />
-                {form.gambarToko && (
-                    <View className="w-24 h-20 border border-gray-200">
+                {form.bakeryImage && (
+                    <View className="w-24 h-20">
                         <Image
-                            source={{ uri: form.gambarToko }}
+                            source={{ uri: form.bakeryImage }}
                             className="w-full h-full rounded-md"
                         />
                     </View>
                 )}
             </View>
+            {error.bakeryImage && (
+                <ErrorMessage label={error.bakeryImage} />
+            )}
 
             <CustomButton
                 label='Daftar'
-                handlePress={() => (1)}
+                handlePress={() => handleSignUpAPI()}
                 buttonStyles='mt-10 w-full'
                 isLoading={isSubmitting}
             />
 
-            {error && (
-                <View className="mt-4 flex-row justify-center w-full">
-                    <ErrorMessage label={error} />
-                </View>
-            )}
+            <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="time"
+                onConfirm={handleSelectTime}
+                onCancel={hideDatePicker}
+            />
         </AuthLayout>
     )
 }

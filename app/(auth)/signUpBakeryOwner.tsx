@@ -125,6 +125,7 @@ const SignUpBakeryOwner = () => {
 
             <FormField
                 label='Nama Pengguna'
+                value={form.userName}
                 onChangeText={(text) => {
                     setForm({ ...form, userName: text });
                     setError((prevError) => ({ ...prevError, userName: null }));
@@ -135,6 +136,7 @@ const SignUpBakeryOwner = () => {
             />
             <FormField
                 label='Nomor Telepon'
+                value={form.userPhoneNumber}
                 onChangeText={(text) => {
                     setForm({ ...form, userPhoneNumber: text });
                     setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
@@ -145,6 +147,7 @@ const SignUpBakeryOwner = () => {
             />
             <FormField
                 label='Email'
+                value={form.email}
                 onChangeText={(text) => {
                     setForm({ ...form, email: text });
                     setError((prevError) => ({ ...prevError, email: null }));
@@ -155,6 +158,7 @@ const SignUpBakeryOwner = () => {
             />
             <FormField
                 label='Password'
+                value={form.password}
                 onChangeText={(text) => {
                     setForm({ ...form, password: text });
                     setError((prevError) => ({ ...prevError, password: null }));
@@ -165,6 +169,7 @@ const SignUpBakeryOwner = () => {
             />
             <FormField
                 label='Konfirmasi Password'
+                value={confirmPassword}
                 onChangeText={(text) => {
                     setConfirmPassword(text);
                     setError((prevError) => ({ ...prevError, confirmPassword: null }));
@@ -175,7 +180,7 @@ const SignUpBakeryOwner = () => {
             />
 
             <CustomButton
-                label='Daftar'
+                label='Lanjut'
                 handlePress={() => checkForm()}
                 buttonStyles='mt-10 w-full'
                 isLoading={isSubmitting}

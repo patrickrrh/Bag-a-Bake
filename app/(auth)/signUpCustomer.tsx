@@ -154,6 +154,7 @@ const SignUpCustomer = () => {
 
             <FormField
                 label='Nama Pengguna'
+                value={form.userName}
                 onChangeText={(text) => {
                     setForm({ ...form, userName: text });
                     setError((prevError) => ({ ...prevError, userName: null }));
@@ -164,6 +165,7 @@ const SignUpCustomer = () => {
             />
             <FormField
                 label='Nomor Telepon'
+                value={form.userPhoneNumber}
                 onChangeText={(text) => {
                     setForm({ ...form, userPhoneNumber: text });
                     setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
@@ -175,6 +177,7 @@ const SignUpCustomer = () => {
             <CustomDropdown
                 label='Lokasi'
                 data={region}
+                value={form.regionId.toString()}
                 placeholder='Pilih lokasi Anda'
                 labelField='regionName'
                 valueField='regionId'
@@ -187,15 +190,18 @@ const SignUpCustomer = () => {
             />
             <FormField
                 label='Email'
-                onChangeText={(text) => {setForm({ ...form, email: text });
-                setError((prevError) => ({ ...prevError, email: null }));
-            }}
+                value={form.email}
+                onChangeText={(text) => {
+                    setForm({ ...form, email: text });
+                    setError((prevError) => ({ ...prevError, email: null }));
+                }}
                 keyboardType='email-address'
                 moreStyles='mt-7'
                 error={error.email}
             />
             <FormField
                 label='Password'
+                value={form.password}
                 onChangeText={(text) => {
                     setForm({ ...form, password: text });
                     setError((prevError) => ({ ...prevError, password: null }));
@@ -206,6 +212,7 @@ const SignUpCustomer = () => {
             />
             <FormField
                 label='Konfirmasi Password'
+                value={confirmPassword}
                 onChangeText={(text) => {
                     setConfirmPassword(text);
                     setError((prevError) => ({ ...prevError, confirmPassword: null }));

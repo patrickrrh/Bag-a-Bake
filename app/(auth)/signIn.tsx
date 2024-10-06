@@ -95,6 +95,7 @@ const SignIn = () => {
     <AuthLayout headerContent={headerContent} footerContent={footerContent}>
       <FormField
         label='Email'
+        value={form.email}
         onChangeText={(text) => {
           setForm({ ...form, email: text });
           setError((prevError) => ({ ...prevError, email: null }));
@@ -105,6 +106,7 @@ const SignIn = () => {
       />
       <FormField
         label='Password'
+        value={form.password}
         onChangeText={(text) => {
           setForm({ ...form, password: text });
           setError((prevError) => ({ ...prevError, password: null }));
