@@ -51,11 +51,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     console.log("Auth Provider", isAuthenticated)
     console.log("Login Status:", justSignedIn)
 
-    const showToast = () => {
+    const showToast = (message: string) => {
+        console.log("is toast called")
         Toast.show({
             type: 'error',
             text1: 'Oops!',
-            text2:  'error',
+            text2: message,
         });
     }
 
@@ -80,9 +81,14 @@ export function AuthProvider({ children }: PropsWithChildren) {
             }
         } catch (error) {
             console.error('Login failed:', error);
+            if (error instanceof Error) {
+                showToast(error.message);
+            } else {
+                showToast('An unexpected error occurred');
+            }
         } finally {
             setIsLoading(false);
-            setJustSignedIn(true);
+            setJustSignedIn(true);  
         }
     }
 
@@ -100,7 +106,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
         } catch (error) {
             console.log("masuk disini", error)
             console.error('Registration failed:', error);
-            showToast();
         } finally {
             setIsLoading(false);
             setJustSignedIn(true);
@@ -116,6 +121,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     return (
         <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn }}>
+            <Toast />
             {children}
         </AuthContext.Provider>
     )

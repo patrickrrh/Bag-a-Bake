@@ -8,6 +8,7 @@ import { Dropdown } from 'react-native-element-dropdown'
 interface Props {
     label: string;
     data: any[];
+    value: string;
     placeholder: string;
     labelField: string;
     valueField: string;
@@ -16,14 +17,15 @@ interface Props {
     error?: number | string | null;
 }
 
-const CustomDropdown: React.FC<Props> = ({ label, data, placeholder, labelField, valueField, onChange, moreStyles, error }) => {
-
+const CustomDropdown: React.FC<Props> = ({ label, data, value, placeholder, labelField, valueField, onChange, moreStyles, error }) => {
+    console.log("value", value)
     return (
         <View className={`space-y-1 ${moreStyles}`}>
             <TextFormLabel label={label} />
             <View className={`w-full h-[40px] bg-white rounded-[8px] border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex justify-center`}>
                 <Dropdown
                     data={data}
+                    value={value}
                     labelField={labelField}
                     valueField={valueField}
                     placeholder={placeholder}
@@ -45,13 +47,13 @@ const CustomDropdown: React.FC<Props> = ({ label, data, placeholder, labelField,
                     }}
                     placeholderStyle={{
                         fontSize: 14,
-                        color: '#aaa',
+                        color: '#828282',
                         textAlignVertical: 'center',
                     }}
                 />
             </View>
             {error && (
-                <ErrorMessage label={error} />
+                <ErrorMessage label={error as string} />
             )}
 
         </View>
