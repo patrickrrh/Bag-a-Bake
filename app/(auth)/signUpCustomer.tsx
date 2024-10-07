@@ -107,12 +107,9 @@ const SignUpCustomer = () => {
     };
 
     const headerContent = (
-        <>
+        <View className='items-center'>
             <TextHeader label="Daftar Akun" />
-            <View className='mt-2'>
-                <TextHeadline label="Selamat datang! Silakan lengkapi data Anda." />
-            </View>
-        </>
+        </View>
     )
 
     const footerContent = (
@@ -155,6 +152,7 @@ const SignUpCustomer = () => {
             <FormField
                 label='Nama Pengguna'
                 value={form.userName}
+                // placeholder='Masukkan Nama Anda'
                 onChangeText={(text) => {
                     setForm({ ...form, userName: text });
                     setError((prevError) => ({ ...prevError, userName: null }));
@@ -166,6 +164,7 @@ const SignUpCustomer = () => {
             <FormField
                 label='Nomor Telepon'
                 value={form.userPhoneNumber}
+                // placeholder='Masukkan Nomor Telepon Anda'
                 onChangeText={(text) => {
                     setForm({ ...form, userPhoneNumber: text });
                     setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
@@ -191,6 +190,7 @@ const SignUpCustomer = () => {
             <FormField
                 label='Email'
                 value={form.email}
+                // placeholder='Masukkan Email Anda'
                 onChangeText={(text) => {
                     setForm({ ...form, email: text });
                     setError((prevError) => ({ ...prevError, email: null }));
@@ -201,6 +201,7 @@ const SignUpCustomer = () => {
             />
             <FormField
                 label='Password'
+                // placeholder='Masukkan Password Anda'
                 value={form.password}
                 onChangeText={(text) => {
                     setForm({ ...form, password: text });
@@ -212,6 +213,7 @@ const SignUpCustomer = () => {
             />
             <FormField
                 label='Konfirmasi Password'
+                // placeholder='Konfirmasi Password Anda'
                 value={confirmPassword}
                 onChangeText={(text) => {
                     setConfirmPassword(text);

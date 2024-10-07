@@ -24,8 +24,9 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
       <View className={`w-full h-[40px] px-4 bg-white rounded-[8px] items-center border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row`}>
         <TextInput
           className='flex-1 text-black text-base'
-          style={{ fontFamily: "poppinsRegular" }}
+          style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
           value={value as any}
+          placeholder={placeholder}
           placeholderTextColor={"#828282"}
           onChangeText={onChangeText}
           secureTextEntry={(label === "Password" || label === "Konfirmasi Password") && !showPassword}

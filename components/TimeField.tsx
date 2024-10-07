@@ -27,7 +27,7 @@ const TimeField: React.FC<Props> = ({ label, value, onPress, moreStyles, error }
               value
             ) : (
               <Text className='text-gray-400'>
-                Pilih Waktu
+                00:00
               </Text>
             )}
           </Text>

@@ -47,7 +47,7 @@ const CustomDropdown: React.FC<Props> = ({ label, data, value, placeholder, labe
                     }}
                     placeholderStyle={{
                         fontSize: 14,
-                        color: '#aaa',
+                        color: '#828282',
                         textAlignVertical: 'center',
                     }}
                 />

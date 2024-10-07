@@ -21,6 +21,8 @@ import TextAreaField from '@/components/TextAreaField'
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format, toZonedTime } from 'date-fns-tz';
 import TimeField from '@/components/TimeField'
+import BackButton from '@/components/BackButton'
+import ProgressBar from '@/components/ProgressBar'
 
 type ErrorState = {
     bakeryName: string | null;
@@ -138,9 +140,14 @@ const SignUpBakery = () => {
 
     const headerContent = (
         <>
-            <TextHeader label="2/2 - Daftar Akun" />
-            <View className='mt-2'>
-                <TextHeadline label="Selamat datang! Silakan lengkapi data toko Anda." />
+            <View className="flex-row items-center justify-between w-full space-x-4">
+                <BackButton />
+                <View className="flex-1 mx-2">
+                    <ProgressBar progress={0.5} />
+                </View>
+            </View>
+            <View className='items-center'>
+                <TextHeader label="Daftar Akun" />
             </View>
         </>
     )
@@ -183,7 +190,7 @@ const SignUpBakery = () => {
 
         hideDatePicker();
     };
-    
+
     console.log("region", region)
 
     return (

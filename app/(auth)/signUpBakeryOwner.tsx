@@ -14,6 +14,7 @@ import UploadButton from '@/components/UploadButton'
 import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
 import { checkEmptyForm } from '@/utils/commonFunctions'
+import ProgressBar from '@/components/ProgressBar'
 
 type ErrorState = {
     userName: string | null;
@@ -85,9 +86,9 @@ const SignUpBakeryOwner = () => {
 
     const headerContent = (
         <>
-            <TextHeader label="1/2 - Daftar Akun" />
-            <View className='mt-2'>
-                <TextHeadline label="Selamat datang! Silakan lengkapi data Anda." />
+            <ProgressBar progress={0.1} />
+            <View className='items-center'>
+                <TextHeader label="Daftar Akun" />
             </View>
         </>
     )
