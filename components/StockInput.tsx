@@ -4,10 +4,9 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-nativ
 interface Props {
   form: { stock: number };
   setForm: React.Dispatch<React.SetStateAction<any>>; 
-  moreStyles?: object;
 }
 
-const StockInput: React.FC<Props> = ({ form, setForm, moreStyles }) => {
+const StockInput: React.FC<Props> = ({ form, setForm }) => {
 
   const handleDecrement = () => {
     if (form.stock > 1) {
@@ -21,7 +20,7 @@ const StockInput: React.FC<Props> = ({ form, setForm, moreStyles }) => {
   };
 
   return (
-    <View style={[styles.container, moreStyles]}>
+    <View style={[styles.container]}>
       <TouchableOpacity
         onPress={() => setForm((prev: any) => ({ ...prev, stock: Math.max(1, form.stock - 1) }))}
         style={styles.roundButton}

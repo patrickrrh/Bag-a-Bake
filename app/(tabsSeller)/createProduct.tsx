@@ -153,7 +153,6 @@ const CreateProduct = () => {
       <StockInput
         form={form}
         setForm={setForm}
-        moreStyles={{ flexDirection: 'row', alignItems: 'center' }} 
       />
 
       {/* Add Product Button */}
