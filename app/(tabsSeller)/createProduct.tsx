@@ -7,6 +7,7 @@ import CustomButton from '@/components/CustomButton';
 import BackButton from '@/components/BackButton';
 import FormField from '@/components/FormField';
 import UploadButton from '@/components/UploadButton';
+import StockInput from '@/components/StockInput';
 import { Picker } from '@react-native-picker/picker';
 import SellerLayout from './sellerLayout';
 
@@ -22,7 +23,7 @@ const CreateProduct = () => {
     discountDay1: '',
     discountDay2: '',
     discountDay3: '',
-    stock: 0,
+    stock: 1,
     productPhoto: '',
   });
 
@@ -51,7 +52,7 @@ const CreateProduct = () => {
     <ScrollView contentContainerStyle={{ padding: 16 }}>
       {/* Back Button */}
  
-      <BackButton handlePress={() => console.log('Back button pressed')} />
+      <BackButton />
 
       {/* Title */}
       <Text className="text-xl font-bold mt-4">Tambahkan Produk</Text>
@@ -149,26 +150,11 @@ const CreateProduct = () => {
 
       {/* Stock Field */}
       <Text className="mt-4">Jumlah Stok</Text>
-      <View className="flex-row items-center">
-        <TouchableOpacity
-          onPress={() => setForm({ ...form, stock: Math.max(0, form.stock - 1) })}
-          className="p-2 bg-gray-300 rounded-full"
-        >
-          <Text>-</Text>
-        </TouchableOpacity>
-        <TextInput
-          value={form.stock.toString()}
-          onChangeText={(text) => setForm({ ...form, stock: parseInt(text) || 0 })}
-          keyboardType="numeric"
-          style={{ textAlign: 'center', marginHorizontal: 8, flex: 1 }}
-        />
-        <TouchableOpacity
-          onPress={() => setForm({ ...form, stock: form.stock + 1 })}
-          className="p-2 bg-gray-300 rounded-full"
-        >
-          <Text>+</Text>
-        </TouchableOpacity>
-      </View>
+      <StockInput
+        form={form}
+        setForm={setForm}
+        moreStyles={{ flexDirection: 'row', alignItems: 'center' }} 
+      />
 
       {/* Add Product Button */}
       <CustomButton
