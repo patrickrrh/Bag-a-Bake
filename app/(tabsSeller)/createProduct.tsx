@@ -191,7 +191,6 @@ const CreateProduct = () => {
                 onChangeText={(text) =>
                   setForm({ ...form, stock: parseInt(text) || 1 })
                 }
-                placeholder="Enter stock amount"
               />
             </View>
           </View>
