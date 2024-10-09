@@ -15,6 +15,9 @@ import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
 import { checkEmptyForm } from '@/utils/commonFunctions'
 import ProgressBar from '@/components/ProgressBar'
+import authenticationApi from '@/api/authenticationApi';
+import { showToast } from '@/utils/toastUtils'
+import BackButton from '@/components/BackButton'
 
 type ErrorState = {
     userName: string | null;
@@ -47,28 +50,43 @@ const SignUpBakeryOwner = () => {
 
     const [isSubmitting, setisSubmitting] = useState(false);
 
-    const checkForm = () => {
-        setisSubmitting(true);
-        const errors = checkEmptyForm(form, confirmPassword);
-        if (Object.values(errors).some(error => error !== null)) {
-            setError(errors as ErrorState);
-            setisSubmitting(false);
-            return;
-        }
-        if (form.password !== confirmPassword) {
-            setError((prevError) => ({
-                ...prevError,
-                confirmPassword: 'Password tidak cocok',
-            }));
-            setisSubmitting(false);
-            return;
-        }
+    const checkForm = async () => {
+        try {
+            setisSubmitting(true);
+            
+            const errors = checkEmptyForm(form, confirmPassword);
+            if (Object.values(errors).some(error => error !== null)) {
+                setError(errors as ErrorState);
+                setisSubmitting(false);
+                return;
+            }
+            if (form.password !== confirmPassword) {
+                setError((prevError) => ({
+                    ...prevError,
+                    confirmPassword: 'Password tidak cocok',
+                }));
+                setisSubmitting(false);
+                return;
+            }
 
-        router.push({
-            pathname: '/(auth)/signUpBakery' as any,
-            params: { ...form },
-        })
-        setisSubmitting(false);
+            const res = await authenticationApi().isEmailRegistered({
+                email: form.email,
+            })
+
+            if (res.error) {
+                showToast('error', res.error);
+                return
+            } else {
+                router.push({
+                    pathname: '/(auth)/signUpBakery' as any,
+                    params: { ...form },
+                })
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setisSubmitting(false);
+        }
     }
 
     const pickImage = async () => {
@@ -86,7 +104,12 @@ const SignUpBakeryOwner = () => {
 
     const headerContent = (
         <>
-            <ProgressBar progress={0.1} />
+            <View className="flex-row items-center justify-between w-full space-x-4">
+                <BackButton />
+                <View className="flex-1 mx-2">
+                    <ProgressBar progress={0.1} />
+                </View>
+            </View>
             <View className='items-center'>
                 <TextHeader label="Daftar Akun" />
             </View>

@@ -43,7 +43,6 @@ const SignUpBakery = () => {
 
     const { signUp } = useAuth();
 
-    const router = useRouter();
     const { userName, userPhoneNumber, email, password, userImage, roleId } = useLocalSearchParams();
 
     const [form, setForm] = useState({
@@ -136,8 +135,6 @@ const SignUpBakery = () => {
         }
     };
 
-    console.log("errorsnya", error)
-
     const headerContent = (
         <>
             <View className="flex-row items-center justify-between w-full space-x-4">
@@ -190,8 +187,6 @@ const SignUpBakery = () => {
 
         hideDatePicker();
     };
-
-    console.log("region", region)
 
     return (
         <AuthLayout headerContent={headerContent} footerContent={footerContent}>

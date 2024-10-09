@@ -17,6 +17,9 @@ import { useAuth } from '@/app/context/AuthContext'
 import regionApi from '@/api/regionApi';
 import CustomDropdown from '@/components/CustomDropdown'
 import { checkEmptyForm } from '@/utils/commonFunctions'
+import authenticationApi from '@/api/authenticationApi';
+import { showToast } from '@/utils/toastUtils'
+import BackButton from '@/components/BackButton'
 
 type ErrorState = {
     userName: string | null;
@@ -68,7 +71,7 @@ const SignUpCustomer = () => {
         }
     }
 
-    const handleSignUpAPI = () => {
+    const handleSignUpAPI = async () => {
         try {
             setisSubmitting(true);
 
@@ -83,6 +86,17 @@ const SignUpCustomer = () => {
                     confirmPassword: 'Password tidak cocok',
                 }));
                 return;
+            }
+
+            const res = await authenticationApi().isEmailRegistered({
+                email: form.email,
+            })
+
+            if (res.error) {
+                showToast('error', res.error);
+                return
+            } else {
+                signUp(form);
             }
 
             signUp(form);
@@ -107,8 +121,11 @@ const SignUpCustomer = () => {
     };
 
     const headerContent = (
-        <View className='items-center'>
-            <TextHeader label="Daftar Akun" />
+        <View className="flex-row">
+            <BackButton />
+            <View className="flex-1 items-center pr-3">
+                <TextHeader label="Daftar Akun" />
+            </View>
         </View>
     )
 
@@ -124,8 +141,6 @@ const SignUpCustomer = () => {
     useEffect(() => {
         handleGetRegionAPI();
     }, []);
-
-    console.log("Form", form)
 
     return (
         <AuthLayout headerContent={headerContent} footerContent={footerContent}>
