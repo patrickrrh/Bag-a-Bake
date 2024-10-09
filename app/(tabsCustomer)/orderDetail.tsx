@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const OrderDetail = () => {
 
     const foodItems = [
-        { id: 1, name: "Nama Makanan 1", price: 40000, quantity : 1 },
+        { id: 1, name: "Nama Makanan 1", price: 90000, quantity : 1 },
         { id: 2, name: "Nama Makanan 2", price: 30000, quantity : 2 },
         { id: 3, name: "Nama Makanan 3", price: 50000, quantity: 3},
     ];
