@@ -51,8 +51,9 @@ const TabsCustomerLayout = () => {
             )
           }}
         />
+
         <Tabs.Screen
-          name="productDetail"
+          name="pesanan"
           options={{
             title: "Pesanan",
             headerShown: false,
@@ -66,6 +67,71 @@ const TabsCustomerLayout = () => {
             ),
           }}
         />
+
+        <Tabs.Screen
+          name="favorite"
+          options={{ 
+            title: 'Favorite',
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.favorite}
+                color={color}
+                name="Favorite"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="Profile"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="orderPage"
+          options={{
+            title: "Create",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="Create"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="orderDetail"
+          options={{
+            title: "Detail",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="Detail"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
       </Tabs>
     </>
   );

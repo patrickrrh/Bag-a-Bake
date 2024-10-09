@@ -64,6 +64,10 @@ const SignIn = () => {
     signOut();
   }
 
+  const handleCustomerPage = () => {
+    router.push('/(tabsCustomer)/home');
+  }
+
   const headerContent = (
     <>
       <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
@@ -140,6 +144,20 @@ const SignIn = () => {
         label='logout sementara'
         handlePress={handleSignOut}
         buttonStyles='mt-4'
+        isLoading={isSubmitting}
+      />
+
+      <CustomButton 
+        label='customerpage' 
+        handlePress={handleCustomerPage} 
+        buttonStyles='mt-4' 
+        isLoading={isSubmitting}
+      />
+
+      <CustomButton 
+        label='customerpage' 
+        handlePress={handleCustomerPage} 
+        buttonStyles='mt-4' 
         isLoading={isSubmitting}
       />
 
