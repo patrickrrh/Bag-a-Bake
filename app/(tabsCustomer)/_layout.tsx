@@ -53,7 +53,7 @@ const TabsCustomerLayout = () => {
         />
 
         <Tabs.Screen
-          name="pesanan"
+          name="order"
           options={{
             title: "Pesanan",
             headerShown: false,
@@ -69,15 +69,15 @@ const TabsCustomerLayout = () => {
         />
 
         <Tabs.Screen
-          name="favorite"
+          name="store"
           options={{ 
-            title: 'Favorite',
+            title: "Store",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.favorite}
+                icon={icons.store}
                 color={color}
-                name="Favorite"
+                name="Toko"
                 focused={focused}
               />
             ),
@@ -93,7 +93,7 @@ const TabsCustomerLayout = () => {
               <TabIcon
                 icon={icons.profile}
                 color={color}
-                name="Profile"
+                name="Profil"
                 focused={focused}
               />
             ),
@@ -126,6 +126,22 @@ const TabsCustomerLayout = () => {
                 icon={icons.profile}
                 color={color}
                 name="Detail"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="orderHistory"
+          options={{
+            title: "History",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="History"
                 focused={focused}
               />
             ),
