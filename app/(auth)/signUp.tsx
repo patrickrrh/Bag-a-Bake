@@ -11,6 +11,7 @@ import CustomButton from '@/components/CustomButton';
 import ErrorMessage from '@/components/texts/ErrorMessage';
 import RoleCard from '@/components/RoleCard';
 import AuthLayout from './authLayout';
+import BackButton from '@/components/BackButton';
 
 const SignUp = () => {
 
@@ -21,13 +22,18 @@ const SignUp = () => {
   const [isSubmitting, setisSubmitting] = useState(false);
 
   const headerContent = (
-    <>
-      <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
-      <View className="mt-16">
-        <TextHeader label="Pilih Peran Anda" />
+    <View className="flex-row">
+      <BackButton />
+      <View className="flex-1 items-center pr-3">
+        <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
+        <View className="mt-16">
+          <TextHeader label="Pilih Peran Anda" />
+        </View>
       </View>
-    </>
-  )
+    </View>
+  );
+
+
 
   const footerContent = (
     <>
@@ -44,7 +50,7 @@ const SignUp = () => {
         <RoleCard
           label="Pembeli"
           isSelected={selectedRole === 1}
-          onPress={() => { 
+          onPress={() => {
             setSelectedRole(1);
             setError('');
           }}
@@ -86,7 +92,7 @@ const SignUp = () => {
         buttonStyles='mt-8 w-full'
         isLoading={isSubmitting}
       />
-      
+
     </AuthLayout >
   );
 }

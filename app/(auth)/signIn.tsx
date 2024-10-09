@@ -16,6 +16,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useAuth } from '@/app/context/AuthContext';
 import SplashScreen from '@/components/SplashScreen';
 import { checkEmptyForm } from '@/utils/commonFunctions';
+import Toast from 'react-native-toast-message';
 
 type ErrorState = {
   email: string | null;
@@ -42,15 +43,21 @@ const SignIn = () => {
   const [isSplashVisible, setisSplashVisible] = useState(true);
 
   const handleSignInAPI = () => {
-    setisSubmitting(true);
-
-    const errors = checkEmptyForm(form);
-    if (Object.values(errors).some(error => error !== null)) {
-      setError(errors as ErrorState);
-      return;
+    try {
+      setisSubmitting(true);
+  
+      const errors = checkEmptyForm(form);
+      if (Object.values(errors).some(error => error !== null)) {
+        setError(errors as ErrorState);
+        return;
+      }
+  
+      signIn(form);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setisSubmitting(false);
     }
-
-    signIn(form);
   };
 
   const handleSignOut = async () => {
@@ -64,11 +71,11 @@ const SignIn = () => {
   const headerContent = (
     <>
       <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
-      <View className="mt-16">
+      <View className="mt-16 items-center">
         <TextHeader label="Selamat Datang" />
-        <View className='mt-2'>
+        {/* <View className='mt-2'>
           <TextHeadline label="Masuk akun Bag a Bake Anda" />
-        </View>
+        </View> */}
       </View>
     </>
   )
@@ -97,8 +104,10 @@ const SignIn = () => {
   return (
 
     <AuthLayout headerContent={headerContent} footerContent={footerContent}>
+      <Toast />
       <FormField
         label='Email'
+        value={form.email}
         onChangeText={(text) => {
           setForm({ ...form, email: text });
           setError((prevError) => ({ ...prevError, email: null }));
@@ -109,6 +118,7 @@ const SignIn = () => {
       />
       <FormField
         label='Password'
+        value={form.password}
         onChangeText={(text) => {
           setForm({ ...form, password: text });
           setError((prevError) => ({ ...prevError, password: null }));
@@ -144,13 +154,19 @@ const SignIn = () => {
         isLoading={isSubmitting}
       />
 
-      {/* {
-        error && (
-          <View className="mt-4 flex-row justify-center">
-            <ErrorMessage label={error} />
-          </View>
-        )
-      } */}
+      <CustomButton 
+        label='customerpage' 
+        handlePress={handleCustomerPage} 
+        buttonStyles='mt-4' 
+        isLoading={isSubmitting}
+      />
+
+      <CustomButton
+        label='Tambahkan Produk'
+        handlePress={() => router.push('/(tabsSeller)/createProduct')} 
+        buttonStyles='mt-4'
+        isLoading={false} 
+      />
     </AuthLayout>
 
   );

@@ -11,6 +11,7 @@ import TextFormLabel from '@/components/texts/TextFormLabel';
 import TextOrangeBold from '@/components/texts/TextOrangeBold';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import CustomButton from '@/components/CustomButton';
+import StockInput from '@/components/StockInput';
 
 const OrderPage = () => {
 
@@ -20,6 +21,15 @@ const OrderPage = () => {
   //     productId: 1,
   //   });
   // }
+  const [form, setForm] = useState({
+    userId: 0,
+    orderTotalPrice: 0,
+    orderDetail: [{
+      productId: 0,
+      productQuantity: 0,
+      productTotalPrice: 0
+    }],
+  })
 
   return (
     <View>
@@ -85,7 +95,7 @@ const OrderPage = () => {
           <View className="flex-row items-center justify-between mt-5">
             <TextTitle3 label={"Jumlah Pembelian"} />
 
-            <Text>Hello World</Text>
+            {/* <StockInput form={{ form }} setForm={(setForm) => {}} /> */}
           </View>
 
           {/* <CustomButton 

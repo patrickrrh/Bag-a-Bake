@@ -19,6 +19,11 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
 
 export default function productApi() {
     return {
-        getProductById: createApiFunction("post", "/get/product/id"),
+        createProduct: createApiFunction("post", "create/product"),
+        getProductById: createApiFunction("post", "get/product/id"),
+        updateProductById: createApiFunction("put", "edit/product/id"),
+        searchProductByKeyword: createApiFunction("get", "search/product"),
+        deleteProductById: createApiFunction("delete", "delete/product/id"),
+        getProductsByCategory: createApiFunction("post", "get/products/category"),
     }
 }
