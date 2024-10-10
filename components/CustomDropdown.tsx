@@ -40,15 +40,24 @@ const CustomDropdown: React.FC<Props> = ({ label, data, value, placeholder, labe
                     inputSearchStyle={{
                         height: 40,
                         fontSize: 16,
+                        fontFamily: "poppinsRegular",
                     }}
                     selectedTextStyle={{
                         fontSize: 14,
+                        fontFamily: "poppinsRegular",
                         color: '#000',
                     }}
                     placeholderStyle={{
                         fontSize: 14,
+                        fontFamily: "poppinsRegular",
                         color: '#828282',
                         textAlignVertical: 'center',
+                    }}
+                    itemTextStyle={{
+                        fontSize: 14,
+                        color: '#000', 
+                        fontFamily: "poppinsRegular", 
+                        textAlign: 'left', 
                     }}
                 />
             </View>

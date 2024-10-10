@@ -18,6 +18,7 @@ const BackButton: React.FC = () => {
             <Image
                 source={require('@/assets/images/backIcon.png')}
                 style={styles.image}
+                resizeMode="contain"
             />
         </TouchableOpacity>
     );
@@ -27,12 +28,11 @@ const styles = StyleSheet.create({
     button: {
         justifyContent: 'center',
         alignItems: 'center',
-        width: 15,
+        width: 10,
         height: 24,
     },
     image: {
-        height: '100%', 
-        width: 15, 
+        width: 10, 
         tintColor: '#000', 
     },
 });

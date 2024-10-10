@@ -51,8 +51,9 @@ const TabsCustomerLayout = () => {
             )
           }}
         />
+
         <Tabs.Screen
-          name="productDetail"
+          name="order"
           options={{
             title: "Pesanan",
             headerShown: false,
@@ -66,6 +67,87 @@ const TabsCustomerLayout = () => {
             ),
           }}
         />
+
+        <Tabs.Screen
+          name="store"
+          options={{ 
+            title: "Store",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.store}
+                color={color}
+                name="Toko"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="profile"
+          options={{
+            title: "Profile",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="Profil"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="orderPage"
+          options={{
+            title: "Create",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="Create"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="orderDetail"
+          options={{
+            title: "Detail",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="Detail"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="orderHistory"
+          options={{
+            title: "History",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="History"
+                focused={focused}
+              />
+            ),
+          }}
+        />
+
       </Tabs>
     </>
   );
