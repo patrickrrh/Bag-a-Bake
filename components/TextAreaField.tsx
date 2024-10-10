@@ -14,7 +14,7 @@ interface Props {
   error?: string | null;
 }
 
-const TexrAreaField: React.FC<Props> = ({ label, value, placeholder, onChangeText, moreStyles, keyboardType, error }) => {
+const TextAreaField: React.FC<Props> = ({ label, value, placeholder, onChangeText, moreStyles, keyboardType, error }) => {
 
   return (
     <View className={`space-y-1 ${moreStyles}`}>
@@ -22,7 +22,7 @@ const TexrAreaField: React.FC<Props> = ({ label, value, placeholder, onChangeTex
       <View className={`w-full px-4 bg-white rounded-[8px] items-center border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row`}>
         <TextInput
           className='flex-1 text-black text-base pt-2'
-          style={{ fontFamily: "poppinsRegular" }}
+          style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
           value={value as any}
           placeholder={placeholder}
           placeholderTextColor={"#828282"}
@@ -42,4 +42,4 @@ const TexrAreaField: React.FC<Props> = ({ label, value, placeholder, onChangeTex
   )
 }
 
-export default TexrAreaField
+export default TextAreaField
