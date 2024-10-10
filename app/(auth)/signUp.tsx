@@ -33,8 +33,6 @@ const SignUp = () => {
     </View>
   );
 
-
-
   const footerContent = (
     <>
       <TextHeadline label='Sudah memiliki akun?' />

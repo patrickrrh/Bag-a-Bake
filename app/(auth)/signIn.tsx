@@ -17,6 +17,7 @@ import { useAuth } from '@/app/context/AuthContext';
 import SplashScreen from '@/components/SplashScreen';
 import { checkEmptyForm } from '@/utils/commonFunctions';
 import Toast from 'react-native-toast-message';
+import { showToast } from '@/utils/toastUtils';
 
 type ErrorState = {
   email: string | null;
@@ -25,7 +26,7 @@ type ErrorState = {
 
 const SignIn = () => {
 
-  const { signIn, signOut } = useAuth();
+  const { signIn, signOut, justSignedIn } = useAuth();
 
   const emptyForm = {
     email: '',
@@ -42,19 +43,35 @@ const SignIn = () => {
   const [isSubmitting, setisSubmitting] = useState(false);
   const [isSplashVisible, setisSplashVisible] = useState(true);
 
-  const handleSignInAPI = () => {
+  const handleSignInAPI = async () => {
     try {
       setisSubmitting(true);
-  
+
       const errors = checkEmptyForm(form);
       if (Object.values(errors).some(error => error !== null)) {
         setError(errors as ErrorState);
         return;
       }
-  
-      signIn(form);
+
+      const res = await authenticationApi().checkAccount({
+        email: form.email,
+        password: form.password
+      })
+
+      console.log("res", res)
+
+      if (res.error) {
+        showToast('error', res.error);
+        return;
+      } else {
+        signIn({
+          userId: res.data.userId
+        });
+      }
+
     } catch (error) {
       console.log(error);
+      return;
     } finally {
       setisSubmitting(false);
     }
@@ -90,21 +107,26 @@ const SignIn = () => {
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setisSplashVisible(false);
-    }, 3000);
+    if (!justSignedIn) {
+      setisSplashVisible(true);
+      const timer = setTimeout(() => {
+        setisSplashVisible(false);
+      }, 3000);
 
-    return () => clearTimeout(timer);
-  }, []);
+      return () => clearTimeout(timer);
+    } else {
+      setisSplashVisible(false);
+    }
+  }, [justSignedIn]);
 
   if (isSplashVisible) {
     return <SplashScreen />;
   }
 
-  return (
+  console.log("form value", form)
 
+  return (
     <AuthLayout headerContent={headerContent} footerContent={footerContent}>
-      <Toast />
       <FormField
         label='Email'
         value={form.email}
@@ -135,7 +157,7 @@ const SignIn = () => {
 
       <CustomButton
         label='MASUK'
-        handlePress={handleSignInAPI}
+        handlePress={() => handleSignInAPI()}
         buttonStyles='mt-8'
         isLoading={isSubmitting}
       />
@@ -163,12 +185,11 @@ const SignIn = () => {
 
       <CustomButton
         label='Tambahkan Produk'
-        handlePress={() => router.push('/(tabsSeller)/createProduct')} 
+        handlePress={() => router.push('/(tabsSeller)/createProduct')}
         buttonStyles='mt-4'
-        isLoading={false} 
+        isLoading={false}
       />
     </AuthLayout>
-
   );
 };
 

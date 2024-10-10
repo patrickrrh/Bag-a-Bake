@@ -21,5 +21,7 @@ export default function registerApi() {
     return {
         signUp: createApiFunction("post", "sign_up"),
         signIn: createApiFunction("post", "sign_in"),
+        isEmailRegistered: createApiFunction("post", "is_email_registered"),
+        checkAccount: createApiFunction("post", "check_account"),
     }
 }
