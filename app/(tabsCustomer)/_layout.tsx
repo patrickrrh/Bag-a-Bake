@@ -148,6 +148,21 @@ const TabsCustomerLayout = () => {
           }}
         />
 
+        <Tabs.Screen
+          name="storeDetail"
+          options={{
+            title: "SDetail",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.profile}
+                color={color}
+                name="SDetail"
+                focused={focused}
+              />
+            ),
+          }}
+        />
       </Tabs>
     </>
   );
