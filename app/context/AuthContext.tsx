@@ -17,7 +17,7 @@ const AuthContext = createContext<{
     signOut: () => null,
     isAuthenticated: null,
     isLoading: false,
-    justSignedIn: false
+    justSignedIn: false,
 })
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -28,6 +28,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     useEffect(() => {
         const checkAuth = async () => {
+            console.log("is check auth called again")
             try {
                 setIsLoading(true);
                 const token = await SecureStore.getItemAsync("accessToken");
@@ -47,18 +48,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         checkAuth();
     }, []);
-
-    console.log("Auth Provider", isAuthenticated)
-    console.log("Login Status:", justSignedIn)
-
-    const showToast = (message: string) => {
-        console.log("is toast called")
-        Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: message,
-        });
-    }
 
     if (isLoading) {
         return (
@@ -81,14 +70,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
             }
         } catch (error) {
             console.error('Login failed:', error);
-            if (error instanceof Error) {
-                showToast(error.message);
-            } else {
-                showToast('An unexpected error occurred');
-            }
         } finally {
             setIsLoading(false);
-            setJustSignedIn(true);  
+            setJustSignedIn(true);
         }
     }
 
@@ -104,7 +88,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
                 setIsAuthenticated(true);
             }
         } catch (error) {
-            console.log("masuk disini", error)
             console.error('Registration failed:', error);
         } finally {
             setIsLoading(false);
@@ -116,12 +99,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
         await SecureStore.deleteItemAsync("accessToken");
         await SecureStore.deleteItemAsync("refreshToken");
         setIsAuthenticated(false);
-        setJustSignedIn(false);
+        setJustSignedIn(true);
     };
 
     return (
         <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn }}>
-            <Toast />
             {children}
         </AuthContext.Provider>
     )

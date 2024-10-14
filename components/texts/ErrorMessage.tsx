@@ -10,7 +10,7 @@ const ErrorMessage: React.FC<Props> = ({ label }) => {
     <View>
       <Text
         style={{ fontFamily: "poppinsMedium", fontSize: 14 }}
-        className='text-red-500'
+        className='text-red-500 mt-2'
       >
         {label}
       </Text>
