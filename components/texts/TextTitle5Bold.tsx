@@ -9,7 +9,7 @@ const TextTitle5Bold: React.FC<Props> = ({ label }) => {
   return (
     <View>
       <Text
-        style={{ fontFamily: "poppins", fontSize: 12, fontWeight: "bold" }}
+        style={{ fontFamily: "poppinsSemiBold", fontSize: 12 }}
         className='text-black'
       >
         {label}

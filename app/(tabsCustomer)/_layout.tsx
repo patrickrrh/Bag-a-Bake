@@ -69,15 +69,15 @@ const TabsCustomerLayout = () => {
         />
 
         <Tabs.Screen
-          name="store"
+          name="bakery"
           options={{ 
-            title: "Store",
+            title: "Bakery",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.store}
                 color={color}
-                name="Toko"
+                name="Bakery"
                 focused={focused}
               />
             ),

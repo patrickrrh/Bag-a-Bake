@@ -101,7 +101,7 @@ const SignIn = () => {
     <>
       <TextHeadline label="Belum memiliki akun?" />
       <Link href="/(auth)/signUp">
-        <TextLink label="Daftar disini" />
+        <TextLink label="Daftar disini" size={14} />
       </Link>
     </>
   );
@@ -151,7 +151,7 @@ const SignIn = () => {
 
       <View className="mt-6 flex-row justify-end">
         <Link href="/(auth)/signUp">
-          <TextLink label='Lupa Password?' />
+          <TextLink label='Lupa Password?' size={14} />
         </Link>
       </View>
 
@@ -166,13 +166,6 @@ const SignIn = () => {
         label='logout sementara'
         handlePress={handleSignOut}
         buttonStyles='mt-4'
-        isLoading={isSubmitting}
-      />
-
-      <CustomButton 
-        label='customerpage' 
-        handlePress={handleCustomerPage} 
-        buttonStyles='mt-4' 
         isLoading={isSubmitting}
       />
 
