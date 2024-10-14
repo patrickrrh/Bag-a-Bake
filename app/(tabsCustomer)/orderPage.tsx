@@ -12,6 +12,7 @@ import TextOrangeBold from '@/components/texts/TextOrangeBold';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import CustomButton from '@/components/CustomButton';
 import StockInput from '@/components/StockInput';
+import CustomOrderButton from '@/components/CustomOrderButton';
 
 const OrderPage = () => {
 
@@ -21,15 +22,40 @@ const OrderPage = () => {
   //     productId: 1,
   //   });
   // }
+
+  const productPrice = 20000;
+
   const [form, setForm] = useState({
     userId: 0,
     orderTotalPrice: 0,
-    orderDetail: [{
-      productId: 0,
-      productQuantity: 0,
-      productTotalPrice: 0
-    }],
-  })
+    orderDetail: [
+      {
+        productId: 0,
+        productQuantity: 2, // Initialize with a default value
+        productTotalPrice: productPrice * 2,
+      },
+    ],
+  });
+
+  const calculateTotalPrice = (quantity: number) => quantity * productPrice;
+
+  const handleStockChange = (quantity: string) => {
+    const updatedQuantity = parseInt(quantity) || 1; // Fallback to 1 if NaN
+    const updatedTotalPrice = calculateTotalPrice(updatedQuantity);
+
+    setForm((prevForm) => ({
+      ...prevForm,
+      orderDetail: [
+        {
+          ...prevForm.orderDetail[0],
+          productQuantity: updatedQuantity,
+          productTotalPrice: updatedTotalPrice,
+        },
+      ],
+    }));
+  };
+
+  const { productQuantity, productTotalPrice } = form.orderDetail[0];
 
   return (
     <View>
@@ -94,15 +120,23 @@ const OrderPage = () => {
 
           <View className="flex-row items-center justify-between mt-5">
             <TextTitle3 label={"Jumlah Pembelian"} />
-
-            {/* <StockInput form={{ form }} setForm={(setForm) => {}} /> */}
+            <StockInput
+              value={productQuantity} // Convert to string for input
+              onChangeText={handleStockChange}
+            />
           </View>
 
-          {/* <CustomButton 
-            label={"Bayar Sekarang"}         
-            handlePress={handleSignInAPI}
-            buttonStyles='mt-8'
-            isLoading={isSubmitting} /> */}
+          <View className="absolute bottom-0 left-0 right-0 mb-5 mx-5 ">
+            <CustomOrderButton
+              label="Tambahkan Pesanan"
+              price={productTotalPrice} // Pass total price as prop
+              handlePress={() => {
+                console.log('Order submitted:', form);
+              }}
+              buttonStyles="w-full"
+              isLoading={false}
+            />
+          </View>
         </View>
 
 
