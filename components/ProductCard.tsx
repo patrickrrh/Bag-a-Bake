@@ -24,7 +24,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => (
             shadowRadius: 5,
             marginBottom: 15,
             padding: 10,
-            width: '48%', // Ensure it takes half of the screen in grid layout
+            width: '48%',
         }}
     >
         <Image

@@ -3,13 +3,14 @@ import React from 'react'
 
 interface Props {
     label: string
+    size?: number
 }
 
-const TextLink: React.FC<Props> = ({ label }) => {
+const TextLink: React.FC<Props> = ({ label, size }) => {
   return (
     <View>
       <Text
-        style={{ fontFamily: "poppinsMedium", fontSize: 14 }}
+        style={{ fontFamily: "poppinsMedium", fontSize: size }}
         className='text-brown'
       >
         {label}

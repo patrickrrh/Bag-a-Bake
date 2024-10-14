@@ -17,8 +17,8 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
     }
 }
 
-export default function regionApi() {
+export default function categoryApi() {
     return {
-        getRegion: createApiFunction("get", "get/region"),
+        getCategory: createApiFunction("get", "get/category"),
     }
 }

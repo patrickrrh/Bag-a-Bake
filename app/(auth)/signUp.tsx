@@ -37,7 +37,7 @@ const SignUp = () => {
     <>
       <TextHeadline label='Sudah memiliki akun?' />
       <Link href="/(auth)/signIn">
-        <TextLink label='Masuk disini' />
+        <TextLink label='Masuk disini' size={14} />
       </Link>
     </>
   );

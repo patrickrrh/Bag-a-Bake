@@ -15,11 +15,15 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getItemAsync } from "expo-secure-store";
+import FilterButton from "@/components/FilterButton";
 
-const Toko = () => {
+const Bakery = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<number[]>([]); // Store favorite store ids
   const [showFavorites, setShowFavorites] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string[]>([]);
+
+  const [categoryModal, setCategoryModal] = useState(false);
 
   const stores = [
     {
@@ -47,13 +51,22 @@ const Toko = () => {
     return showFavorites ? isMatch && favorites.includes(store.id) : isMatch;
   });
 
-  // Toggle favorite state
   const toggleFavorite = (storeId: number) => {
     setFavorites((prevFavorites) =>
       prevFavorites.includes(storeId)
         ? prevFavorites.filter((id) => id !== storeId)
         : [...prevFavorites, storeId]
     );
+  };
+
+  const handleActiveFilter = (filter: string) => {
+    setActiveFilter((prevFilters) => {
+      if (prevFilters.includes(filter)) {
+        return prevFilters.filter(f => f !== filter);
+      } else {
+        return [...prevFilters, filter];
+      }
+    });
   };
 
   return (
@@ -66,7 +79,7 @@ const Toko = () => {
             style={{
               backgroundColor: showFavorites
                 ? "rgba(255, 0, 0, 0.2)"
-                : "rgba(0, 0, 0, 0.1)", 
+                : "rgba(0, 0, 0, 0.1)",
               borderRadius: 25,
               padding: 8,
             }}
@@ -74,13 +87,31 @@ const Toko = () => {
             <Ionicons
               name="heart"
               size={24}
-              color={showFavorites ? "red" : "gray"} 
+              color={showFavorites ? "red" : "gray"}
             />
           </TouchableOpacity>
         </View>
         <View className="mt-5">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Cari bakeri disini"
+          />
         </View>
+        
+        <View className="mt-5 flex-row">
+          <FilterButton
+            label="Dekat saya"
+            isSelected={activeFilter.includes("Dekat saya")}
+            onPress={() => handleActiveFilter("Dekat saya")}
+          />
+          <FilterButton
+            label="Kategori"
+            isSelected={activeFilter.includes("Kategori")}
+            onPress={() => handleActiveFilter("Kategori")}
+          />
+        </View>
+
         <View className="mt-5">
           <FlatList
             data={filteredStores}
@@ -93,27 +124,11 @@ const Toko = () => {
                       source={require("../../assets/images/bakery1.png")}
                       style={{ width: 68, height: 68, borderRadius: 10 }}
                     />
-
                     <View className="ml-4">
                       <TextTitle3 label={item.name} />
                       <TextTitle5Gray
                         label={"Distance: " + item.distance.toString() + " km"}
                       />
-                      {/* <View className="flex-row items-center">
-                              <View className='pr-1'>
-                                <Image 
-                                    source={require('../../assets/images/starFillIcon.png')}
-                                    style={{ width: 12, height: 12 }}
-                                />
-                              </View>
-                              <View className='pr-1 pt-1'>
-                                <TextRating label={"4.5"} />
-                              </View>
-                              <View className='pt-1'>
-                                <TextTitle5 label={"(20 ulasan)"} />
-                              </View>
-                            </View> */}
-
                       <View className="flex-row items-center">
                         <View className="pr-1">
                           <Image
@@ -127,7 +142,8 @@ const Toko = () => {
                       </View>
                     </View>
                     <View className="align-items-end pl-5">
-                      <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+                      {/* <TouchableOpacity onPress={() => toggleFavorite(item.id)}> */}
+                      <TouchableOpacity onPress={() => setCategoryModal(true)}>
                         <Ionicons
                           name={
                             favorites.includes(item.id)
@@ -146,8 +162,10 @@ const Toko = () => {
           />
         </View>
       </View>
+
+
     </SafeAreaView>
   );
 };
 
-export default Toko;
+export default Bakery;
