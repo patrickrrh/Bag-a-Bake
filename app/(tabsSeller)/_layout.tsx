@@ -6,8 +6,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import CreateProduct from './createProduct';
 import Home from './home';
 import ListProduct from './listProduct';
-import Orders from './orders';
+import Order from './order';
 import Profile from './profile';
+import OrderDetail from './orderDetail';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -15,19 +16,36 @@ const Stack = createNativeStackNavigator();
 const ListProductStack = () => {
   return (
     <Stack.Navigator>
-      <Stack.Screen 
-        name="ListProduct" 
-        component={ListProduct} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="ListProduct"
+        component={ListProduct}
+        options={{ headerShown: false }}
       />
-      <Stack.Screen 
-        name="CreateProduct" 
-        component={CreateProduct} 
-        options={{ headerShown: false }} 
+      <Stack.Screen
+        name="CreateProduct"
+        component={CreateProduct}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );
 };
+
+const OrderStack = () => {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="OrderScreen"
+        component={Order}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OrderDetail"
+        component={OrderDetail}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  )
+}
 
 const TabsSellerLayout = () => {
   return (
@@ -47,7 +65,7 @@ const TabsSellerLayout = () => {
                 ? require('@/assets/images/sellerNavBar/listProductIconFocus.png')
                 : require('@/assets/images/sellerNavBar/listProductIconUnfocus.png');
               break;
-            case 'Orders':
+            case 'Order':
               iconSource = focused
                 ? require('@/assets/images/sellerNavBar/orderIconFocus.png')
                 : require('@/assets/images/sellerNavBar/orderIconUnfocus.png');
@@ -58,13 +76,13 @@ const TabsSellerLayout = () => {
                 : require('@/assets/images/sellerNavBar/profileIconUnfocus.png');
               break;
             default:
-              iconSource = require('@/assets/images/sellerNavBar/homeIconUnfocus.png'); 
+              iconSource = require('@/assets/images/sellerNavBar/homeIconUnfocus.png');
           }
 
           const title = route.name === 'Home' ? 'Beranda' :
-                        route.name === 'Orders' ? 'Pesanan' :
-                        route.name === 'ListProduct' ? 'Daftar Produk' :
-                        route.name === 'Profile' ? 'Profil' : '';
+            route.name === 'Order' ? 'Pesanan' :
+              route.name === 'ListProduct' ? 'Daftar Produk' :
+                route.name === 'Profile' ? 'Profil' : '';
 
           return (
             <View style={{ alignItems: 'center' }}>
@@ -74,23 +92,23 @@ const TabsSellerLayout = () => {
                 resizeMode="contain"
               />
 
-            <Text style={{ 
+              <Text style={{
                 marginTop: 2,
-                fontSize: 10, 
+                fontSize: 10,
                 fontWeight: focused ? 'bold' : 'normal',
               }}>
-                {title} 
+                {title}
               </Text>
 
             </View>
           );
         },
-        tabBarShowLabel: false, 
-        headerShown: false, 
+        tabBarShowLabel: false,
+        headerShown: false,
       })}
     >
       <Tab.Screen name="Home" component={Home} options={{ title: 'Beranda' }} />
-      <Tab.Screen name="Orders" component={Orders} options={{ title: 'Pesanan' }} />
+      <Tab.Screen name="Order" component={OrderStack} options={{ title: 'Pesanan' }} />
       <Tab.Screen name="ListProduct" component={ListProductStack} options={{ title: 'Daftar Produk' }} />
       <Tab.Screen name="Profile" component={Profile} options={{ title: 'Profil' }} />
     </Tab.Navigator>

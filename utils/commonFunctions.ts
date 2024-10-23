@@ -19,7 +19,7 @@ export const checkEmptyForm = (form: Record<string, string | number | null>, con
         bakeryPhoneNumber: 'Nomor HP Toko',
         bakeryDescription: 'Deskripsi Toko',
         bakeryImage: 'Gambar Toko',
-      };
+    };
 
     for (const value in form) {
 
@@ -63,4 +63,13 @@ export const checkEmptyForm = (form: Record<string, string | number | null>, con
     }
 
     return errors;
+}
+
+export const calculateTotalOrderPrice = (orderDetail: any): string => {
+    const total = orderDetail.reduce((sum: number, detail: any) => {
+        const price = parseFloat(detail.product.productPrice);
+        return sum + price * detail.productQuantity;
+    }, 0);
+
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total);
 }

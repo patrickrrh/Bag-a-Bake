@@ -1,5 +1,6 @@
 import { View, Text } from 'react-native';
 import React from 'react';
+import TextTag from './texts/TextTag';
 
 interface BadgeProps {
   count: number;
@@ -7,20 +8,11 @@ interface BadgeProps {
 
 const CustomTag: React.FC<BadgeProps> = ({ count }) => {
   return (
-    <Text
-      className='bg-orange'
-      style={{
-        color: 'white',
-        paddingVertical: 4,
-        paddingHorizontal: 14,
-        borderRadius: 20,
-        fontSize: 14,
-        fontWeight: 'bold',
-        textAlign: 'center',
-      }}
+    <View
+      className='bg-orange px-3 justify-center items-center rounded-full'
     >
-      {count} tersisa
-    </Text>
+      <TextTag label={`${count} tersisa`} />
+    </View>
   );
 };
 

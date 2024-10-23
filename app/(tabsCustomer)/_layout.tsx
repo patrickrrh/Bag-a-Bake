@@ -149,7 +149,7 @@ const TabsCustomerLayout = () => {
         />
 
         <Tabs.Screen
-          name="storeDetail"
+          name="bakeryDetail"
           options={{
             title: "SDetail",
             headerShown: false,

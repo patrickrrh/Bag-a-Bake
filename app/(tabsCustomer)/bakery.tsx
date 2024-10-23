@@ -3,7 +3,7 @@ import TextHeader from "@/components/texts/TextHeader";
 import TextTitle3 from "@/components/texts/TextTitle3";
 import TextTitle5 from "@/components/texts/TextTitle5";
 import TextTitle5Gray from "@/components/texts/TextTitle5Gray";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,63 +11,246 @@ import {
   FlatList,
   TouchableOpacity,
   Button,
+  Modal
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getItemAsync } from "expo-secure-store";
 import FilterButton from "@/components/FilterButton";
+import BakeryCard from "@/components/BakeryCard";
+import bakeryApi from "@/api/bakeryApi";
+import favoriteApi from "@/api/favoriteApi";
+import { useLocalSearchParams } from "expo-router";
+import { useAuth } from "../context/AuthContext";
+import TextTitle1 from "@/components/texts/TextTitle1";
+import categoryApi from "@/api/categoryApi";
+import CheckBox from 'react-native-check-box'
+import CustomButton from "@/components/CustomButton";
+
+type Bakery = {
+  bakeryId: number;
+  userId: number;
+  regionId: number;
+  bakeryName: string;
+  bakeryImage: string;
+  bakeryDescription: string;
+  bakeryPhoneNumber: string;
+  openingTime: string;
+  closingTime: string;
+}
+
+type Category = {
+  categoryId: number;
+  categoryName: string;
+  categoryImage: string;
+}
 
 const Bakery = () => {
+
+  const { userData, signOut } = useAuth();
+  const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
+  const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
+
+  const { product } = useLocalSearchParams();
+
+  useEffect(() => {
+    let productItem: any[] = [];
+    try {
+      if (product) {
+        const parsedProducts = JSON.parse(product as string);
+
+        if (typeof parsedProducts === 'object' && !Array.isArray(parsedProducts)) {
+          productItem.push(parsedProducts);
+        } else if (Array.isArray(parsedProducts)) {
+          productItem = [...parsedProducts];
+        } else {
+          console.error("Parsed product is neither an array nor an object");
+        }
+
+        const categoryId = productItem[0].categoryId;
+        setCheckedCategories([categoryId]);
+      }
+    } catch (error) {
+      console.error("Failed to parse product:", error);
+    }
+  }, [product]);
+
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites, setFavorites] = useState<number[]>([]); // Store favorite store ids
-  const [showFavorites, setShowFavorites] = useState(false);
+  const [favorites, setFavorites] = useState<number[]>([]);
+  const [showFavorite, setShowFavorite] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string[]>([]);
 
   const [categoryModal, setCategoryModal] = useState(false);
 
-  const stores = [
-    {
-      id: 1,
-      name: "Berkat Bakery",
-      location: "Pacific Garden, Alam Sutera",
-      rating: 4.2,
-      reviews: 20,
-      distance: 3,
-    },
-    {
-      id: 2,
-      name: "Nelnel Bakery",
-      location: "Pacific Garden, Alam Sutera",
-      rating: 4.2,
-      reviews: 20,
-      distance: 5,
-    },
-  ];
+  const [bakery, setBakery] = useState<Bakery[]>([]);
+  const [category, setCategory] = useState<Category[]>([]);
 
-  const filteredStores = stores.filter((store) => {
-    const isMatch = store.name
+  const [isSubmitting, setisSubmitting] = useState(false);
+
+  const handleGetBakeryApi = async () => {
+    try {
+      setBakery([]);
+      if (checkedCategories.length > 0) {
+        const categoryIds = checkedCategories.map(item => item);
+
+        const response = await bakeryApi().getBakeryByCategory({
+          categoryId: categoryIds,
+        });
+        if (response.status === 200 && response.data) {
+          setBakery(response.data ? response.data : []);
+        }
+      } else {
+        const response = await bakeryApi().getBakery();
+        if (response.status === 200) {
+          setBakery(response.data ? response.data : []);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleGetBakeryByRegionApi = async () => {
+    try {
+      const response = await bakeryApi().getBakeryByRegion({
+        regionId: userData?.regionId,
+      });
+      if (response.status === 200) {
+        setBakery(response.data ? response.data : []);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleGetFavoriteBakeryApi = async () => {
+    try {
+      const response = await favoriteApi().getFavorite({
+        userId: userData?.userId,
+      });
+      if (response.status === 200) {
+        const bakeryData = response.data.map((favorite: { bakery: object; }) => favorite.bakery);      
+        setBakery(bakeryData);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const filteredStores = bakery.filter((bakery) => {
+    const isMatch = bakery.bakeryName
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    return showFavorites ? isMatch && favorites.includes(store.id) : isMatch;
+    return isMatch;
   });
 
-  const toggleFavorite = (storeId: number) => {
-    setFavorites((prevFavorites) =>
-      prevFavorites.includes(storeId)
-        ? prevFavorites.filter((id) => id !== storeId)
-        : [...prevFavorites, storeId]
-    );
-  };
+  const handleGetCategoryApi = async () => {
+    try {
+      const response = await categoryApi().getCategory();
+      if (response.status === 200) {
+        setCategory(response.data ? response.data : []);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // const toggleFavorite = (storeId: number) => {
+  //   setFavorites((prevFavorites) =>
+  //     prevFavorites.includes(storeId)
+  //       ? prevFavorites.filter((id) => id !== storeId)
+  //       : [...prevFavorites, storeId]
+  //   );
+  // };
+
+  const toggleFavorite = async (bakeryId: number) => {
+    await favoriteApi().addFavorite({
+      userId: userData?.userId,
+      bakeryId: bakeryId
+    })
+  }
 
   const handleActiveFilter = (filter: string) => {
     setActiveFilter((prevFilters) => {
-      if (prevFilters.includes(filter)) {
-        return prevFilters.filter(f => f !== filter);
+      let updatedFilters;
+  
+      if (filter !== "Kategori") {
+        if (prevFilters.includes(filter)) {
+          updatedFilters = prevFilters.filter(f => f !== filter);
+        } else {
+          updatedFilters = [...prevFilters, filter];
+        }
+
+        console.log("masuk mana")
+  
+        if (updatedFilters.includes("Dekat saya")) {
+          handleGetBakeryByRegionApi();
+        } else {
+          console.log("masuk sini?")
+          handleGetBakeryApi();
+        }
       } else {
-        return [...prevFilters, filter];
+        updatedFilters = prevFilters;
+        setCategoryModal(true);
+      }
+  
+      return updatedFilters;
+    });
+  };
+
+  const handleTempCheckboxClick = (categoryId: number) => {
+    setTempCheckedCategories((prev) => {
+      if (prev.includes(categoryId)) {
+        return prev.filter((id) => id !== categoryId);
+      } else {
+        return [...prev, categoryId];
       }
     });
   };
+
+  const handleApplyCategoryFilter = () => {
+    setCheckedCategories(tempCheckedCategories);
+    setCategoryModal(false);
+  };
+
+  useEffect(() => {
+    handleGetCategoryApi();
+  }, []);
+
+  useEffect(() => {
+    handleGetBakeryApi();
+
+    setActiveFilter((prevFilters) => {
+      if (checkedCategories.length > 0) {
+        if (!prevFilters.includes("Kategori")) {
+          return [...prevFilters, "Kategori"];
+        }
+        return prevFilters;
+      }
+
+      return prevFilters.filter((f) => f !== "Kategori");
+    });
+  }, [checkedCategories]);
+
+  useEffect(() => {
+    if (categoryModal) {
+      setTempCheckedCategories(checkedCategories);
+    }
+  }, [categoryModal]);
+
+  useEffect(() => {
+    if (showFavorite) {
+      handleGetFavoriteBakeryApi();
+    } else {
+      handleGetBakeryApi();
+    }
+  }, [showFavorite]);
+
+  console.log("bakery", JSON.stringify(bakery, null, 2));
+
+  // console.log('bakery', JSON.stringify(bakery, null, 2));
+  // console.log("category", checkedCategories);
+  // console.log("temp", tempCheckedCategories)
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -75,9 +258,11 @@ const Bakery = () => {
         <View className="flex-row align-center justify-between">
           <TextHeader label="BAKERI" />
           <TouchableOpacity
-            onPress={() => setShowFavorites(!showFavorites)}
+            onPress={() => {
+              setShowFavorite(!showFavorite);
+            }}
             style={{
-              backgroundColor: showFavorites
+              backgroundColor: showFavorite
                 ? "rgba(255, 0, 0, 0.2)"
                 : "rgba(0, 0, 0, 0.1)",
               borderRadius: 25,
@@ -87,7 +272,7 @@ const Bakery = () => {
             <Ionicons
               name="heart"
               size={24}
-              color={showFavorites ? "red" : "gray"}
+              color={showFavorite ? "red" : "gray"}
             />
           </TouchableOpacity>
         </View>
@@ -98,7 +283,7 @@ const Bakery = () => {
             placeholder="Cari bakeri disini"
           />
         </View>
-        
+
         <View className="mt-5 flex-row">
           <FilterButton
             label="Dekat saya"
@@ -112,57 +297,64 @@ const Bakery = () => {
           />
         </View>
 
-        <View className="mt-5">
+        <View className="mt-5 h-full">
           <FlatList
             data={filteredStores}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.bakeryId.toString()}
             renderItem={({ item }) => (
-              <View className="bg-white rounded-lg shadow-md mb-4 p-4">
-                <View className="flex-row my-3 items-end justify-between">
-                  <View className="flex-row">
-                    <Image
-                      source={require("../../assets/images/bakery1.png")}
-                      style={{ width: 68, height: 68, borderRadius: 10 }}
-                    />
-                    <View className="ml-4">
-                      <TextTitle3 label={item.name} />
-                      <TextTitle5Gray
-                        label={"Distance: " + item.distance.toString() + " km"}
-                      />
-                      <View className="flex-row items-center">
-                        <View className="pr-1">
-                          <Image
-                            source={require("../../assets/images/locationIcon.png")}
-                            style={{ width: 12, height: 12 }}
-                          />
-                        </View>
-                        <View className="pr-1 pt-1">
-                          <TextTitle5 label={item.location} />
-                        </View>
-                      </View>
-                    </View>
-                    <View className="align-items-end pl-5">
-                      {/* <TouchableOpacity onPress={() => toggleFavorite(item.id)}> */}
-                      <TouchableOpacity onPress={() => setCategoryModal(true)}>
-                        <Ionicons
-                          name={
-                            favorites.includes(item.id)
-                              ? "heart"
-                              : "heart-outline"
-                          }
-                          size={24}
-                          color={favorites.includes(item.id) ? "red" : "gray"}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              </View>
+              <BakeryCard
+                item={item}
+                favoriteStores={favorites}
+                onPress={() => { }}
+                onFavorite={() => toggleFavorite(item.bakeryId)}
+              />
             )}
           />
         </View>
       </View>
 
+      <Modal
+        visible={categoryModal}
+        onRequestClose={() => setCategoryModal(false)}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        className="bg-background"
+      >
+        <View className="flex-1 p-8">
+          <View className="flex-row justify-between">
+            <TextTitle1 label="Kategori" />
+            <Button
+              title="Tutup"
+              onPress={() => {
+                setCategoryModal(false);
+              }} />
+          </View>
+          <FlatList
+            data={category}
+            keyExtractor={(item) => item.categoryId.toString()}
+            renderItem={({ item }) => (
+              <View className="border-b border-gray-200 py-4">
+                <CheckBox
+                  leftText={<TextTitle3 label={item.categoryName} /> as any}
+                  isChecked={tempCheckedCategories.includes(item.categoryId)}
+                  onClick={() => handleTempCheckboxClick(item.categoryId)}
+                  checkBoxColor="#B0795A"
+                />
+              </View>
+            )}
+            className="mt-4"
+          />
+          <CustomButton
+            label="Terapkan"
+            handlePress={() => {
+              setCategoryModal(false);
+              handleApplyCategoryFilter();
+            }}
+            buttonStyles="mb-4"
+            isLoading={isSubmitting}
+          />
+        </View>
+      </Modal>
 
     </SafeAreaView>
   );

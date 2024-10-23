@@ -15,7 +15,7 @@ const FilterButton: React.FC<Props> = ({ label, isSelected, onPress }) => {
     return (
         <TouchableOpacity
             onPress={onPress}
-            className={`rounded-xl shadow-md py-1 px-3 mr-3 ${isSelected? 'bg-[#FFF2EB]' : 'bg-gray-100'}`}
+            className={`rounded-xl py-1 px-3 mr-3 ${isSelected? 'bg-[#FFF2EB]' : 'bg-gray-100'}`}
         >
             {
                 isSelected ? (

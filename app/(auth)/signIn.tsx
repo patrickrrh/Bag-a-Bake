@@ -58,8 +58,6 @@ const SignIn = () => {
         password: form.password
       })
 
-      console.log("res", res)
-
       if (res.error) {
         showToast('error', res.error);
         return;
@@ -90,9 +88,6 @@ const SignIn = () => {
       <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
       <View className="mt-16 items-center">
         <TextHeader label="Selamat Datang" />
-        {/* <View className='mt-2'>
-          <TextHeadline label="Masuk akun Bag a Bake Anda" />
-        </View> */}
       </View>
     </>
   )
