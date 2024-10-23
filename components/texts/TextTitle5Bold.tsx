@@ -3,13 +3,14 @@ import React from 'react'
 
 interface Props {
     label: string
+    color?: string
 }
 
-const TextTitle5Bold: React.FC<Props> = ({ label }) => {
+const TextTitle5Bold: React.FC<Props> = ({ label, color }) => {
   return (
     <View>
       <Text
-        style={{ fontFamily: "poppinsSemiBold", fontSize: 12 }}
+        style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: color }}
         className='text-black'
       >
         {label}

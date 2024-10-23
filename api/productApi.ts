@@ -25,5 +25,7 @@ export default function productApi() {
         searchProductByKeyword: createApiFunction("get", "search/product"),
         deleteProductById: createApiFunction("delete", "delete/product/id"),
         getProductsByCategory: createApiFunction("post", "get/products/category"),
+        getRecommendedProducts: createApiFunction("post", "get/recommended/products"),
+        getExpiringProducts: createApiFunction("get", "get/expiring/products"),
     }
 }
