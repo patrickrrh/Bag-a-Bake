@@ -3,12 +3,18 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // Define the props for the OrderStatusTab
 interface OrderStatusTabProps {
-  selectedStatus: string;
-  onSelectStatus: (status: string) => void;
+  selectedStatus: number;
+  onSelectStatus: (status: number) => void;
 }
 
 const OrderStatusTab: React.FC<OrderStatusTabProps> = ({ selectedStatus, onSelectStatus }) => {
-  const statuses = ['Pending', 'Berlangsung', 'Selesai'];
+  const statusLabels: { [key: number]: string } = {
+    1: 'Pending',
+    2: 'Berlangsung',
+    3: 'Selesai',
+  };
+
+  const statuses = [1, 2, 3];
 
   return (
     <View style={styles.container}>
@@ -24,7 +30,7 @@ const OrderStatusTab: React.FC<OrderStatusTabProps> = ({ selectedStatus, onSelec
               selectedStatus === status && styles.selectedTabText
             ]}
           >
-            {status}
+            {statusLabels[status]}
           </Text>
           {selectedStatus === status && (
             <View style={styles.activeTabIndicator} />
@@ -41,16 +47,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   tab: {
-    flex: 1, // Take up equal space for each tab
+    flex: 1, 
     alignItems: 'center',
-    paddingTop: 10, // Add padding between text and the border
+    paddingTop: 10,
   },
   tabText: {
     color: '#000000',
     fontSize: 16,
     paddingBottom: 20,
     fontWeight: 'bold',
-    opacity: 0.5, // Add padding at the bottom of the text
+    opacity: 0.5, 
   },
   selectedTabText: {
     color: '#B0795A',
@@ -58,11 +64,11 @@ const styles = StyleSheet.create({
     opacity: 1,
   },
   activeTabIndicator: {
-    width: '100%', // Take full width of the tab
-    height: 5, // Set height to 5
+    width: '100%',
+    height: 5, 
     backgroundColor: '#B0795A',
-    borderRadius: 10, // Set corner radius to 10
-    marginTop: 4, // Space between text and underline
+    borderRadius: 10, 
+    marginTop: 4,
   },
 });
 

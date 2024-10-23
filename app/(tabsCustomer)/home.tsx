@@ -38,7 +38,7 @@ const Home = () => {
 
   return (
     <SafeAreaView>
-      <StatusBar backgroundColor="#B0795A" barStyle="light-content" />
+      {/* <StatusBar backgroundColor="#B0795A" barStyle="light-content" /> */}
 
       {/* Header */}
       <View

@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
 import TextButton from './texts/TextButton';
 import TextTitle3 from './texts/TextTitle3';
+import TextTitle2 from './texts/TextTitle2';
 
 interface Props {
   label: string;
@@ -19,9 +20,11 @@ const CustomOrderButton: React.FC<Props> = ({ label, price, handlePress, buttonS
       className={`bg-brown rounded-xl min-h-[48px] justify-center items-center ${buttonStyles} ${isLoading ? "opacity-50" : ""}`}
       disabled={isLoading}
     >
-        <View className="flex-row justify-center w-full gap-x-1">
-            <TextTitle3 label={label} />
-            <Text className="text-white">{price}</Text>
+        <View className="flex-row justify-center items-center w-full gap-x-1">
+            <View className="pt-1">
+                <TextTitle3 label={label} color="white" />
+            </View>
+            <TextTitle2 label={price} />
         </View>
 
     </TouchableOpacity>

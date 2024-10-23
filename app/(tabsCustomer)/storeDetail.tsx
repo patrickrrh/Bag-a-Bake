@@ -63,23 +63,22 @@ const StoreDetail = () => {
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
-            <ScrollView className="mx-5">
-                <View className="flex-row">
-                    <BackButton />
-                    <View className="flex-1 items-center pr-3">
-                        <TextTitle3 label="Roti Unyil" />
-                    </View>
-                    <TouchableOpacity onPress={toggleFavorite} className="flex-2 items-center">
-                        <Ionicons name={favorites.includes(store.id) ? "heart" : "heart-outline"} 
-                        size={24}
-                        color={favorites.includes(store.id) ? "red" : "black"}
-                        />
-                    </TouchableOpacity>
+            <View className="flex-row mx-5 pb-2">
+                <BackButton />
+                <View className="flex-1 items-center pr-3">
+                    <TextTitle3 label="Roti Unyil" />
                 </View>
-                
+                <TouchableOpacity onPress={toggleFavorite} className="flex-2 items-center">
+                    <Ionicons name={favorites.includes(store.id) ? "heart" : "heart-outline"} 
+                    size={24}
+                    color={favorites.includes(store.id) ? "red" : "black"}
+                    />
+                </TouchableOpacity>
+            </View>
+            <ScrollView className="mx-5">
                 <Image 
                     source={require('../../assets/images/bakery.png')}
-                    style={{ width: 353, height: 177, marginTop: 40, borderRadius: 10 }}
+                    style={{ width: 353, height: 177, marginTop: 20, borderRadius: 10 }}
                 />
 
                 <View className="pt-5">

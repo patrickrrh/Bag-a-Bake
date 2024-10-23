@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { View, Text, Image, FlatList, TouchableOpacityBase, Animated } from 'react-native'
+import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, TouchableOpacity } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import productApi from '@/api/productApi';
 
@@ -13,9 +13,12 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import CustomButton from '@/components/CustomButton';
 import StockInput from '@/components/StockInput';
 import CustomOrderButton from '@/components/CustomOrderButton';
+import CustomClickableButton from '@/components/CustomClickableButton';
+import { useNavigation } from '@react-navigation/native'; 
+import * as SecureStore from "expo-secure-store";
 
 const OrderPage = () => {
-
+  const navigation = useNavigation();
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
   // const getProduct = async() => {
   //   const response = await productApi().getProductById({
@@ -59,12 +62,39 @@ const OrderPage = () => {
 
   return (
     <View>
-        <Image 
-            source={require('../../assets/images/logoBagABake.png')}
-            style={{ width: 375, height: 330, marginBottom: 16 }}
+      <View style={{ position: 'relative' }}>
+        <Image
+          source={require('../../assets/images/produk1.png')}
+          style={{ width: '100%', height: 310 }}
         />
 
-        <View className="mx-5">
+        {/* Back Button Positioned Absolutely */}
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 55,
+            left: 20,
+            backgroundColor: 'white',
+            borderRadius: 20,
+            width: 40,
+            height: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            elevation: 5,
+            shadowColor: '#000',
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+          }}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#000' }}>
+            {'<'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+
+        <View className="mx-5 mt-4">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
               <View className="pr-3">
@@ -72,7 +102,9 @@ const OrderPage = () => {
               </View>
               <CustomTag count={2} />
             </View>
-            <Text>Hello World</Text>
+            <View>
+              <CustomClickableButton label={"500 m"} handlePress={() => {}} buttonStyles={"bg-brown"} isLoading={false} icon="map" />
+            </View>
           </View>
 
           <TextFormLabel label={"Berkat Bakery"} />
@@ -101,9 +133,9 @@ const OrderPage = () => {
 
           <TextTitle5 label={"Classic Black Forest with a combination of chocolate cream and rich black cherry pieces, topped with cherries and sprinkled with chocolate shavings."} />
 
-          <View className="flex-row items-center">
+          <View className="flex-row items-center pt-3 pb-1">
             <View className="pr-2">
-              <Text style={{ textDecorationLine: 'line-through', fontSize: 16 }}>
+              <Text style={{ textDecorationLine: 'line-through', fontSize: 12 }}>
                 Rp 20.000/pcs
               </Text>
             </View>
@@ -118,7 +150,11 @@ const OrderPage = () => {
             </View>
           </View>
 
-          <View className="flex-row items-center justify-between mt-5">
+          <View>
+            <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 18 }} className='text-black'>Rp 10.000/pcs </Text>
+          </View>
+
+          <View className="flex-row items-center justify-between mt-2 mb-5">
             <TextTitle3 label={"Jumlah Pembelian"} />
             <StockInput
               value={productQuantity} // Convert to string for input
@@ -126,10 +162,10 @@ const OrderPage = () => {
             />
           </View>
 
-          <View className="absolute bottom-0 left-0 right-0 mb-5 mx-5 ">
+          <View>
             <CustomOrderButton
-              label="Tambahkan Pesanan"
-              price={productTotalPrice} // Pass total price as prop
+              label="Tambahkan Pesanan • "
+              price={60000} // Pass total price as prop
               handlePress={() => {
                 console.log('Order submitted:', form);
               }}
