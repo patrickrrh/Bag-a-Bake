@@ -14,6 +14,7 @@ import SellerOrderCardPending from '@/components/SellerOrderCardPending';
 import SellerOrderCard from '@/components/SellerOrderCard';
 import { router } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
 
 type Order = {
   orderId: number;
@@ -62,8 +63,17 @@ interface OrderDetailProps {
   navigation: StackNavigationProp<any>; 
 }
 
+interface OrderDetailProps {
+  route: RouteProp<{ params: { status: any } }>;
+}
 
-const Order: React.FC<OrderDetailProps> = ({ navigation }) => {
+const Order: React.FC<OrderDetailProps> = ({ navigation, route }) => {
+
+  const { status } = route.params;
+
+  useEffect(() => {
+    setSelectedStatus(status);
+  }, [status])
 
   const [selectedStatus, setSelectedStatus] = useState(1);
   const [order, setOrder] = useState<Order[]>([]);
@@ -85,6 +95,7 @@ const Order: React.FC<OrderDetailProps> = ({ navigation }) => {
     }
   }
 
+  //TO DO: cek ini statenya
   useEffect(() => {
     handleGetAllOrderByStatusApi();
   }, [selectedStatus]);

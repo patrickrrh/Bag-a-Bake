@@ -73,3 +73,10 @@ export const calculateTotalOrderPrice = (orderDetail: any): string => {
 
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total);
 }
+
+export const formatRupiah = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+    }).format(amount);
+  };
