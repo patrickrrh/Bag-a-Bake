@@ -18,8 +18,15 @@ import TextLink from '@/components/texts/TextLink';
 import SellerOrderCard from '@/components/SellerOrderCard';
 import SellerOrderCardPending from '@/components/SellerOrderCardPending';
 import orderSellerApi from '@/api/orderSellerApi';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { router } from 'expo-router';
 
-const Home = () => {
+interface OrderDetailProps {
+  navigation: StackNavigationProp<any>; 
+}
+
+
+const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
 
   const { userData, signOut } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -120,14 +127,30 @@ const Home = () => {
             <TextTitle3 label="Pesanan Terbaru" />
             {
               latestPendingOrderCount ? (
-                <TextLink label={`${latestPendingOrderCount} pesanan baru >`} size={10} />
+                <TextLink
+                  label={`${latestPendingOrderCount} pesanan baru >`}
+                  size={10}
+                  onPress={() => {
+                    navigation.navigate('Order', {
+                      screen: 'OrderScreen',
+                      params: { status: 1 }
+                    })
+                  }}
+                />
               ) : (null)
             }
           </View>
 
           <SellerOrderCardPending
             order={latestPendingOrder}
-            onPress={() => { }}
+            onPress={() => {
+              navigation.navigate('Order',
+                {
+                  screen: 'OrderDetail',
+                  params: { order: latestPendingOrder }
+                }
+              )
+            }}
           />
         </View>
 
@@ -136,14 +159,30 @@ const Home = () => {
             <TextTitle3 label="Pesanan Berlangsung" />
             {
               latestOngoingOrderCount ? (
-                <TextLink label={`${latestOngoingOrderCount} pesanan berlangsung >`} size={10} />
+                <TextLink
+                  label={`${latestPendingOrderCount} pesanan baru >`}
+                  size={10}
+                  onPress={() => {
+                    navigation.navigate('Order', {
+                      screen: 'OrderScreen',
+                      params: { status: 2 }
+                    })
+                  }}
+                />
               ) : (null)
             }
           </View>
 
           <SellerOrderCard
             order={latestOngoingOrder}
-            onPress={() => { }}
+            onPress={() => {
+              navigation.navigate('Order',
+                {
+                  screen: 'OrderDetail',
+                  params: { order: latestOngoingOrder }
+                }
+              )
+            }}
           />
         </View>
 

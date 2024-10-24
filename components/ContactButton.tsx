@@ -9,18 +9,19 @@ interface Props {
     isLoading: boolean;
 }
 
-const CustomButton: React.FC<Props> = ({ label, handlePress, buttonStyles, isLoading }) => {
+const ContactButton: React.FC<Props> = ({ label, handlePress, buttonStyles, isLoading }) => {
     return (
         <TouchableOpacity
             onPress={handlePress}
             activeOpacity={0.7}
-            className={`bg-brown rounded-xl min-h-[48px] justify-center items-center ${buttonStyles} ${isLoading ? "opacity-50" : ""}`}
+            className={`border border-black rounded-xl min-h-[48px] justify-center items-center ${buttonStyles} ${isLoading ? "opacity-50" : ""}`}
             disabled={isLoading}>
             <TextButton
                 label={label}
+                color='black'
             />
         </TouchableOpacity>
     )
 }
 
-export default CustomButton
+export default ContactButton
