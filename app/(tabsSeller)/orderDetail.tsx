@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import React, { FC, useState } from 'react'
 import { RouteProp } from '@react-navigation/native';
 import TextTitle3 from '@/components/texts/TextTitle3';
@@ -13,9 +13,15 @@ import CustomTag from '@/components/CustomTag';
 import CustomTagOrderStatus from '@/components/CustomTagOrderStatus';
 import RejectOrderButton from '@/components/rejectOrderButton';
 import AcceptOrderButton from '@/components/AcceptOrderButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import orderSellerApi from '@/api/orderSellerApi';
+import { useNavigation } from 'expo-router';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { FontAwesome } from '@expo/vector-icons';
 
 interface OrderDetailProps {
   route: RouteProp<{ params: { order: any } }>;
+  navigation: StackNavigationProp<any>;
 }
 
 type OrderDetail = {
@@ -24,18 +30,54 @@ type OrderDetail = {
   product: any;
 }
 
-const OrderDetail: React.FC<OrderDetailProps> = ({ route }) => {
+const OrderDetail: React.FC<OrderDetailProps> = ({ route, navigation }) => {
 
   const { order } = route.params;
 
   const [isSubmitting, setisSubmitting] = useState(false);
 
-  console.log("order", order)
+  const handleActionOrder = async (orderStatus: number) => {
+    try {
+      setisSubmitting(true)
+      const response = await orderSellerApi().actionOrder({
+        orderId: order.orderId,
+        orderStatus: orderStatus
+      })
+      if (response.status === 200) {
+        navigation.navigate('Order',
+          {
+            screen: 'OrderScreen',
+            params: { status: orderStatus }
+          }
+        )
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setisSubmitting(false)
+    }
+  }
 
   return (
     <SafeAreaView className='bg-background h-full flex-1'>
+
       <View className='mx-5 flex-row items-start'>
-        <BackButton />
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('Order', {
+              screen: 'OrderScreen',
+              params: { status: order.orderStatus, isFromHomePage: true }
+            })
+          }}
+          activeOpacity={0.7}
+          style={{ width: 10, height: 24 }}
+        >
+          <FontAwesome
+            name="angle-left"
+            size={24}
+            color="#000"
+          />
+        </TouchableOpacity>
         <View className='flex-1 items-center pr-3'>
           <TextTitle3 label={`#${order.orderId}`} />
           <TextTitle5Date label={order.orderDate} />
@@ -76,23 +118,24 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ route }) => {
 
       {
         order.orderStatus === 1 ? (
-          <View className='flex-row mt-10 mx-5'>
-            <RejectOrderButton
-              label='Tolak'
-              onPress={() => { }}
-              isLoading={false}
+          <View className='mx-5 mt-10'>
+            <CustomButton
+              label="Terima Pesanan"
+              handlePress={() => handleActionOrder(2)}
+              isLoading={isSubmitting}
             />
-            <AcceptOrderButton
-              label='Terima'
-              onPress={() => { }}
-              isLoading={false}
+            <ContactButton
+              label="Tolak Pesanan"
+              handlePress={() => handleActionOrder(4)}
+              buttonStyles='mt-3'
+              isLoading={isSubmitting}
             />
           </View>
         ) : order.orderStatus === 2 ? (
           <View className='mx-5 mt-10'>
             <CustomButton
               label="Selesaikan Pesanan"
-              handlePress={() => { }}
+              handlePress={() => handleActionOrder(3)}
               isLoading={isSubmitting}
             />
             <ContactButton

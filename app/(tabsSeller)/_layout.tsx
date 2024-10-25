@@ -9,6 +9,7 @@ import ListProduct from './listProduct';
 import Order from './order';
 import Profile from './profile';
 import OrderDetail from './orderDetail';
+import { Ionicons } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -30,7 +31,7 @@ const ListProductStack = () => {
   );
 };
 
-const OrderStack = () => {
+const OrderStack: React.FC = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -52,31 +53,23 @@ const TabsSellerLayout = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused }) => {
-          let iconSource;
+          let iconName: keyof typeof Ionicons.glyphMap;
 
           switch (route.name) {
             case 'Home':
-              iconSource = focused
-                ? require('@/assets/images/sellerNavBar/homeIconFocus.png')
-                : require('@/assets/images/sellerNavBar/homeIconUnfocus.png');
+              iconName = focused ? 'home' : 'home-outline';
               break;
             case 'ListProduct':
-              iconSource = focused
-                ? require('@/assets/images/sellerNavBar/listProductIconFocus.png')
-                : require('@/assets/images/sellerNavBar/listProductIconUnfocus.png');
+              iconName = focused ? 'list' : 'list-outline';
               break;
             case 'Order':
-              iconSource = focused
-                ? require('@/assets/images/sellerNavBar/orderIconFocus.png')
-                : require('@/assets/images/sellerNavBar/orderIconUnfocus.png');
+              iconName = focused ? 'bag' : 'bag-outline';
               break;
             case 'Profile':
-              iconSource = focused
-                ? require('@/assets/images/sellerNavBar/profileIconFocus.png')
-                : require('@/assets/images/sellerNavBar/profileIconUnfocus.png');
+              iconName = focused ? 'person' : 'person-outline';
               break;
             default:
-              iconSource = require('@/assets/images/sellerNavBar/homeIconUnfocus.png');
+              iconName = 'home-outline';
           }
 
           const title = route.name === 'Home' ? 'Beranda' :
@@ -86,25 +79,23 @@ const TabsSellerLayout = () => {
 
           return (
             <View style={{ alignItems: 'center' }}>
-              <Image
-                source={iconSource}
-                style={{ height: 17 }}
-                resizeMode="contain"
-              />
-
+              <Ionicons name={iconName} size={18} color={focused ? '#B0795A' : 'gray'} />
               <Text style={{
-                marginTop: 2,
+                marginVertical: 5,
                 fontSize: 10,
-                fontWeight: focused ? 'bold' : 'normal',
+                fontFamily: 'poppinsRegular',
+                color: focused ? '#B0795A' : 'gray',
               }}>
                 {title}
               </Text>
-
             </View>
           );
         },
         tabBarShowLabel: false,
         headerShown: false,
+        tabBarStyle: {
+          height: 80
+        }
       })}
     >
       <Tab.Screen name="Home" component={Home} options={{ title: 'Beranda' }} />

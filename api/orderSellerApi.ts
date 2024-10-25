@@ -24,5 +24,6 @@ export default function orderSellerApi() {
         countAllPendingOrder: createApiFunction("get", "count/all/pending/order"),
         countAllOngoingOrder: createApiFunction("get", "count/all/ongoing/order"),
         getAllOrderByStatus: createApiFunction("post", "get/all/order/status"),
+        actionOrder: createApiFunction("put", "action/order"),
     }
 }

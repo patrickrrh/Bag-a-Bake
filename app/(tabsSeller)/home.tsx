@@ -1,6 +1,6 @@
-import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
@@ -19,20 +19,64 @@ import SellerOrderCard from '@/components/SellerOrderCard';
 import SellerOrderCardPending from '@/components/SellerOrderCardPending';
 import orderSellerApi from '@/api/orderSellerApi';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 
 interface OrderDetailProps {
-  navigation: StackNavigationProp<any>; 
+  navigation: StackNavigationProp<any>;
 }
 
+type Order = {
+  orderId: number;
+  orderStatus: number;
+  userId: number;
+  bakeryId: number;
+  orderDate: string;
+  user: User;
+  orderDetail: OrderDetail[];
+};
+
+type User = {
+  email: string;
+  password: string;
+  regionId: number;
+  roleId: number;
+  signUpDate: string;
+  userId: number;
+  userImage: string | null;
+  userName: string;
+  userPhoneNumber: string;
+};
+
+type OrderDetail = {
+  orderDetailId: number;
+  orderId: number;
+  productId: number;
+  productQuantity: number;
+  product: Product;
+};
+
+type Product = {
+  productId: number;
+  bakeryId: number;
+  categoryId: number;
+  productName: string;
+  productPrice: string;
+  productImage: string;
+  productDescription: string;
+  productExpirationDate: string;
+  productStock: number;
+  isActive: number;
+};
 
 const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
 
   const { userData, signOut } = useAuth();
+  const insets = useSafeAreaInsets();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const [latestPendingOrder, setLatestPendingOrder] = useState(null);
-  const [latestOngoingOrder, setLatestOngoingOrder] = useState(null);
+  const [latestPendingOrder, setLatestPendingOrder] = useState<Order | null>(null);
+  const [latestOngoingOrder, setLatestOngoingOrder] = useState<Order | null>(null);
   const [latestPendingOrderCount, setLatestPendingOrderCount] = useState(null);
   const [latestOngoingOrderCount, setLatestOngoingOrderCount] = useState(null);
 
@@ -84,16 +128,57 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
     }
   }
 
-  useEffect(() => {
+  const handleActionOrder = async (orderStatus: number) => {
+    try {
+      const response = await orderSellerApi().actionOrder({
+        orderId: latestPendingOrder?.orderId,
+        orderStatus: orderStatus
+      })
+      if (response.status === 200) {
+        handleGetLatestPendingOrderApi();
+        handleGetLatestOngoingOrderApi();
+        handleCountAllPendingOrderApi();
+        handleCountAllOngoingOrderApi();
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      handleGetLatestPendingOrderApi();
+      handleGetLatestOngoingOrderApi();
+      handleCountAllPendingOrderApi();
+      handleCountAllOngoingOrderApi();
+      setRefreshing(false);
+    }, 1000);
+  }
+
+  useFocusEffect(useCallback(() => {
     handleGetLatestPendingOrderApi();
     handleGetLatestOngoingOrderApi();
     handleCountAllPendingOrderApi();
     handleCountAllOngoingOrderApi();
-  }, [])
+  }, []))
 
   return (
-    <SafeAreaView className="flex-1 p-5 bg-background h-full">
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <View className="flex-1 px-5 pb-5 bg-background h-full">
+
+      <View
+        style={{
+          backgroundColor: '#FEFAF9',
+          height: insets.top
+        }}
+      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
 
         {/* Header */}
         <View className='flex-row justify-between items-center w-full'>
@@ -133,7 +218,7 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
                   onPress={() => {
                     navigation.navigate('Order', {
                       screen: 'OrderScreen',
-                      params: { status: 1 }
+                      params: { status: 1, isFromHomePage: true }
                     })
                   }}
                 />
@@ -141,17 +226,27 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
             }
           </View>
 
-          <SellerOrderCardPending
-            order={latestPendingOrder}
-            onPress={() => {
-              navigation.navigate('Order',
-                {
-                  screen: 'OrderDetail',
-                  params: { order: latestPendingOrder }
-                }
-              )
-            }}
-          />
+          {
+            latestPendingOrder ? (
+              <SellerOrderCardPending
+                order={latestPendingOrder}
+                onPress={() => {
+                  navigation.navigate('Order',
+                    {
+                      screen: 'OrderDetail',
+                      params: { order: latestPendingOrder }
+                    }
+                  )
+                }}
+                onReject={() => handleActionOrder(4)}
+                onAccept={() => handleActionOrder(2)}
+              />
+            ) : (
+              <View className='w-full my-5 justify-center items-center'>
+                <TextTitle5Gray label="Tidak ada pesanan masuk saat ini" />
+              </View>
+            )
+          }
         </View>
 
         <View className='mt-8'>
@@ -160,12 +255,12 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
             {
               latestOngoingOrderCount ? (
                 <TextLink
-                  label={`${latestPendingOrderCount} pesanan baru >`}
+                  label={`${latestOngoingOrderCount} pesanan berlangsung >`}
                   size={10}
                   onPress={() => {
                     navigation.navigate('Order', {
                       screen: 'OrderScreen',
-                      params: { status: 2 }
+                      params: { status: 2, isFromHomePage: true }
                     })
                   }}
                 />
@@ -173,29 +268,29 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
             }
           </View>
 
-          <SellerOrderCard
-            order={latestOngoingOrder}
-            onPress={() => {
-              navigation.navigate('Order',
-                {
-                  screen: 'OrderDetail',
-                  params: { order: latestOngoingOrder }
-                }
-              )
-            }}
-          />
+          {
+            latestOngoingOrder ? (
+              <SellerOrderCard
+                order={latestOngoingOrder}
+                onPress={() => {
+                  navigation.navigate('Order',
+                    {
+                      screen: 'OrderDetail',
+                      params: { order: latestOngoingOrder }
+                    }
+                  )
+                }}
+              />
+            ) : (
+              <View className='w-full my-5 justify-center items-center'>
+                <TextTitle5Gray label="Tidak ada pesanan yang sedang berlangsung" />
+              </View>
+            )
+          }
+
         </View>
-
-        <CustomButton
-          label='logout sementara'
-          handlePress={handleSignOut}
-          buttonStyles='mt-4'
-          isLoading={isSubmitting}
-        />
-
-
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
