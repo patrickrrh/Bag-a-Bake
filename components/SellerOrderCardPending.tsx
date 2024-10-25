@@ -11,6 +11,8 @@ import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 interface Props {
     order: any;
     onPress: () => void;
+    onAccept: () => void;
+    onReject: () => void;
 }
 
 type OrderDetail = {
@@ -19,7 +21,7 @@ type OrderDetail = {
     product: any;
 }
 
-const SellerOrderCardPending: React.FC<Props> = ({ order, onPress }) => {
+const SellerOrderCardPending: React.FC<Props> = ({ order, onPress, onAccept, onReject }) => {
 
     //TO DO: kasih loader
     if (!order) {
@@ -60,12 +62,12 @@ const SellerOrderCardPending: React.FC<Props> = ({ order, onPress }) => {
                 <View style={{ flex: 2, flexDirection: 'row', justifyContent: 'space-around' }}>
                     <RejectOrderButton
                         label='Tolak'
-                        onPress={() => { }}
+                        onPress={onReject}
                         isLoading={false}
                     />
                     <AcceptOrderButton
                         label='Terima'
-                        onPress={() => { }}
+                        onPress={onAccept}
                         isLoading={false}
                     />
                 </View>

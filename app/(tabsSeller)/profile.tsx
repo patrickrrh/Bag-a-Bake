@@ -7,17 +7,31 @@ import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';
 import UploadButton from '@/components/UploadButton';
 import { Picker } from '@react-native-picker/picker';
-import SellerLayout from './sellerLayout';
+import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
 
-    return (
-      <View>
-        <Text>Profile</Text>
-      </View>
-      
-    );
-  };
-  
-  export default Profile;
-  
+  const { userData, signOut } = useAuth();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSignOut = async () => {
+    signOut();
+  }
+
+  return (
+    <View>
+      <Text>Profile</Text>
+      <CustomButton
+        label='logout sementara'
+        handlePress={handleSignOut}
+        buttonStyles='mt-4'
+        isLoading={isSubmitting}
+      />
+    </View>
+
+  );
+};
+
+export default Profile;
+
