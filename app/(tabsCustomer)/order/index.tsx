@@ -40,10 +40,10 @@ const Order = () => {
                     <View className="bg-white rounded-lg shadow-md mb-4 p-4">
                       <View className="flex-row my-3 items-end justify-between">
                         <View className="flex-row">
-                          <Image
+                          {/* <Image
                             source={require('../../assets/images/bakery1.png')}
                             style={{ width: 68, height: 68, borderRadius: 10 }}
-                          />
+                          /> */}
 
                           <View className="ml-4">
                             <TextTitle3 label={item.store} />

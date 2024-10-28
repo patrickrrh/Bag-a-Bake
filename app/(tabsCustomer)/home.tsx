@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StatusBar, FlatList, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, Image, StatusBar, FlatList, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { images } from '@/constants/images';
 import TextTitle5 from '@/components/texts/TextTitle5';
 import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
@@ -15,6 +15,7 @@ import ProductCard from '@/components/ProductCard';
 import { icons } from '@/constants/icons';
 import { useAuth } from '../context/AuthContext';
 import CustomButton from '@/components/CustomButton';
+import { FontAwesome } from '@expo/vector-icons';
 
 type Category = {
   categoryId: number;
@@ -37,7 +38,10 @@ type Product = {
 
 const Home = () => {
 
-  const { userData, signOut } = useAuth();
+  const { userData } = useAuth();
+  const insets = useSafeAreaInsets();
+  const [refreshing, setRefreshing] = useState(false);
+
   const [category, setCategory] = useState<Category[]>([]);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [expiringProducts, setExpiringProducts] = useState<Product[]>([]);
@@ -84,14 +88,31 @@ const Home = () => {
     handleGetExpiringProducts();
   }, [])
 
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      handleGetRecommendedProducts();
+      handleGetExpiringProducts();
+      setRefreshing(false);
+    }, 1000);
+  }
+
+
   return (
-    <SafeAreaView className='bg-brown flex-1'>
-      <ScrollView className='bg-background'>
-        {/* <StatusBar backgroundColor="#B0795A" barStyle="light-content" /> */}
+    <View className='flex-1'>
+
+      <View style={{ backgroundColor: '#B0795A', height: insets.top }} />
+
+      <ScrollView
+        className='bg-brown'
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
 
         {/* Header */}
         <View
-          className='bg-brown px-5 pb-8'
+          className='bg-brown px-5 pt-2 pb-8'
           style={{
             borderBottomLeftRadius: 15,
             borderBottomRightRadius: 15,
@@ -106,7 +127,7 @@ const Home = () => {
             </View>
             <View className='flex-col items-center gap-y-1'>
               <Text style={{ fontFamily: "poppinsLight", fontSize: 12, color: "white" }}>Lokasi Anda</Text>
-              <View className='flex-row gap-x-1'>
+              <View className='flex-row'>
                 <Image
                   source={icons.location}
                   style={{ width: 12, height: 12, marginRight: 5, tintColor: "white" }}
@@ -114,8 +135,18 @@ const Home = () => {
                 <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white" }}>{userData?.regionUser.regionName}</Text>
               </View>
             </View>
-            <View className="w-10 h-10 border border-gray-200 rounded-full">
-              {/* sementara buat icon notif */}
+            <View>
+              <TouchableOpacity
+                onPress={() => { }}
+                style={{
+                  backgroundColor: "rgba(0, 0, 0, 0.1)",
+                  borderRadius: 25,
+                  padding: 8,
+                }}
+                className='w-10 h-10 justify-center items-center'
+              >
+                <FontAwesome name="bell" size={20} color="white" />
+              </TouchableOpacity>
             </View>
           </View>
           <SearchBar
@@ -125,81 +156,76 @@ const Home = () => {
           />
         </View>
 
-        <View className='px-5 mt-6'>
-          <TextTitle3 label="Kategori" />
-          <FlatList
-            horizontal={true}
-            data={category}
-            renderItem={({ item }) => (
-              <CategoryCard
-                label={item.categoryName}
-                image={item.categoryImage}
-                onPress={() => {
-                  router.push({
-                    pathname: '/(tabsCustomer)/bakery' as any,
-                    params: { product: JSON.stringify(item) },
-                  })
-                }}
-              />
-            )}
-            keyExtractor={(item) => item.categoryId.toString()}
-            className='mt-3'
-          />
-        </View>
-
-        <View className='px-5 mt-6 w-full'>
-          <View className='flex-row justify-between items-center w-full'>
-            <TextTitle3 label="Rekomendasi untuk Anda" />
-            <TextLink label='Lihat semua >' size={10} />
+        <View className='bg-background px-5 pb-5'>
+          <View className='mt-6'>
+            <TextTitle3 label="Kategori" />
+            <FlatList
+              horizontal={true}
+              data={category}
+              renderItem={({ item }) => (
+                <CategoryCard
+                  label={item.categoryName}
+                  image={item.categoryImage}
+                  onPress={() => {
+                    router.push({
+                      pathname: '/bakery' as any,
+                      params: { product: JSON.stringify(item) },
+                    })
+                  }}
+                />
+              )}
+              keyExtractor={(item) => item.categoryId.toString()}
+              className='mt-3'
+            />
           </View>
-          <FlatList
-            horizontal={true}
-            data={recommendedProducts}
-            renderItem={({ item }) => (
-              <ProductCard
-                product={item}
-                onPress={() => {
-                  router.push({
-                    pathname: '/(tabsCustomer)/bakeryDetail' as any,
-                    params: { productId: item.productId },
-                  })
-                }}
-              />
-            )}
-            keyExtractor={(item) => item.productId.toString()}
-            className='mt-3'
-          />
-        </View>
 
-        <View className='px-5 mt-5 w-full'>
-          <View className='flex-row justify-between items-center w-full'>
-            <TextTitle3 label="Dapatkan Sebelum Terlambat" />
-            <TextLink label='Lihat semua >' size={10} />
+          <View className='mt-6 w-full'>
+            <View className='flex-row justify-between items-center w-full'>
+              <TextTitle3 label="Rekomendasi untuk Anda" />
+              <TextLink label='Lihat semua >' size={10} link='/bakery' />
+            </View>
+            <FlatList
+              horizontal={true}
+              data={recommendedProducts}
+              renderItem={({ item }) => (
+                <ProductCard
+                  product={item}
+                  onPress={() => {
+                    router.push({
+                      pathname: '/bakery/bakeryDetail' as any,
+                      params: { productId: item.productId },
+                    })
+                  }}
+                />
+              )}
+              keyExtractor={(item) => item.productId.toString()}
+              className='mt-3'
+            />
           </View>
-          <FlatList
-            horizontal={true}
-            data={expiringProducts}
-            renderItem={({ item }) => (
-              <ProductCard
-                product={item}
-                onPress={() => { }}
-              />
-            )}
-            keyExtractor={(item) => item.productId.toString()}
-            className='mt-3'
-          />
+
+          <View className='mt-5 w-full'>
+            <View className='flex-row justify-between items-end w-full'>
+              <TextTitle3 label="Dapatkan Sebelum Terlambat" />
+              <TextLink label='Lihat semua >' size={10} link='/bakery' />
+            </View>
+            <FlatList
+              horizontal={true}
+              data={expiringProducts}
+              renderItem={({ item }) => (
+                <ProductCard
+                  product={item}
+                  onPress={() => { }}
+                />
+              )}
+              keyExtractor={(item) => item.productId.toString()}
+              className='mt-3'
+            />
+          </View>
         </View>
-
-        <CustomButton
-          label='logout sementara'
-          handlePress={() => signOut()}
-          buttonStyles='mt-4'
-          isLoading={isSubmitting}
-        />
-
 
       </ScrollView>
-    </SafeAreaView>
+      
+    </View>
   );
 };
 

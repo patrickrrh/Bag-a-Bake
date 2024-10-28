@@ -20,7 +20,7 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
 export default function favoriteApi() {
     return {
         addFavorite: createApiFunction("post", "add/favorite"),
-        removeFavorite: createApiFunction("delete", "remove/favorite"),
+        removeFavorite: (favoriteId: number) => createApiFunction("delete", `remove/favorite/${favoriteId}`)(),
         getFavorite: createApiFunction("post", "get/favorite"),
     }
 }
