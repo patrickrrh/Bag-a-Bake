@@ -20,69 +20,23 @@ import SellerOrderCardPending from '@/components/SellerOrderCardPending';
 import orderSellerApi from '@/api/orderSellerApi';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { router, useFocusEffect } from 'expo-router';
+import { OrderType } from '@/types/types';
 
 interface OrderDetailProps {
   navigation: StackNavigationProp<any>;
 }
 
-type Order = {
-  orderId: number;
-  orderStatus: number;
-  userId: number;
-  bakeryId: number;
-  orderDate: string;
-  user: User;
-  orderDetail: OrderDetail[];
-};
-
-type User = {
-  email: string;
-  password: string;
-  regionId: number;
-  roleId: number;
-  signUpDate: string;
-  userId: number;
-  userImage: string | null;
-  userName: string;
-  userPhoneNumber: string;
-};
-
-type OrderDetail = {
-  orderDetailId: number;
-  orderId: number;
-  productId: number;
-  productQuantity: number;
-  product: Product;
-};
-
-type Product = {
-  productId: number;
-  bakeryId: number;
-  categoryId: number;
-  productName: string;
-  productPrice: string;
-  productImage: string;
-  productDescription: string;
-  productExpirationDate: string;
-  productStock: number;
-  isActive: number;
-};
-
 const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
 
-  const { userData, signOut } = useAuth();
+  const { userData } = useAuth();
   const insets = useSafeAreaInsets();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const [latestPendingOrder, setLatestPendingOrder] = useState<Order | null>(null);
-  const [latestOngoingOrder, setLatestOngoingOrder] = useState<Order | null>(null);
+  const [latestPendingOrder, setLatestPendingOrder] = useState<OrderType | null>(null);
+  const [latestOngoingOrder, setLatestOngoingOrder] = useState<OrderType | null>(null);
   const [latestPendingOrderCount, setLatestPendingOrderCount] = useState(null);
   const [latestOngoingOrderCount, setLatestOngoingOrderCount] = useState(null);
-
-  const handleSignOut = async () => {
-    signOut();
-  }
 
   const handleGetLatestPendingOrderApi = async () => {
     try {
@@ -216,9 +170,9 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
                   label={`${latestPendingOrderCount} pesanan baru >`}
                   size={10}
                   onPress={() => {
-                    navigation.navigate('Order', {
-                      screen: 'OrderScreen',
-                      params: { status: 1, isFromHomePage: true }
+                    router.replace({
+                      pathname: '/order',
+                      params: { status: 1, isFromHomePage: "true" }
                     })
                   }}
                 />
@@ -231,12 +185,10 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
               <SellerOrderCardPending
                 order={latestPendingOrder}
                 onPress={() => {
-                  navigation.navigate('Order',
-                    {
-                      screen: 'OrderDetail',
-                      params: { order: latestPendingOrder }
-                    }
-                  )
+                  router.push({
+                    pathname: '/order/orderDetail',
+                    params: { order: JSON.stringify(latestPendingOrder) }
+                  })
                 }}
                 onReject={() => handleActionOrder(4)}
                 onAccept={() => handleActionOrder(2)}
@@ -258,9 +210,9 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
                   label={`${latestOngoingOrderCount} pesanan berlangsung >`}
                   size={10}
                   onPress={() => {
-                    navigation.navigate('Order', {
-                      screen: 'OrderScreen',
-                      params: { status: 2, isFromHomePage: true }
+                    router.replace({
+                      pathname: '/order',
+                      params: { status: 2, isFromHomePage: "true" }
                     })
                   }}
                 />
@@ -273,12 +225,10 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
               <SellerOrderCard
                 order={latestOngoingOrder}
                 onPress={() => {
-                  navigation.navigate('Order',
-                    {
-                      screen: 'OrderDetail',
-                      params: { order: latestOngoingOrder }
-                    }
-                  )
+                  router.push({
+                    pathname: '/order/orderDetail',
+                    params: { order: JSON.stringify(latestOngoingOrder) }
+                  })
                 }}
               />
             ) : (

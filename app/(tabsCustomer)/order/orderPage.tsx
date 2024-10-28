@@ -33,10 +33,10 @@ const OrderPage = () => {
 
   return (
     <View>
-        <Image 
+        {/* <Image 
             source={require('../../assets/images/logoBagABake.png')}
             style={{ width: 375, height: 330, marginBottom: 16 }}
-        />
+        /> */}
 
         <View className="mx-5">
           <View className="flex-row items-center justify-between">
@@ -53,10 +53,10 @@ const OrderPage = () => {
 
           <View className="flex-row items-center">
             <View className='pr-1'>
-              <Image 
+              {/* <Image 
                   source={require('../../assets/images/starFillIcon.png')}
                   style={{ width: 12, height: 12 }}
-              />
+              /> */}
             </View>
             <View className='pr-1 pt-1'>
               <TextRating label={"4.2"} />
@@ -83,10 +83,10 @@ const OrderPage = () => {
             </View>
             <View className='flex-row items-center pt-1'>
               <View className='pr-[5px]'>
-                <Image 
+                {/* <Image 
                     source={require('../../assets/images/discountIcon.png')}
                     style={{ width: 12, height: 12 }}
-                />
+                /> */}
               </View>
               <TextOrangeBold label={"50% off"} />
             </View>

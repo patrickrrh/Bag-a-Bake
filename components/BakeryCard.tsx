@@ -9,15 +9,20 @@ import { images } from '@/constants/images';
 
 interface Props {
     item: any;
-    favoriteStores: any[];
     onPress: () => void;
     onFavorite: () => void;
 }
 
-const BakeryCard: React.FC<Props> = ({ item, favoriteStores, onPress, onFavorite }) => {
+type Favorite = {
+    bakeryId: number;
+    favoriteId: number;
+    userId: number;
+}
+
+const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
 
     return (
-        <TouchableOpacity 
+        <TouchableOpacity
             className="bg-white rounded-lg shadow-sm mb-4 p-4"
             onPress={onPress}
         >
@@ -42,9 +47,9 @@ const BakeryCard: React.FC<Props> = ({ item, favoriteStores, onPress, onFavorite
                 <View>
                     <TouchableOpacity onPress={onFavorite}>
                         <Ionicons
-                            name={favoriteStores.includes(item.bakeryId) ? "heart" : "heart-outline"}
+                            name={item.favorite.some((fav: Favorite) => fav.bakeryId === item.bakeryId) ? "heart" : "heart-outline"}
                             size={24}
-                            color={favoriteStores.includes(item.bakeryId) ? "red" : "gray"}
+                            color={item.favorite.some((fav: Favorite) => fav.bakeryId === item.bakeryId) ? "red" : "gray"}
                         />
                     </TouchableOpacity>
                 </View>

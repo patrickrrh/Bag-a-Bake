@@ -12,69 +12,21 @@ import OrderStatusTab from '@/components/OrderStatusTab';
 import orderSellerApi from '@/api/orderSellerApi';
 import SellerOrderCardPending from '@/components/SellerOrderCardPending';
 import SellerOrderCard from '@/components/SellerOrderCard';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { OrderType } from '@/types/types';
 
+const Order = () => {
 
-type Order = {
-  orderId: number;
-  orderStatus: number;
-  userId: number;
-  bakeryId: number;
-  orderDate: string;
-  user: User;
-  orderDetail: OrderDetail[];
-};
-
-type User = {
-  email: string;
-  password: string;
-  regionId: number;
-  roleId: number;
-  signUpDate: string;
-  userId: number;
-  userImage: string | null;
-  userName: string;
-  userPhoneNumber: string;
-};
-
-type OrderDetail = {
-  orderDetailId: number;
-  orderId: number;
-  productId: number;
-  productQuantity: number;
-  product: Product;
-};
-
-type Product = {
-  productId: number;
-  bakeryId: number;
-  categoryId: number;
-  productName: string;
-  productPrice: string;
-  productImage: string;
-  productDescription: string;
-  productExpirationDate: string;
-  productStock: number;
-  isActive: number;
-};
-
-interface OrderDetailProps {
-  navigation: StackNavigationProp<any>;
-  route: RouteProp<{ params: { status: any, isFromHomePage: boolean } }>;
-}
-
-const Order: React.FC<OrderDetailProps> = ({ navigation, route }) => {
-
-  const { status, isFromHomePage } = route.params || { status: 1, isFromHomePage: false };
+  const { status, isFromHomePage } = useLocalSearchParams() || { status: 1, isFromHomePage: "false" };
   const insets = useSafeAreaInsets();
 
   const [selectedStatus, setSelectedStatus] = useState<number | null>(null);
   const hasManualSelection = useRef(false);
   const initialHomePage = useRef(true);
-  const [order, setOrder] = useState<Order[]>([]);
+  const [order, setOrder] = useState<OrderType[]>([]);
 
   const handleSelectStatus = (status: number) => {
     setSelectedStatus(status);
@@ -97,12 +49,12 @@ const Order: React.FC<OrderDetailProps> = ({ navigation, route }) => {
   useFocusEffect(
     useCallback(() => {
 
-      if (isFromHomePage && initialHomePage.current) {
-        setSelectedStatus(status);
+      if (isFromHomePage === "true" && initialHomePage.current) {
+        setSelectedStatus(Number(status));
         initialHomePage.current = false;
         hasManualSelection.current = false;
       } else if (!hasManualSelection.current) {
-        setSelectedStatus(status);
+        setSelectedStatus(Number(status));
       }
 
       return () => {
@@ -166,12 +118,10 @@ const Order: React.FC<OrderDetailProps> = ({ navigation, route }) => {
                 <SellerOrderCardPending
                   order={item}
                   onPress={() => {
-                    navigation.navigate('Order',
-                      {
-                        screen: 'OrderDetail',
-                        params: { order: item }
-                      }
-                    )
+                    router.push({
+                      pathname: '/order/orderDetail',
+                      params: { order: JSON.stringify(item) }
+                    })
                   }}
                   onAccept={() => handleActionOrder(item.orderId, 2)}
                   onReject={() => handleActionOrder(item.orderId, 4)}
@@ -180,12 +130,10 @@ const Order: React.FC<OrderDetailProps> = ({ navigation, route }) => {
                 <SellerOrderCard
                   order={item}
                   onPress={() => {
-                    navigation.navigate('Order',
-                      {
-                        screen: 'OrderDetail',
-                        params: { order: item }
-                      }
-                    )
+                    router.push({
+                      pathname: '/order/orderDetail',
+                      params: { order: JSON.stringify(item) }
+                    })
                   }}
                 />
               )

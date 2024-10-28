@@ -15,24 +15,17 @@ import RejectOrderButton from '@/components/rejectOrderButton';
 import AcceptOrderButton from '@/components/AcceptOrderButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import orderSellerApi from '@/api/orderSellerApi';
-import { useNavigation } from 'expo-router';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
+import { OrderDetailType } from '@/types/types';
 
-interface OrderDetailProps {
-  route: RouteProp<{ params: { order: any } }>;
-  navigation: StackNavigationProp<any>;
-}
+const OrderDetail = () => {
 
-type OrderDetail = {
-  orderDetailId: string;
-  productQuantity: string;
-  product: any;
-}
+  const { order } = useLocalSearchParams();
+  const orderData = order ? JSON.parse(order as string) : null;
 
-const OrderDetail: React.FC<OrderDetailProps> = ({ route, navigation }) => {
-
-  const { order } = route.params;
+  console.log("order data", orderData)
 
   const [isSubmitting, setisSubmitting] = useState(false);
 
@@ -40,16 +33,14 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ route, navigation }) => {
     try {
       setisSubmitting(true)
       const response = await orderSellerApi().actionOrder({
-        orderId: order.orderId,
+        orderId: orderData.orderId,
         orderStatus: orderStatus
       })
       if (response.status === 200) {
-        navigation.navigate('Order',
-          {
-            screen: 'OrderScreen',
-            params: { status: orderStatus }
-          }
-        )
+        router.push({
+          pathname: '/order',
+          params: { status: orderStatus }
+        })
       }
     } catch (error) {
       console.log(error)
@@ -64,9 +55,9 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ route, navigation }) => {
       <View className='mx-5 flex-row items-start'>
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate('Order', {
-              screen: 'OrderScreen',
-              params: { status: order.orderStatus, isFromHomePage: true }
+            router.push({
+              pathname: '/order',
+              params: { status: orderData.orderStatus, isFromHomePage: "true" }
             })
           }}
           activeOpacity={0.7}
@@ -79,8 +70,8 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ route, navigation }) => {
           />
         </TouchableOpacity>
         <View className='flex-1 items-center pr-3'>
-          <TextTitle3 label={`#${order.orderId}`} />
-          <TextTitle5Date label={order.orderDate} />
+          <TextTitle3 label={`#${orderData.orderId}`} />
+          <TextTitle5Date label={orderData.orderDate} />
         </View>
       </View>
 
@@ -88,23 +79,23 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ route, navigation }) => {
         <TextTitle3 label="Data Pembeli" />
         <View className='flex-row justify-between'>
           <TextTitle5 label="Nama Penerima" />
-          <TextTitle5 label={order.user.userName} />
+          <TextTitle5 label={orderData.user.userName} />
         </View>
         <View className='flex-row justify-between'>
           <TextTitle5 label="Nomor Telepon" />
-          <TextTitle5 label={order.user.userPhoneNumber} />
+          <TextTitle5 label={orderData.user.userPhoneNumber} />
         </View>
       </View>
 
       <View className='p-5 gap-y-3 mt-5 bg-white'>
         <TextTitle3 label="Ringkasan Pesanan" />
-        {order.orderDetail.map((item: OrderDetail) => (
+        {orderData.orderDetail.map((item: OrderDetailType) => (
           <View key={item.orderDetailId} className='flex-row justify-between'>
             <View style={{ flexDirection: 'row', columnGap: 8 }}>
-              <TextTitle5 label={item.productQuantity} />
+              <TextTitle5 label={item.productQuantity } />
               <TextTitle5 label={item.product.productName} />
             </View>
-            <TextTitle5 label={formatRupiah(item.product.productPrice)} />
+            <TextTitle5 label={formatRupiah(Number(item.product.productPrice))} />
           </View>
         ))}
       </View>
@@ -112,12 +103,12 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ route, navigation }) => {
       <View className='p-5 mt-5 bg-white'>
         <View className='flex-row justify-between'>
           <TextTitle4 label="Total" />
-          <TextTitle5 label={calculateTotalOrderPrice(order.orderDetail)} />
+          <TextTitle5 label={calculateTotalOrderPrice(orderData.orderDetail)} />
         </View>
       </View>
 
       {
-        order.orderStatus === 1 ? (
+        orderData.orderStatus === 1 ? (
           <View className='mx-5 mt-10'>
             <CustomButton
               label="Terima Pesanan"
@@ -131,7 +122,7 @@ const OrderDetail: React.FC<OrderDetailProps> = ({ route, navigation }) => {
               isLoading={isSubmitting}
             />
           </View>
-        ) : order.orderStatus === 2 ? (
+        ) : orderData.orderStatus === 2 ? (
           <View className='mx-5 mt-10'>
             <CustomButton
               label="Selesaikan Pesanan"

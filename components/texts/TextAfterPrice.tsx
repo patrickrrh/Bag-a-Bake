@@ -13,7 +13,7 @@ const TextAfterPrice: React.FC<Props> = ({ label, size }) => {
         style={{ fontFamily: "poppinsSemiBold", fontSize: 16 }}
         className='text-primary'
       >
-       {`Rp${label}/pcs`}
+       {label}
       </Text>
     </View>
   )

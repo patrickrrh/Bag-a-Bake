@@ -1,22 +1,22 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import React from 'react'
+import { Link } from 'expo-router'
 
 interface Props {
     label: string
     size?: number
-    onPress?: () => void
+    link: string
 }
 
-const TextLink: React.FC<Props> = ({ label, size, onPress }) => {
+const TextLink: React.FC<Props> = ({ label, size, link }) => {
   return (
     <View>
-      <Text
-        style={{ fontFamily: "poppinsMedium", fontSize: size }}
-        className='text-brown'
-        onPress={onPress}
+      <Link
+        style={{ fontFamily: "poppinsMedium", fontSize: size, color: "#B0795A" }}
+        href={link}
       >
         {label}
-      </Text>
+      </Link>
     </View>
   )
 }
