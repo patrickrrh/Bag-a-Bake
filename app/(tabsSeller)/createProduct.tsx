@@ -1,15 +1,6 @@
-import {
-  View,
-  Text,
-  Image,
-  Button,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
-import React, { useState } from "react";
+import { View, Text, Image, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
 import BackButton from "@/components/BackButton";
@@ -25,24 +16,49 @@ import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
 import PriceInputField from "@/components/PriceInputField";
 import DiscountInputField from "@/components/DiscountInputField";
+import { checkProductForm } from "@/utils/commonFunctions";
+import ErrorMessage from "@/components/texts/ErrorMessage";
+import categoryApi from "@/api/categoryApi";
+import productApi from "@/api/productApi";
+import SquareButton from "@/components/SquareButton";
+import { useProduct } from "@/app/context/ProductContext";
+
+type ErrorState = {
+  productName: string | null;
+  productDescription: string | null;
+  category: string | null;
+  productExpirationDate: string | null;
+  productPrice: string | null;
+  discount: string | null;
+  productStock: string | null;
+  productImage: string | null;
+};
 
 const CreateProduct = () => {
-  const navigation = useNavigation();
-
   const [form, setForm] = useState({
     productName: "",
     productDescription: "",
+    categoryId: 0,
     category: null,
-    expirationDate: "",
-    initialPrice: "",
-    discountDay1: "",
-    discountDay2: "",
-    discountDay3: "",
-    stock: 1,
-    productPhoto: "",
+    productExpirationDate: "",
+    productPrice: "",
+    discount: [{ discountAmount: "" }],
+    productStock: 1,
+    productImage: "",
   });
 
-  const [error, setError] = useState<string | null>(null);
+  const productError: ErrorState = {
+    productName: null,
+    productDescription: null,
+    category: null,
+    productExpirationDate: null,
+    productPrice: null,
+    discount: null,
+    productStock: null,
+    productImage: null,
+  };
+
+  const [error, setError] = useState<ErrorState>(productError);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const pickImage = async () => {
@@ -54,19 +70,85 @@ const CreateProduct = () => {
     });
 
     if (!result.canceled) {
-      setForm({ ...form, productPhoto: result.assets[0].uri });
+      setForm({ ...form, productImage: result.assets[0].uri });
     }
   };
 
   dayjs.locale("id");
   const handleDateConfirm = (date: Date) => {
-    setForm({ ...form, expirationDate: dayjs(date).format("DD MMMM YYYY") });
-    setError(null);
+    setForm({
+      ...form,
+      productExpirationDate: dayjs(date).format("DD MMMM YYYY"),
+    });
+    setError((prevError) => ({ ...prevError, productExpirationDate: null }));
   };
 
-  const handleAddProduct = () => {
-    console.log(form);
+  const handleAddProduct = async () => {
+    try {
+      setIsSubmitting(true);
+
+      const errors = checkProductForm(form);
+      if (Object.values(errors).some((error) => error !== null)) {
+        setError(errors as ErrorState);
+        return;
+      }
+
+      const response = await productApi().createProduct(form);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      console.log("Response:", response);
+      console.log("Form submitted:", form);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  const handleAddDiscount = () => {
+    setForm((prevForm) => ({
+      ...prevForm,
+      discount: [...prevForm.discount, { discountAmount: "" }],
+    }));
+  };
+
+  const handleRemoveDiscount = () => {
+    if (form.discount.length > 1) {
+      setForm((prevForm) => ({
+        ...prevForm,
+        discount: prevForm.discount.slice(0, -1),
+      }));
+    }
+  };
+
+  const handleDiscountChange = (index: number, text: string) => {
+    const updatedDiscounts = form.discount.map((discount, i) =>
+      i === index ? { discountAmount: text } : discount
+    );
+
+    setForm((prevForm) => ({
+      ...prevForm,
+      discount: updatedDiscounts,
+    }));
+  };
+
+  const [categories, setCategories] = useState([]);
+
+  const handleGetCategoriesAPI = async () => {
+    try {
+      const response = await categoryApi().getCategory();
+      if (response.status === 200) {
+        setCategories(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetCategoriesAPI();
+  }, []);
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -95,9 +177,9 @@ const CreateProduct = () => {
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           {/* Preview Upload Photo */}
           <View className="mt-4 items-center">
-            {form.productPhoto ? (
+            {form.productImage ? (
               <Image
-                source={{ uri: form.productPhoto }}
+                source={{ uri: form.productImage }}
                 className="w-48 h-48 rounded-md"
                 resizeMode="cover"
               />
@@ -105,10 +187,18 @@ const CreateProduct = () => {
               <View className="w-48 h-48 bg-gray-200 rounded-md" />
             )}
           </View>
-
+          <View className="mt-4 w-full items-center">
+            {error.productImage && <ErrorMessage label={error.productImage} />}
+          </View>
           {/* Upload Photo Button */}
           <View className="mt-4 w-full items-center">
-            <UploadButton label="Unggah Foto" handlePress={pickImage} />
+            <UploadButton
+              label="Unggah Foto"
+              handlePress={() => {
+                setError((prevError) => ({ ...prevError, productImage: null }));
+                pickImage();
+              }}
+            />
           </View>
 
           {/* Product Name Field */}
@@ -116,8 +206,12 @@ const CreateProduct = () => {
             label="Nama Produk"
             value={form.productName}
             placeholder="Roti Ayam"
-            onChangeText={(text) => setForm({ ...form, productName: text })}
+            onChangeText={(text) => {
+              setForm({ ...form, productName: text });
+              setError((prevError) => ({ ...prevError, productName: null }));
+            }}
             moreStyles="mt-7"
+            error={error.productName}
           />
 
           {/* Product Description Field */}
@@ -125,60 +219,94 @@ const CreateProduct = () => {
             label="Deskripsi Produk"
             value={form.productDescription}
             placeholder="Roti Ayam merupakan roti lezat yang terbuat dari ayam..."
-            onChangeText={(text) =>
-              setForm({ ...form, productDescription: text })
-            }
+            onChangeText={(text) => {
+              setForm({ ...form, productDescription: text });
+              setError((prevError) => ({
+                ...prevError,
+                productDescription: null,
+              }));
+            }}
             moreStyles="mt-7"
+            error={error.productDescription}
           />
 
-          {/* Category Dropdown */}
           <CustomDropdown
             label="Kategori"
-            data={[
-              { label: "Kategori1", value: "kategori1" },
-              { label: "Kategori2", value: "kategori2" },
-              { label: "Kategori3", value: "kategori3" },
-            ]}
+            data={categories}
             value={form.category}
             placeholder="Pilih Kategori"
-            labelField="label"
-            valueField="value"
-            onChange={(itemValue) => setForm({ ...form, category: itemValue })}
+            labelField="categoryName"
+            valueField="categoryId"
+            onChange={(text) => {
+              setForm({ ...form, categoryId: Number(text) });
+              setError((prevError) => ({ ...prevError, category: null }));
+            }}
             moreStyles="mt-7"
+            error={error.category}
           />
 
           {/* Date Picker Input */}
           <ExpirationDatePicker
             label="Tanggal Kedaluwarsa"
-            expirationDate={form.expirationDate}
+            expirationDate={form.productExpirationDate}
             onConfirm={handleDateConfirm}
-            error={error}
+            error={error.productExpirationDate}
           />
 
           {/* Initial Price Field */}
           <PriceInputField
             label="Harga Awal"
-            value={form.initialPrice}
-            onChangeText={(text) => setForm({ ...form, initialPrice: text })}
+            value={form.productPrice}
+            onChangeText={(text) => setForm({ ...form, productPrice: text })}
             placeholder="Masukkan Harga Awal"
             moreStyles="mt-7"
+            error={error.productPrice}
           />
 
           {/* Discount Fields */}
           <View className="mt-7 space-y-1">
-            <TextFormLabel label="Potongan Harga" />
-            <View className="flex-row justify-between">
-              <View className="flex-1 mr-2">
-                <DiscountInputField
-                  value={form.discountDay1}
-                  onChangeText={(text) =>
-                    setForm({ ...form, discountDay1: text })
-                  }
-                  placeholder="Hari 1"
-                />
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 10,
+              }}
+            >
+              <TextFormLabel label="Potongan Harga" />
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginLeft: 10,
+                }}
+              >
+                <SquareButton label="-" handlePress={handleRemoveDiscount} />
+                <SquareButton label="+" handlePress={handleAddDiscount} />
               </View>
+            </View>
+            <View className="flex-col">
+              {form.discount.map((discount, index) => (
+                <View
+                  key={index}
+                  className="flex-row items-center justify-between mb-4"
+                >
+                  <Text
+                    style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
+                    className="text-black"
+                  >
+                    Hari ke-{index + 1}
+                  </Text>
+                  <DiscountInputField
+                    value={discount.discountAmount}
+                    onChangeText={(text) => handleDiscountChange(index, text)}
+                    placeholder={`Hari ke-${index + 1}`}
+                  />
+                </View>
+              ))}
+            </View>
 
-             
+            <View className="mt-4 flex-col justify-center w-full">
+              {error.discount && <ErrorMessage label={error.discount} />}
             </View>
           </View>
 
@@ -187,9 +315,9 @@ const CreateProduct = () => {
             <TextFormLabel label="Jumlah Stok" />
             <View className="w-full h-[40px] flex-row items-center">
               <StockInput
-                value={form.stock}
+                value={form.productStock}
                 onChangeText={(text) =>
-                  setForm({ ...form, stock: parseInt(text) || 1 })
+                  setForm({ ...form, productStock: parseInt(text) || 1 })
                 }
               />
             </View>
@@ -202,12 +330,6 @@ const CreateProduct = () => {
             buttonStyles="mt-6"
             isLoading={isSubmitting}
           />
-
-          {error && (
-            <View className="mt-4 flex-row justify-center w-full">
-              <Text style={{ color: "red" }}>{error}</Text>
-            </View>
-          )}
         </View>
       </ScrollView>
     </SafeAreaView>

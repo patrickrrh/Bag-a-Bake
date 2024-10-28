@@ -7,7 +7,6 @@ import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';
 import UploadButton from '@/components/UploadButton';
 import { Picker } from '@react-native-picker/picker';
-import SellerLayout from './sellerLayout';
 
 const Profile = () => {
 

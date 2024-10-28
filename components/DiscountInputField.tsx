@@ -31,7 +31,7 @@ const DiscountInputField: React.FC<Props> = ({ value, placeholder, onChangeText,
 
   return (
     <View className={`space-y-1 ${moreStyles}`}>
-      <View className={`w-full h-[40px] px-4 bg-white rounded-[8px] border ${error ? 'border-red-500' : 'border-gray-200'} flex-row items-center`}>
+      <View className={`w-[160px] h-[40px] px-4 bg-white rounded-[8px] border ${error ? 'border-red-500' : 'border-gray-200'} flex-row items-center`}>
         <TextInput
           className='flex-1 text-black text-base'
           style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
