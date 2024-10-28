@@ -4,6 +4,18 @@ import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
 import Toast from 'react-native-toast-message';
 
+interface UserData {
+    userId: number;
+    email: string;
+    password: string;
+    regionId: number;
+    roleId: number;
+    signUpDate: string;
+    userImage: string;
+    userName: string;
+    userPhoneNumber: string;
+}
+
 const AuthContext = createContext<{
     signIn: (data: object) => void;
     signUp: (data: object) => void;
@@ -11,6 +23,7 @@ const AuthContext = createContext<{
     isAuthenticated: boolean | null;
     isLoading: boolean;
     justSignedIn: boolean;
+    userData: UserData | null;
 }>({
     signIn: (data: object) => null,
     signUp: (data: object) => null,
@@ -18,6 +31,7 @@ const AuthContext = createContext<{
     isAuthenticated: null,
     isLoading: false,
     justSignedIn: false,
+    userData: null,
 })
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -25,17 +39,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [justSignedIn, setJustSignedIn] = useState(false);
+    const [userData, setUserData] = useState<UserData | null>(null);
 
     useEffect(() => {
         const checkAuth = async () => {
-            console.log("is check auth called again")
             try {
                 setIsLoading(true);
                 const token = await SecureStore.getItemAsync("accessToken");
-                console.log("Token retrieved:", token);
+                const userData = await SecureStore.getItemAsync("userData");
+                const parsedUserData = JSON.parse(userData || "{}");
 
                 if (token) {
                     setIsAuthenticated(true);
+                    setUserData(parsedUserData);
                 } else {
                     setIsAuthenticated(false);
                 }
@@ -61,11 +77,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         try {
             const response = await authenticationApi().signIn(data);
+            console.log("Bro", response)
             if (response.error) {
                 throw new Error(response.error);
             } else {
                 await SecureStore.setItemAsync("accessToken", response.accessToken);
                 await SecureStore.setItemAsync("refreshToken", response.refreshToken);
+                await SecureStore.setItemAsync("userData", JSON.stringify(response.user));
                 setIsAuthenticated(true);
             }
         } catch (error) {
@@ -98,12 +116,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const signOut = async () => {
         await SecureStore.deleteItemAsync("accessToken");
         await SecureStore.deleteItemAsync("refreshToken");
+        await SecureStore.deleteItemAsync("userData");
         setIsAuthenticated(false);
         setJustSignedIn(true);
     };
 
     return (
-        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn }}>
+        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData }}>
             {children}
         </AuthContext.Provider>
     )

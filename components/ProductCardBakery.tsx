@@ -13,7 +13,10 @@ interface Props {
     onPress: () => void;
 }
 
-const ProductCard: React.FC<Props> = ({ product, onPress }) => {
+const ProductCardBakery: React.FC<Props> = ({ product, onPress }) => {
+
+    console.log("product", product)
+
     return (
         <TouchableOpacity
             onPress={onPress}
@@ -29,7 +32,7 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
                     <TextTitle4 label={product.productName} />
                     <CustomTag count={product.productStock} />
                 </View>
-                <TextTitle5 label={product.bakery.bakeryName} />
+                <TextTitle5 label={product.bakeryName} />
                 <View className='mt-2'>
                     <View className='flex-row mb-1'>
                         <View className='mr-2'>
@@ -45,4 +48,4 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
 };
 
 
-export default ProductCard;
+export default ProductCardBakery;

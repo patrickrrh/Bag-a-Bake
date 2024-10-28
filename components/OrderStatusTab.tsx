@@ -1,75 +1,43 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
-// Define the props for the OrderStatusTab
 interface OrderStatusTabProps {
   selectedStatus: number;
   onSelectStatus: (status: number) => void;
 }
 
+const statuses: Array<1 | 2 | 3> = [1, 2, 3];
+
 const OrderStatusTab: React.FC<OrderStatusTabProps> = ({ selectedStatus, onSelectStatus }) => {
-  const statusLabels: { [key: number]: string } = {
+  
+  const statusMapping = {
     1: 'Pending',
     2: 'Berlangsung',
     3: 'Selesai',
   };
 
-  const statuses = [1, 2, 3];
-
   return (
-    <View style={styles.container}>
+    <View className="flex-row justify-around">
       {statuses.map((status) => (
-        <TouchableOpacity 
-          key={status} 
-          onPress={() => onSelectStatus(status)} 
-          style={styles.tab}
+        <TouchableOpacity
+          key={status}
+          onPress={() => onSelectStatus(status)}
+          className="flex-1 items-center pt-2"
         >
-          <Text 
-            style={[
-              styles.tabText, 
-              selectedStatus === status && styles.selectedTabText
-            ]}
+          <Text
+            className={`text-lg font-bold pb-5 ${
+              selectedStatus === status ? 'text-brown opacity-100' : 'text-black opacity-50'
+            }`}
           >
-            {statusLabels[status]}
+            {statusMapping[status]}
           </Text>
           {selectedStatus === status && (
-            <View style={styles.activeTabIndicator} />
+            <View className="w-[50%] h-1 bg-brown rounded-lg mt-1" />
           )}
         </TouchableOpacity>
       ))}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  tab: {
-    flex: 1, 
-    alignItems: 'center',
-    paddingTop: 10,
-  },
-  tabText: {
-    color: '#000000',
-    fontSize: 16,
-    paddingBottom: 20,
-    fontWeight: 'bold',
-    opacity: 0.5, 
-  },
-  selectedTabText: {
-    color: '#B0795A',
-    fontWeight: 'bold',
-    opacity: 1,
-  },
-  activeTabIndicator: {
-    width: '100%',
-    height: 5, 
-    backgroundColor: '#B0795A',
-    borderRadius: 10, 
-    marginTop: 4,
-  },
-});
 
 export default OrderStatusTab;

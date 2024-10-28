@@ -4,7 +4,7 @@ import TextFormLabel from './texts/TextFormLabel'
 import { images } from '@/constants/images'
 
 interface Props {
-    label: string;
+    label: string;  
     isSelected: boolean;
     onPress: () => void;
 }
