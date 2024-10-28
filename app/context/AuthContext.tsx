@@ -3,7 +3,7 @@ import authenticationApi from '@/api/authenticationApi';
 import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
 import Toast from 'react-native-toast-message';
-import { UserType } from "@/types/types";
+import { BakeryType, UserType } from "@/types/types";
 
 const AuthContext = createContext<{
     signIn: (data: object) => void;
@@ -13,6 +13,7 @@ const AuthContext = createContext<{
     isLoading: boolean;
     justSignedIn: boolean;
     userData: UserType | null;
+    bakeryData: BakeryType | null;
 }>({
     signIn: (data: object) => null,
     signUp: (data: object) => null,
@@ -21,6 +22,7 @@ const AuthContext = createContext<{
     isLoading: false,
     justSignedIn: false,
     userData: null,
+    bakeryData: null
 })
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -29,18 +31,23 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const [isLoading, setIsLoading] = useState(false);
     const [justSignedIn, setJustSignedIn] = useState(false);
     const [userData, setUserData] = useState<UserType | null>(null);
+    const [bakeryData, setBakeryData] = useState<BakeryType | null>(null);
 
     useEffect(() => {
         const checkAuth = async () => {
             try {
                 setIsLoading(true);
                 const token = await SecureStore.getItemAsync("accessToken");
+
                 const userData = await SecureStore.getItemAsync("userData");
                 const parsedUserData = JSON.parse(userData || "{}");
 
+                const bakeryData = await SecureStore.getItemAsync("bakeryData");
+                const parsedBakeryData = JSON.parse(bakeryData || "{}");
                 if (token) {
                     setIsAuthenticated(true);
                     setUserData(parsedUserData);
+                    setBakeryData(parsedBakeryData);
                 } else {
                     setIsAuthenticated(false);
                 }
@@ -72,6 +79,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
                 await SecureStore.setItemAsync("accessToken", response.accessToken);
                 await SecureStore.setItemAsync("refreshToken", response.refreshToken);
                 await SecureStore.setItemAsync("userData", JSON.stringify(response.user));
+                await SecureStore.setItemAsync("bakeryData", JSON.stringify(response.bakery));
                 setIsAuthenticated(true);
             }
         } catch (error) {
@@ -91,6 +99,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
             } else {
                 await SecureStore.setItemAsync("accessToken", response.accessToken);
                 await SecureStore.setItemAsync("refreshToken", response.refreshToken);
+                await SecureStore.setItemAsync("userData", JSON.stringify(response.user));
+                await SecureStore.setItemAsync("bakeryData", JSON.stringify(response.bakery));
                 setIsAuthenticated(true);
             }
         } catch (error) {
@@ -105,13 +115,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
         await SecureStore.deleteItemAsync("accessToken");
         await SecureStore.deleteItemAsync("refreshToken");
         await SecureStore.deleteItemAsync("userData");
+        await SecureStore.deleteItemAsync("bakeryData");
         setIsAuthenticated(false);
         setUserData(null);
+        setBakeryData(null);
         setJustSignedIn(true);
     };
 
     return (
-        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData }}>
+        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData, bakeryData }}>
             {children}
         </AuthContext.Provider>
     )
