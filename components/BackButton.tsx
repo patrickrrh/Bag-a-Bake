@@ -1,6 +1,7 @@
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native'; 
+import { FontAwesome } from '@expo/vector-icons';
 
 const BackButton: React.FC = () => {
     const navigation = useNavigation(); 
@@ -15,10 +16,10 @@ const BackButton: React.FC = () => {
             activeOpacity={0.7}
             style={styles.button}
         >
-            <Image
-                source={require('@/assets/images/backIcon.png')}
-                style={styles.image}
-                resizeMode="contain"
+            <FontAwesome
+                name="angle-left"
+                size={24}
+                color="#000"
             />
         </TouchableOpacity>
     );

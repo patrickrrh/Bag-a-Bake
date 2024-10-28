@@ -5,7 +5,7 @@ import TextButton from './texts/TextButton'
 interface Props {
     label: string;
     handlePress: () => void;
-    buttonStyles: string;
+    buttonStyles?: string;
     isLoading: boolean;
 }
 

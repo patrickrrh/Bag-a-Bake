@@ -28,16 +28,16 @@ const OrderDetail = () => {
                     </View>
                 </View>
 
-                <Image 
+                {/* <Image 
                     source={require('../../assets/images/map.png')}
                     style={{ width: 353, height: 177, marginTop: 40 }}
-                />
+                /> */}
             </View>
             <View className="flex-row mt-10 bg-white">
-                <Image 
+                {/* <Image 
                     source={require('../../assets/images/profile.jpg')}
                 style={{ width: 40, height: 40, borderRadius: 48, marginTop: 8, marginBottom: 8, marginLeft: 20 }}
-                />
+                /> */}
 
                 <View className="ml-4 my-2">
                     <TextTitle4 label="Berkat Bakery" />

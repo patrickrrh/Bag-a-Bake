@@ -18,7 +18,6 @@ interface Props {
 }
 
 const CustomDropdown: React.FC<Props> = ({ label, data, value, placeholder, labelField, valueField, onChange, moreStyles, error }) => {
-    console.log("value", value)
     return (
         <View className={`space-y-1 ${moreStyles}`}>
             <TextFormLabel label={label} />

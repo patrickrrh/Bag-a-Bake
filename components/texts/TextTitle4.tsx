@@ -11,6 +11,8 @@ const TextTitle4: React.FC<Props> = ({ label }) => {
       <Text
         style={{ fontFamily: "poppinsSemiBold", fontSize: 14 }}
         className='text-black'
+        ellipsizeMode='tail'
+        numberOfLines={1}
       >
         {label}
       </Text>

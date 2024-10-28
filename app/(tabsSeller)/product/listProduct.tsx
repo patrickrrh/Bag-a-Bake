@@ -1,6 +1,5 @@
 import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useState } from 'react';
-import SellerLayout from './sellerLayout';
 import FormField from '@/components/FormField';
 import CustomButton from '@/components/CustomButton';
 import CustomLogo from '@/components/CustomLogo';
@@ -43,11 +42,13 @@ interface ListProductProps {
       </View>
 
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-
+     
       <CustomButton
                 label='Tambahkan Produk'
                 handlePress={() => {
-                    navigation.navigate('CreateProduct'); 
+                  router.push({
+                    pathname: '/product/createProduct'
+                  })
                 }}
                 buttonStyles='mt-4'
                 isLoading={false} 

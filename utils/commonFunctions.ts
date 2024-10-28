@@ -9,20 +9,20 @@ export const checkEmptyForm = (
   const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
   const phoneRegex = /^(?:\+62|62|0)8[1-9][0-9]{6,10}$/;
 
-  const fieldLabels: Record<string, string> = {
-    userName: "Nama Pengguna",
-    email: "Email",
-    password: "Password",
-    userPhoneNumber: "Nomor HP",
-    regionId: "Lokasi",
-    openingTime: "Jam Buka",
-    closingTime: "Jam Tutup",
-    bakeryName: "Nama Toko",
-    bakeryRegionId: "Lokasi Toko",
-    bakeryPhoneNumber: "Nomor HP Toko",
-    bakeryDescription: "Deskripsi Toko",
-    bakeryImage: "Gambar Toko",
-  };
+    const fieldLabels: Record<string, string> = {
+        userName: 'Nama Pengguna',
+        email: 'Email',
+        password: 'Password',
+        userPhoneNumber: 'Nomor HP',
+        regionId: 'Lokasi',
+        openingTime: 'Jam Buka',
+        closingTime: 'Jam Tutup',
+        bakeryName: 'Nama Toko',
+        bakeryRegionId: 'Lokasi Toko',
+        bakeryPhoneNumber: 'Nomor HP Toko',
+        bakeryDescription: 'Deskripsi Toko',
+        bakeryImage: 'Gambar Toko',
+    };
 
   for (const value in form) {
     if (value === "userImage") {
@@ -155,3 +155,20 @@ export const checkProductForm = (form: Record<string, unknown>) => {
 
   return errors;
 };
+
+
+export const calculateTotalOrderPrice = (orderDetail: any): string => {
+    const total = orderDetail.reduce((sum: number, detail: any) => {
+        const price = parseFloat(detail.product.productPrice);
+        return sum + price * detail.productQuantity;
+    }, 0);
+
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total);
+}
+
+export const formatRupiah = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+    }).format(amount);
+  };

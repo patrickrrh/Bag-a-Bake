@@ -4,7 +4,7 @@ import TextFormLabel from './texts/TextFormLabel'
 import { images } from '@/constants/images'
 
 interface Props {
-    label: string;
+    label: string;  
     isSelected: boolean;
     onPress: () => void;
 }
@@ -14,7 +14,7 @@ const RoleCard: React.FC<Props> = ({ label, isSelected, onPress }) => {
         <TouchableOpacity
             onPress={onPress}
             className={`w-[150px] h-[180px] flex-col items-center justify-center rounded-lg border ${isSelected ? 'border-primary' : 'border-gray-200'
-                } bg-white shadow-md`}
+                } bg-white shadow-sm`}
         >
             <Image
                 source={images.logo}

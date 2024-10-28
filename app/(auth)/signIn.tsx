@@ -58,8 +58,6 @@ const SignIn = () => {
         password: form.password
       })
 
-      console.log("res", res)
-
       if (res.error) {
         showToast('error', res.error);
         return;
@@ -77,6 +75,9 @@ const SignIn = () => {
     }
   };
 
+  console.log(isSubmitting);
+  console.log("form", form);
+
   const handleSignOut = async () => {
     signOut();
   }
@@ -90,9 +91,6 @@ const SignIn = () => {
       <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
       <View className="mt-16 items-center">
         <TextHeader label="Selamat Datang" />
-        {/* <View className='mt-2'>
-          <TextHeadline label="Masuk akun Bag a Bake Anda" />
-        </View> */}
       </View>
     </>
   )
@@ -101,7 +99,7 @@ const SignIn = () => {
     <>
       <TextHeadline label="Belum memiliki akun?" />
       <Link href="/(auth)/signUp">
-        <TextLink label="Daftar disini" />
+        <TextLink label="Daftar disini" size={14} />
       </Link>
     </>
   );
@@ -122,8 +120,6 @@ const SignIn = () => {
   if (isSplashVisible) {
     return <SplashScreen />;
   }
-
-  console.log("form value", form)
 
   return (
     <AuthLayout headerContent={headerContent} footerContent={footerContent}>
@@ -151,7 +147,7 @@ const SignIn = () => {
 
       <View className="mt-6 flex-row justify-end">
         <Link href="/(auth)/signUp">
-          <TextLink label='Lupa Password?' />
+          <TextLink label='Lupa Password?' size={14} />
         </Link>
       </View>
 
@@ -176,16 +172,9 @@ const SignIn = () => {
         isLoading={isSubmitting}
       />
 
-      <CustomButton 
-        label='customerpage' 
-        handlePress={handleCustomerPage} 
-        buttonStyles='mt-4' 
-        isLoading={isSubmitting}
-      />
-
       <CustomButton
         label='Tambahkan Produk'
-        handlePress={() => router.push('/(tabsSeller)/createProduct')}
+        handlePress={() => router.push('/(tabsSeller)/product/createProduct')}
         buttonStyles='mt-4'
         isLoading={false}
       />

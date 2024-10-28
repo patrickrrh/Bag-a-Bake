@@ -1,0 +1,26 @@
+import axios from "axios";
+import apiClient from "./apiClient";
+
+const createApiFunction = (method: string, url: string) => async (data?: object) => {
+    try {
+        const response = await apiClient({
+            method,
+            url: `/${url}`,
+            data: method === "post" || method === "put" ? data : undefined,
+        });
+        return response.data
+    } catch(error) {    
+        if (axios.isAxiosError(error)) {
+            return error.response?.data
+        }
+        return { message: "An unexpected error occured" };
+    }
+}
+
+export default function favoriteApi() {
+    return {
+        addFavorite: createApiFunction("post", "add/favorite"),
+        removeFavorite: (favoriteId: number) => createApiFunction("delete", `remove/favorite/${favoriteId}`)(),
+        getFavorite: createApiFunction("post", "get/favorite"),
+    }
+}

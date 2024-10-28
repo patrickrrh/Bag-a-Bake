@@ -4,23 +4,24 @@ import { useEffect } from "react";
 import Toast from "react-native-toast-message";
 
 function RootLayout() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, userData } = useAuth();
 
-  console.log("apa status is auth", isAuthenticated)
-  console.log("apa is loading", isLoading)
+  console.log("user data", userData)
 
   useEffect(() => {
+    
     if (!isLoading) {
-      console.log("isAuthenticated:", isAuthenticated);
       if (isAuthenticated === null) return;
-
-      if (isAuthenticated === true) {
-        router.replace("/(tabs)/home");
+      
+      if (isAuthenticated === true && userData && userData.roleId === 1) {
+        router.replace("/(tabsCustomer)/home");
+      } else if (isAuthenticated === true && userData && userData.roleId === 2) {
+        router.replace("/(tabsSeller)/home");
       } else if (isAuthenticated === false) {
         router.replace("/(auth)/signIn");
       }
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, userData]);
 
   return <Slot />;
 }
