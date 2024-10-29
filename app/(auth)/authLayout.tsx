@@ -32,7 +32,7 @@ const AuthLayout: React.FC<Props> = ({ children, headerContent, footerContent })
 
                     {/* Footer */}
                     <View style={{ flex: 1 }} className='mt-20' />
-                    <View className="flex-row justify-center items-center mb-8">
+                    <View className="flex-row justify-center items-center">
                         {footerContent}
                     </View>
 
