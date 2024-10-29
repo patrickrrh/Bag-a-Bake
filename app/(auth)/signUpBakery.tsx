@@ -151,10 +151,10 @@ const SignUpBakery = () => {
 
     const footerContent = (
         <>
-            <TextHeadline label='Sudah memiliki akun?' />
-            <Link href="/(auth)/signIn">
-                <TextLink label='Masuk disini' size={14} />
-            </Link>
+            <View className='mr-1'>
+                <TextHeadline label='Sudah memiliki akun?' />
+            </View>
+            <TextLink label="Masuk disini" size={14} link="/(auth)/signIn" />
         </>
     );
 
@@ -223,7 +223,7 @@ const SignUpBakery = () => {
             </View>
             <CustomDropdown
                 label='Lokasi'
-                value={form.bakeryRegionId.toString()}
+                value={form.bakeryRegionId}
                 data={region}
                 placeholder='Pilih lokasi toko Anda'
                 labelField='regionName'

@@ -132,7 +132,7 @@ const Home = () => {
                   source={icons.location}
                   style={{ width: 12, height: 12, marginRight: 5, tintColor: "white" }}
                 />
-                <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white" }}>{userData?.regionUser.regionName}</Text>
+                <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white" }}>{userData?.regionUser?.regionName}</Text>
               </View>
             </View>
             <View>
@@ -182,7 +182,7 @@ const Home = () => {
           <View className='mt-6 w-full'>
             <View className='flex-row justify-between items-center w-full'>
               <TextTitle3 label="Rekomendasi untuk Anda" />
-              <TextLink label='Lihat semua >' size={10} link='/bakery' />
+              {/* <TextLink label='Lihat semua >' size={10} link='/bakery' /> */}
             </View>
             <FlatList
               horizontal={true}
@@ -206,7 +206,7 @@ const Home = () => {
           <View className='mt-5 w-full'>
             <View className='flex-row justify-between items-end w-full'>
               <TextTitle3 label="Dapatkan Sebelum Terlambat" />
-              <TextLink label='Lihat semua >' size={10} link='/bakery' />
+              {/* <TextLink label='Lihat semua >' size={10} link='/bakery' /> */}
             </View>
             <FlatList
               horizontal={true}

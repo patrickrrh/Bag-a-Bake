@@ -8,7 +8,7 @@ import { Dropdown } from 'react-native-element-dropdown'
 interface Props {
     label: string;
     data: any[];
-    value: string;
+    value: string | number;
     placeholder: string;
     labelField: string;
     valueField: string;
