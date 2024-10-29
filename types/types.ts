@@ -9,6 +9,7 @@ export type UserType = {
     userName: string;
     userPhoneNumber: string;
     regionUser: RegionType;
+    bakery: BakeryType;
 };
 
 export type BakeryType = {
