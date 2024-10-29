@@ -97,10 +97,10 @@ const SignIn = () => {
 
   const footerContent = (
     <>
-      <TextHeadline label="Belum memiliki akun?" />
-      <Link href="/(auth)/signUp">
-        <TextLink label="Daftar disini" size={14} />
-      </Link>
+      <View className='mr-1'>
+        <TextHeadline label="Belum memiliki akun?" />
+      </View>
+      <TextLink label='Daftar disini' size={14} link="/(auth)/signUp" />
     </>
   );
 
@@ -146,9 +146,7 @@ const SignIn = () => {
       />
 
       <View className="mt-6 flex-row justify-end">
-        <Link href="/(auth)/signUp">
-          <TextLink label='Lupa Password?' size={14} />
-        </Link>
+        <TextLink label='Lupa kata sandi?' size={14} link="/TO DO: add link" />
       </View>
 
       <CustomButton
@@ -165,13 +163,13 @@ const SignIn = () => {
         isLoading={isSubmitting}
       />
 
-      <CustomButton 
-        label='customerpage' 
-        handlePress={handleCustomerPage} 
-        buttonStyles='mt-4' 
+      <CustomButton
+        label='customerpage'
+        handlePress={handleCustomerPage}
+        buttonStyles='mt-4'
         isLoading={isSubmitting}
       />
-{/* 
+      {/* 
       <CustomButton
         label='Tambahkan Produk'
         handlePress={() => router.push('/(tabsSeller)/product/createProduct')}

@@ -8,7 +8,7 @@ import FormField from "@/components/FormField";
 import UploadButton from "@/components/UploadButton";
 import StockInput from "@/components/StockInput";
 import TextAreaField from "@/components/TextAreaField";
-import CustomDropdown from "@/components/CustomDropdown";
+import CustomDropdown from "@/components/CustomDropdown"; 
 import TextTitle3 from "@/components/texts/TextTitle3";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -42,7 +42,7 @@ const CreateProduct = () => {
     productName: "",
     productDescription: "",
     categoryId: 0,
-    category: null,
+    category: "",
     productExpirationDate: new Date(),
     productPrice: "",
     discount: [{ discountAmount: "", discountDate: new Date().toISOString() }],
@@ -297,7 +297,7 @@ const CreateProduct = () => {
                 marginBottom: 10,
               }}
             >
-              <TextFormLabel label="Potongan Harga" />
+              <TextFormLabel label="Harga Jual" />
               <View
                 style={{
                   flexDirection: "row",

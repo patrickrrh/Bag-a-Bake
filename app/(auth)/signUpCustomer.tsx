@@ -71,6 +71,8 @@ const SignUpCustomer = () => {
         }
     }
 
+    console.log("form", form)
+
     const handleSignUpAPI = async () => {
         try {
             setisSubmitting(true);
@@ -131,12 +133,12 @@ const SignUpCustomer = () => {
 
     const footerContent = (
         <>
+          <View className='mr-1'>
             <TextHeadline label='Sudah memiliki akun?' />
-            <Link href="/(auth)/signIn">
-                <TextLink label='Masuk disini' size={14} />
-            </Link>
+          </View>
+          <TextLink label="Masuk disini" size={14} link="/(auth)/signIn" />
         </>
-    );
+      );
 
     useEffect(() => {
         handleGetRegionAPI();
@@ -191,7 +193,7 @@ const SignUpCustomer = () => {
             <CustomDropdown
                 label='Lokasi'
                 data={region}
-                value={form.regionId.toString()}
+                value={form.regionId}
                 placeholder='Pilih lokasi Anda'
                 labelField='regionName'
                 valueField='regionId'

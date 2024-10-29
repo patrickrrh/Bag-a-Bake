@@ -5,17 +5,17 @@ import { Href, Link } from 'expo-router'
 interface Props {
     label: string
     size?: number
+    link: Href
 }
 
-const TextLink: React.FC<Props> = ({ label, size }) => {
+const TextLink: React.FC<Props> = ({ label, size, link }) => {
   return (
-    <View>
-      <Text
+      <Link
         style={{ fontFamily: "poppinsMedium", fontSize: size, color: "#B0795A" }}
+        href={link}
       >
         {label}
-      </Text>
-    </View>
+      </Link>
   )
 }
 

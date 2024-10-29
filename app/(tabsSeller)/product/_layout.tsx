@@ -5,7 +5,7 @@ import { Stack } from 'expo-router'
 const ProductLayout = () => {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='listProduct' />
+        <Stack.Screen name='index' />
         <Stack.Screen name="productDetail" />
     </Stack>
   )
