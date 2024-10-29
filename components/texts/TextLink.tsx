@@ -12,7 +12,6 @@ const TextLink: React.FC<Props> = ({ label, size }) => {
     <View>
       <Text
         style={{ fontFamily: "poppinsMedium", fontSize: size, color: "#B0795A" }}
-  
       >
         {label}
       </Text>

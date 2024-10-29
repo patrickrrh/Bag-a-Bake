@@ -132,7 +132,7 @@ const Home = () => {
                   source={icons.location}
                   style={{ width: 12, height: 12, marginRight: 5, tintColor: "white" }}
                 />
-                <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white" }}>{userData?.regionUser.regionName}</Text>
+                <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white" }}>{userData?.regionUser?.regionName}</Text>
               </View>
             </View>
             <View>

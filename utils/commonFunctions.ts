@@ -130,16 +130,12 @@ export const checkProductForm = (form: Record<string, unknown>) => {
   
   if (Array.isArray(form.discount)) {
     const discountAmounts = form.discount.map(d => parseFloat(d.discountAmount));
-
+  
     discountAmounts.forEach((amount, index) => {
       if (isNaN(amount) || amount < 0) {
         errors.discount = `Diskon ${index + 1} tidak boleh kurang dari 0`;
-      } else {
-        errors.discount 
-      }
-
-      if (index > 0 && amount < discountAmounts[index - 1]) {
-        errors.discount = `Diskon ${index + 1} tidak boleh kurang dari Diskon ${index}`;
+      } else if (index > 0 && amount >= discountAmounts[index - 1]) {
+        errors.discount = `Diskon ${index + 1} harus kurang dari Diskon ${index}`;
       }
     });
   } else {

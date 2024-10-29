@@ -21,7 +21,8 @@ import ErrorMessage from "@/components/texts/ErrorMessage";
 import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
 import SquareButton from "@/components/SquareButton";
-import { useProduct } from "@/app/context/ProductContext";
+import { useAuth } from "@/app/context/AuthContext";
+import Decimal from "decimal.js";
 
 type ErrorState = {
   productName: string | null;
@@ -35,16 +36,19 @@ type ErrorState = {
 };
 
 const CreateProduct = () => {
+  const { bakeryData } = useAuth();
+
   const [form, setForm] = useState({
     productName: "",
     productDescription: "",
     categoryId: 0,
     category: null,
-    productExpirationDate: "",
+    productExpirationDate: new Date(),
     productPrice: "",
-    discount: [{ discountAmount: "" }],
+    discount: [{ discountAmount: "", discountDate: new Date().toISOString() }],
     productStock: 1,
     productImage: "",
+    bakeryId: 0
   });
 
   const productError: ErrorState = {
@@ -78,7 +82,7 @@ const CreateProduct = () => {
   const handleDateConfirm = (date: Date) => {
     setForm({
       ...form,
-      productExpirationDate: dayjs(date).format("DD MMMM YYYY"),
+      productExpirationDate: date, 
     });
     setError((prevError) => ({ ...prevError, productExpirationDate: null }));
   };
@@ -86,14 +90,25 @@ const CreateProduct = () => {
   const handleAddProduct = async () => {
     try {
       setIsSubmitting(true);
-
+      form.bakeryId = bakeryData?.bakeryId ?? 0;
       const errors = checkProductForm(form);
       if (Object.values(errors).some((error) => error !== null)) {
         setError(errors as ErrorState);
         return;
       }
+      console.log(form);
+      const formData = {
+        ...form,
+        productPrice: new Decimal(form.productPrice),
+        productExpirationDate: new Date(form.productExpirationDate),
+        discount: form.discount.map((disc) => ({
+          ...disc,
+          discountAmount: new Decimal(disc.discountAmount),
+          discountDate: new Date(disc.discountDate),
+        })),
+      };
 
-      const response = await productApi().createProduct(form);
+      const response = await productApi().createProduct(formData);
       if (response.error) {
         throw new Error(response.error);
       }
@@ -107,11 +122,20 @@ const CreateProduct = () => {
   };
 
   const handleAddDiscount = () => {
-    setForm((prevForm) => ({
-      ...prevForm,
-      discount: [...prevForm.discount, { discountAmount: "" }],
-    }));
+    setForm((prevForm) => {
+      const newDiscountDate = new Date();
+      newDiscountDate.setDate(newDiscountDate.getDate() + prevForm.discount.length); 
+  
+      return {
+        ...prevForm,
+        discount: [
+          ...prevForm.discount,
+          { discountAmount: "", discountDate: newDiscountDate.toISOString() }
+        ],
+      };
+    });
   };
+  
 
   const handleRemoveDiscount = () => {
     if (form.discount.length > 1) {
@@ -124,15 +148,15 @@ const CreateProduct = () => {
 
   const handleDiscountChange = (index: number, text: string) => {
     const updatedDiscounts = form.discount.map((discount, i) =>
-      i === index ? { discountAmount: text } : discount
+      i === index ? { ...discount, discountAmount: text } : discount
     );
-
+  
     setForm((prevForm) => ({
       ...prevForm,
       discount: updatedDiscounts,
     }));
   };
-
+  
   const [categories, setCategories] = useState([]);
 
   const handleGetCategoriesAPI = async () => {
@@ -248,7 +272,7 @@ const CreateProduct = () => {
           {/* Date Picker Input */}
           <ExpirationDatePicker
             label="Tanggal Kedaluwarsa"
-            expirationDate={form.productExpirationDate}
+            expirationDate={dayjs(form.productExpirationDate).format("DD MMMM YYYY")}
             onConfirm={handleDateConfirm}
             error={error.productExpirationDate}
           />

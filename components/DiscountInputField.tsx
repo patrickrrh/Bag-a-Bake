@@ -1,5 +1,6 @@
-import { View, TextInput, Text } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { View, TextInput, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import TextTitle4 from "./texts/TextTitle4";
 
 interface Props {
   value: string | number;
@@ -9,31 +10,50 @@ interface Props {
   error?: string | null;
 }
 
-const DiscountInputField: React.FC<Props> = ({ value, placeholder, onChangeText, moreStyles, error }) => {
-  const [internalValue, setInternalValue] = useState<string>(String(value));
+const formatCurrency = (value: string) => {
+  if (!value) return "";
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+const DiscountInputField: React.FC<Props> = ({
+  value,
+  placeholder,
+  onChangeText,
+  moreStyles,
+  error,
+}) => {
+  const [internalValue, setInternalValue] = useState<string>(
+    formatCurrency(String(value))
+  );
 
   useEffect(() => {
-    setInternalValue(String(value));
+    setInternalValue(formatCurrency(String(value)));
   }, [value]);
 
   const handleChangeText = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, '');
+    const numericValue = text.replace(/[^0-9]/g, "");
 
     const numberValue = parseInt(numericValue, 10);
-
-    if (numericValue && (numberValue < 1 || numberValue > 99)) {
-      return; 
+    if (numberValue > 1000000) {
+      return;
     }
 
-    setInternalValue(numericValue);
+    const formattedValue = formatCurrency(numericValue);
+    setInternalValue(formattedValue);
+
     onChangeText(numericValue);
   };
 
   return (
     <View className={`space-y-1 ${moreStyles}`}>
-      <View className={`w-[160px] h-[40px] px-4 bg-white rounded-[8px] border ${error ? 'border-red-500' : 'border-gray-200'} flex-row items-center`}>
+      <View
+        className={`w-[160px] h-[40px] px-4 bg-white rounded-[8px] border ${
+          error ? "border-red-500" : "border-gray-200"
+        } flex-row items-center`}
+      >
+        <TextTitle4 label="Rp   " />
         <TextInput
-          className='flex-1 text-black text-base'
+          className="flex-1 text-black text-base"
           style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
           value={internalValue}
           placeholder={placeholder}
@@ -41,11 +61,8 @@ const DiscountInputField: React.FC<Props> = ({ value, placeholder, onChangeText,
           onChangeText={handleChangeText}
           keyboardType="numeric"
         />
-        <Text className="text-gray-700">%</Text>
       </View>
-      {error && (
-        <Text className="text-red-500">{error}</Text>
-      )}
+      {error && <Text className="text-red-500">{error}</Text>}
     </View>
   );
 };
