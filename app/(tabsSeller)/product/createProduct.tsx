@@ -36,7 +36,7 @@ type ErrorState = {
 };
 
 const CreateProduct = () => {
-  const { bakeryData } = useAuth();
+  const { userData } = useAuth();
 
   const [form, setForm] = useState({
     productName: "",
@@ -90,7 +90,7 @@ const CreateProduct = () => {
   const handleAddProduct = async () => {
     try {
       setIsSubmitting(true);
-      form.bakeryId = bakeryData?.bakeryId ?? 0;
+      form.bakeryId = userData?.bakery.bakeryId ?? 0;
       const errors = checkProductForm(form);
       if (Object.values(errors).some((error) => error !== null)) {
         setError(errors as ErrorState);

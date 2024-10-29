@@ -7,6 +7,7 @@ function RootLayout() {
   const { isAuthenticated, isLoading, userData } = useAuth();
 
   console.log("user data", userData)
+  console.log("is auth", isAuthenticated)
 
   useEffect(() => {
     

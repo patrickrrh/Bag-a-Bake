@@ -100,8 +100,6 @@ const SignUpCustomer = () => {
             } else {
                 signUp(form);
             }
-
-            signUp(form);
         } catch {
             console.log(error);
         } finally {

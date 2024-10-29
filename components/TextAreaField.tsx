@@ -22,7 +22,7 @@ const TextAreaField: React.FC<Props> = ({ label, value, placeholder, onChangeTex
       <View className={`w-full px-4 bg-white rounded-[8px] items-center border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row`}>
         <TextInput
           className='flex-1 text-black text-base pt-2'
-          style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
+          style={{ fontFamily: "poppinsRegular", fontSize: 14, height: 100 }}
           value={value as any}
           placeholder={placeholder}
           placeholderTextColor={"#828282"}
