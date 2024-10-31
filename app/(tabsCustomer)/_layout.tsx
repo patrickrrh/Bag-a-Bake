@@ -6,7 +6,7 @@ const TabsCustomerLayout = () => {
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#B0795A', tabBarInactiveTintColor: 'gray' }}>
       <Tabs.Screen
-        name="home"
+        name="index"
         options={{
           title: 'Beranda',
           tabBarIcon: ({ color, focused }) => (

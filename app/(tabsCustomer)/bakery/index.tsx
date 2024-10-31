@@ -3,7 +3,7 @@ import TextHeader from "@/components/texts/TextHeader";
 import TextTitle3 from "@/components/texts/TextTitle3";
 import TextTitle5 from "@/components/texts/TextTitle5";
 import TextTitle5Gray from "@/components/texts/TextTitle5Gray";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,49 +14,26 @@ import {
   Modal
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { getItemAsync } from "expo-secure-store";
 import FilterButton from "@/components/FilterButton";
 import BakeryCard from "@/components/BakeryCard";
 import bakeryApi from "@/api/bakeryApi";
 import favoriteApi from "@/api/favoriteApi";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/app/context/AuthContext";
 import TextTitle1 from "@/components/texts/TextTitle1";
 import categoryApi from "@/api/categoryApi";
 import CheckBox from 'react-native-check-box'
 import CustomButton from "@/components/CustomButton";
 import { BakeryType, CategoryType } from "@/types/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Bakery = () => {
 
   const { userData } = useAuth();
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
-
-  const { product } = useLocalSearchParams();
-
-  useEffect(() => {
-    let productItem: any[] = [];
-    try {
-      if (product) {
-        const parsedProducts = JSON.parse(product as string);
-
-        if (typeof parsedProducts === 'object' && !Array.isArray(parsedProducts)) {
-          productItem.push(parsedProducts);
-        } else if (Array.isArray(parsedProducts)) {
-          productItem = [...parsedProducts];
-        } else {
-          console.error("Parsed product is neither an array nor an object");
-        }
-
-        const categoryId = productItem[0].categoryId;
-        setCheckedCategories([categoryId]);
-      }
-    } catch (error) {
-      console.error("Failed to parse product:", error);
-    }
-  }, [product]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showFavorite, setShowFavorite] = useState(false);
@@ -68,40 +45,25 @@ const Bakery = () => {
   const [category, setCategory] = useState<CategoryType[]>([]);
 
   const [isSubmitting, setisSubmitting] = useState(false);
+  const [localStorageData, setLocalStorageData] = useState<any>(null);
 
-  const handleGetBakeryApi = async () => {
+  const getLocalStorage = async (key: string) => {
     try {
-      setBakery([]);
-      if (checkedCategories.length > 0) {
-        const categoryIds = checkedCategories.map(item => item);
-
-        const response = await bakeryApi().getBakeryByCategory({
-          categoryId: categoryIds,
-        });
-        if (response.status === 200 && response.data) {
-          setBakery(response.data ? response.data : []);
-        }
-      } else {
-        const response = await bakeryApi().getBakery();
-        if (response.status === 200) {
-          setBakery(response.data ? response.data : []);
-        }
+      const value = await AsyncStorage.getItem(key);
+      if (value) {
+        setLocalStorageData(value);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Failed to get local storage:", error);
     }
   }
 
-  const handleGetBakeryByRegionApi = async () => {
+  const removeLocalStorage = async (key: string) => {
     try {
-      const response = await bakeryApi().getBakeryByRegion({
-        regionId: userData?.regionId,
-      });
-      if (response.status === 200) {
-        setBakery(response.data ? response.data : []);
-      }
+      await AsyncStorage.removeItem(key);
+      setLocalStorageData(null);
     } catch (error) {
-      console.log(error);
+      console.log("Failed to remove local storage:", error);
     }
   }
 
@@ -116,19 +78,54 @@ const Bakery = () => {
     }
   }
 
-  // Filtering logics
+  useEffect(() => {
+    handleGetCategoryApi();
+  }, []);
+
+  const handleGetBakeryApi = async () => {
+    try {
+      setBakery([]);
+
+      let response;
+
+      if (checkedCategories.length > 0) {
+        const categoryIds = checkedCategories.map(item => item);
+        response = await bakeryApi().getBakeryByCategory({
+          categoryId: categoryIds,
+        });
+      } else if (activeFilter.includes("Dekat saya")) {
+        response = await bakeryApi().getBakeryByRegion({
+          regionId: userData?.regionId,
+        })
+      } else {
+        response = await bakeryApi().getBakery();
+      }
+
+      if (response.status === 200) {
+        let fetchedBakery = response.data ? response.data : [];
+
+        if (checkedCategories.length > 0 && activeFilter.includes("Dekat saya")) {
+          fetchedBakery = fetchedBakery.filter((item: { regionId: number; }) => item.regionId === userData?.regionId);
+        }
+        setBakery(fetchedBakery);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const filterBakeries = () => {
     if (showFavorite) {
-      const favoriteBakeries = bakery.filter(item => 
+      const favoriteBakeries = bakery.filter(item =>
         item.favorite.some(fav => fav.userId === userData?.userId)
       );
-  
-      return favoriteBakeries.filter(item => 
+
+      return favoriteBakeries.filter(item =>
         item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    return bakery.filter(item => 
+    return bakery.filter(item =>
       item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
@@ -164,12 +161,6 @@ const Bakery = () => {
         } else {
           updatedFilters = [...prevFilters, filter];
         }
-
-        if (updatedFilters.includes("Dekat saya")) {
-          handleGetBakeryByRegionApi();
-        } else {
-          handleGetBakeryApi();
-        }
       } else {
         updatedFilters = prevFilters;
         setCategoryModal(true);
@@ -178,6 +169,20 @@ const Bakery = () => {
       return updatedFilters;
     });
   };
+
+  useEffect(() => {
+    setActiveFilter((prevFilters) => {
+      if (checkedCategories.length > 0) {
+        if (!prevFilters.includes("Kategori")) {
+          return [...prevFilters, "Kategori"];
+        }
+        return prevFilters;
+      }
+
+      return prevFilters.filter((f) => f !== "Kategori");
+    });
+    handleGetBakeryApi();
+  }, [checkedCategories]);
 
   const handleTempCheckboxClick = (categoryId: number) => {
     setTempCheckedCategories((prev) => {
@@ -195,29 +200,57 @@ const Bakery = () => {
   };
 
   useEffect(() => {
-    handleGetCategoryApi();
-  }, []);
-
-  useEffect(() => {
-    handleGetBakeryApi();
-
-    setActiveFilter((prevFilters) => {
-      if (checkedCategories.length > 0) {
-        if (!prevFilters.includes("Kategori")) {
-          return [...prevFilters, "Kategori"];
-        }
-        return prevFilters;
-      }
-
-      return prevFilters.filter((f) => f !== "Kategori");
-    });
-  }, [checkedCategories]);
-
-  useEffect(() => {
     if (categoryModal) {
       setTempCheckedCategories(checkedCategories);
     }
   }, [categoryModal]);
+
+  useFocusEffect(
+    useCallback(() => {
+      getLocalStorage('filter');
+
+      return () => {
+        removeLocalStorage('filter');
+        setActiveFilter([]);
+        setCheckedCategories([]);
+      };
+    }, [])
+  );
+
+  useEffect(() => {
+    if (!localStorageData) return;
+
+    if (localStorageData === 'Dekat saya') {
+      handleActiveFilter(localStorageData);
+    } else {
+      let productItem: any[] = [];
+      try {
+        if (localStorageData) {
+          const parsedProducts = JSON.parse(localStorageData as string);
+
+          if (typeof parsedProducts === 'object' && !Array.isArray(parsedProducts)) {
+            productItem.push(parsedProducts);
+          } else if (Array.isArray(parsedProducts)) {
+            productItem = [...parsedProducts];
+          } else {
+            console.error("Parsed product is neither an array nor an object");
+          }
+
+          const categoryId = productItem[0].categoryId;
+          setCheckedCategories([categoryId]);
+        }
+      } catch (error) {
+        console.error("Failed to parse product:", error);
+      }
+    }
+  }, [localStorageData]);
+
+  useEffect(() => {
+    handleGetBakeryApi();
+  }, [activeFilter]);
+
+  console.log("local storage data:", localStorageData)
+  console.log("checked categories:", checkedCategories);
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -252,6 +285,11 @@ const Bakery = () => {
         </View>
 
         <View className="mt-5 flex-row">
+          <FilterButton
+            label="Jangan lewatkan"
+            isSelected={activeFilter.includes("Jangan lewatkan")}
+            onPress={() => handleActiveFilter("Jangan lewatkan")}
+          />
           <FilterButton
             label="Dekat saya"
             isSelected={activeFilter.includes("Dekat saya")}
@@ -290,21 +328,22 @@ const Bakery = () => {
         className="bg-background"
       >
         <View className="flex-1 p-8">
-          <View className="flex-row justify-between">
+          <View className="flex-row justify-between items-center">
             <TextTitle1 label="Kategori" />
-            <Button
-              title="Tutup"
+            <TouchableOpacity
               onPress={() => {
                 setCategoryModal(false);
-              }} />
+              }}>
+              <FontAwesome name="close" size={18} color="#B0795A" />
+            </TouchableOpacity>
           </View>
           <FlatList
             data={category}
             keyExtractor={(item) => item.categoryId.toString()}
             renderItem={({ item }) => (
-              <View className="border-b border-gray-200 py-4">
+              <View className="flex-row items-center w-full justify-between border-b border-gray-200 py-4">
+                <TextTitle3 label={item.categoryName} />
                 <CheckBox
-                  leftText={<TextTitle3 label={item.categoryName} /> as any}
                   isChecked={tempCheckedCategories.includes(item.categoryId)}
                   onClick={() => handleTempCheckboxClick(item.categoryId)}
                   checkBoxColor="#B0795A"

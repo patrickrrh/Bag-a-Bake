@@ -16,6 +16,7 @@ import { icons } from '@/constants/icons';
 import { useAuth } from '../context/AuthContext';
 import CustomButton from '@/components/CustomButton';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Category = {
   categoryId: number;
@@ -97,6 +98,13 @@ const Home = () => {
     }, 1000);
   }
 
+  const setLocalStorage = async (key: string, value: string) => {
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch (error) {
+      console.log("Failed to set local storage:", error);
+    }
+  }
 
   return (
     <View className='flex-1'>
@@ -167,10 +175,10 @@ const Home = () => {
                   label={item.categoryName}
                   image={item.categoryImage}
                   onPress={() => {
-                    router.push({
+                    router.replace({
                       pathname: '/bakery' as any,
-                      params: { product: JSON.stringify(item) },
                     })
+                    setLocalStorage('filter', JSON.stringify(item));
                   }}
                 />
               )}
@@ -182,7 +190,13 @@ const Home = () => {
           <View className='mt-6 w-full'>
             <View className='flex-row justify-between items-center w-full'>
               <TextTitle3 label="Rekomendasi untuk Anda" />
-              {/* <TextLink label='Lihat semua >' size={10} link='/bakery' /> */}
+              <TextLink label='Lihat semua >' size={10}
+                onPress={() => {
+                  router.replace({
+                    pathname: '/bakery' as any,
+                  })
+                  setLocalStorage('filter', 'Dekat saya');
+                }} />
             </View>
             <FlatList
               horizontal={true}
@@ -206,7 +220,13 @@ const Home = () => {
           <View className='mt-5 w-full'>
             <View className='flex-row justify-between items-end w-full'>
               <TextTitle3 label="Dapatkan Sebelum Terlambat" />
-              {/* <TextLink label='Lihat semua >' size={10} link='/bakery' /> */}
+              <TextLink label='Lihat semua >' size={10}
+                onPress={() => {
+                  router.replace({
+                    pathname: '/bakery' as any,
+                  })
+                  setLocalStorage('filter', 'Jangan lewatkan');
+                }} />
             </View>
             <FlatList
               horizontal={true}
@@ -224,7 +244,7 @@ const Home = () => {
         </View>
 
       </ScrollView>
-      
+
     </View>
   );
 };

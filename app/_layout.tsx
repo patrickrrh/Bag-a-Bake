@@ -15,9 +15,9 @@ function RootLayout() {
       if (isAuthenticated === null) return;
 
       if (isAuthenticated === true && userData && userData.roleId === 1) {
-        router.replace("/(tabsCustomer)/home");
+        router.replace("/(tabsCustomer)");
       } else if (isAuthenticated === true && userData && userData.roleId === 2) {
-        router.replace("/(tabsSeller)/home");
+        router.replace("/(tabsSeller)");
       } else if (isAuthenticated === false) {
         router.replace("/(auth)/signIn");
       }

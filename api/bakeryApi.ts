@@ -23,5 +23,6 @@ export default function bakeryApi() {
         getBakeryByCategory: createApiFunction("post", "get/bakery/by-category"),
         getBakeryByProduct: createApiFunction("post", "get/bakery/by-product"),
         getBakeryByRegion: createApiFunction("post", "get/bakery/by-region"),
+        getBakeryByExpiringProducts: createApiFunction("get", "get/bakery/by-expiring-products"),
     }
 }
