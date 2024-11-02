@@ -100,7 +100,7 @@ const SignIn = () => {
       <View className='mr-1'>
         <TextHeadline label="Belum memiliki akun?" />
       </View>
-      <TextLink label='Daftar disini' size={14} link="/(auth)/signUp" />
+      <TextLink label='Daftar disini' size={14} onPress={() => router.push('/(auth)/signUp')} />
     </>
   );
 
@@ -146,7 +146,7 @@ const SignIn = () => {
       />
 
       <View className="mt-6 flex-row justify-end">
-        <TextLink label='Lupa kata sandi?' size={14} link="/TO DO: add link" />
+        <TextLink label='Lupa kata sandi?' size={14} onPress={() => router.push('TO DO: Forgot Password')} />
       </View>
 
       <CustomButton

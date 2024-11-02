@@ -67,7 +67,6 @@ const BakeryDetail = () => {
             const response = await bakeryApi().getBakeryByProduct({
                 productId: parseInt(productId as string),
             })
-            console.log("response", response)
             if (response.status === 200) {
                 setBakeryDetail(response.data ? response.data : {})
             }
@@ -77,6 +76,7 @@ const BakeryDetail = () => {
     }
 
     useEffect(() => {
+        console.log("test", productId)
         handleGetBakeryByProductApi()
     }, [productId])
 

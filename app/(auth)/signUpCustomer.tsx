@@ -6,7 +6,7 @@ import TextHeader from '@/components/texts/TextHeader'
 import CustomButton from '@/components/CustomButton'
 import ErrorMessage from '@/components/texts/ErrorMessage'
 import TextHeadline from '@/components/texts/TextHeadline'
-import { Link } from 'expo-router'
+import { Link, router } from 'expo-router'
 import TextLink from '@/components/texts/TextLink'
 import FormField from '@/components/FormField'
 import * as ImagePicker from 'expo-image-picker';
@@ -134,7 +134,7 @@ const SignUpCustomer = () => {
           <View className='mr-1'>
             <TextHeadline label='Sudah memiliki akun?' />
           </View>
-          <TextLink label="Masuk disini" size={14} link="/(auth)/signIn" />
+          <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
         </>
       );
 

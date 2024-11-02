@@ -122,7 +122,7 @@ const SignUpBakeryOwner = () => {
           <View className='mr-1'>
             <TextHeadline label='Sudah memiliki akun?' />
           </View>
-          <TextLink label="Masuk disini" size={14} link="/(auth)/signIn" />
+          <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
         </>
       );
 

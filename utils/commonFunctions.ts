@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as EmailValidator from "email-validator";
 
 export const checkEmptyForm = (
@@ -164,7 +165,31 @@ export const calculateTotalOrderPrice = (orderDetail: any): string => {
 
 export const formatRupiah = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
+        style: 'currency',
+        currency: 'IDR',
     }).format(amount);
-  };
+};
+
+export const setLocalStorage = async (key: string, value: string) => {
+    try {
+        await AsyncStorage.setItem(key, value);
+    } catch (error) {
+        console.log("Failed to set local storage:", error);
+    }
+}
+
+export const getLocalStorage = async (key: string) => {
+    try {
+        return await AsyncStorage.getItem(key);
+    } catch (error) {
+        console.log("Failed to get local storage:", error);
+    }
+}
+
+export const removeLocalStorage = async (key: string) => {
+    try {
+        await AsyncStorage.removeItem(key);
+    } catch (error) {
+        console.log("Failed to remove local storage:", error);
+    }
+}
