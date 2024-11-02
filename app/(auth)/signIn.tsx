@@ -75,6 +75,9 @@ const SignIn = () => {
     }
   };
 
+  console.log(isSubmitting);
+  console.log("form", form);
+
   const handleSignOut = async () => {
     signOut();
   }
@@ -169,7 +172,7 @@ const SignIn = () => {
       {/* 
       <CustomButton
         label='Tambahkan Produk'
-        handlePress={() => router.push('/(tabsSeller)/createProduct')}
+        handlePress={() => router.push('/(tabsSeller)/product/createProduct')}
         buttonStyles='mt-4'
         isLoading={false}
       /> */}

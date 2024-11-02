@@ -53,7 +53,7 @@ const SignUpBakeryOwner = () => {
     const checkForm = async () => {
         try {
             setisSubmitting(true);
-            
+            console.log(form);
             const errors = checkEmptyForm(form, confirmPassword);
             if (Object.values(errors).some(error => error !== null)) {
                 setError(errors as ErrorState);
@@ -72,6 +72,7 @@ const SignUpBakeryOwner = () => {
             const res = await authenticationApi().isEmailRegistered({
                 email: form.email,
             })
+            console.log(res);
 
             if (res.error) {
                 showToast('error', res.error);

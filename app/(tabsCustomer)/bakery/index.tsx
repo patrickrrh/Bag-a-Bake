@@ -28,6 +28,7 @@ import CheckBox from 'react-native-check-box'
 import CustomButton from "@/components/CustomButton";
 import { BakeryType, CategoryType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 
 const Bakery = () => {
 
