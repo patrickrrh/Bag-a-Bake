@@ -34,6 +34,8 @@ const Bakery = () => {
   const { userData } = useAuth();
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
+  const [userLocationFilter, setUserLocationFilter] = useState(0);
+  const [isExpiringFilter, setIsExpiringFilter] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showFavorite, setShowFavorite] = useState(false);
@@ -46,26 +48,6 @@ const Bakery = () => {
 
   const [isSubmitting, setisSubmitting] = useState(false);
   const [localStorageData, setLocalStorageData] = useState<any>(null);
-
-  const getLocalStorage = async (key: string) => {
-    try {
-      const value = await AsyncStorage.getItem(key);
-      if (value) {
-        setLocalStorageData(value);
-      }
-    } catch (error) {
-      console.log("Failed to get local storage:", error);
-    }
-  }
-
-  const removeLocalStorage = async (key: string) => {
-    try {
-      await AsyncStorage.removeItem(key);
-      setLocalStorageData(null);
-    } catch (error) {
-      console.log("Failed to remove local storage:", error);
-    }
-  }
 
   const handleGetCategoryApi = async () => {
     try {
@@ -84,30 +66,40 @@ const Bakery = () => {
 
   const handleGetBakeryApi = async () => {
     try {
-      setBakery([]);
+      // setBakery([]);
 
-      let response;
+      // let response;
 
-      if (checkedCategories.length > 0) {
-        const categoryIds = checkedCategories.map(item => item);
-        response = await bakeryApi().getBakeryByCategory({
-          categoryId: categoryIds,
-        });
-      } else if (activeFilter.includes("Dekat saya")) {
-        response = await bakeryApi().getBakeryByRegion({
-          regionId: userData?.regionId,
-        })
-      } else {
-        response = await bakeryApi().getBakery();
-      }
+      // if (checkedCategories.length > 0) {
+      //   const categoryIds = checkedCategories.map(item => item);
+      //   response = await bakeryApi().getBakeryByCategory({
+      //     categoryId: categoryIds,
+      //   });
+      // } else if (activeFilter.includes("Dekat saya")) {
+      //   response = await bakeryApi().getBakeryByRegion({
+      //     regionId: userData?.regionId,
+      //   })
+      // } else {
+      //   response = await bakeryApi().getBakery();
+      // }
+
+      // if (response.status === 200) {
+      //   let fetchedBakery = response.data ? response.data : [];
+
+      //   if (checkedCategories.length > 0 && activeFilter.includes("Dekat saya")) {
+      //     fetchedBakery = fetchedBakery.filter((item: { regionId: number; }) => item.regionId === userData?.regionId);
+      //   }
+      //   setBakery(fetchedBakery);
+      // }
+
+      const response = await bakeryApi().getBakeryWithFilters({
+        categoryId: checkedCategories,
+        regionId: userLocationFilter,
+        expiringProducts: isExpiringFilter
+      })
 
       if (response.status === 200) {
-        let fetchedBakery = response.data ? response.data : [];
-
-        if (checkedCategories.length > 0 && activeFilter.includes("Dekat saya")) {
-          fetchedBakery = fetchedBakery.filter((item: { regionId: number; }) => item.regionId === userData?.regionId);
-        }
-        setBakery(fetchedBakery);
+        setBakery(response.data ? response.data : []);
       }
     } catch (error) {
       console.log(error);
@@ -151,38 +143,38 @@ const Bakery = () => {
     }
   }
 
-  const handleActiveFilter = (filter: string) => {
-    setActiveFilter((prevFilters) => {
-      let updatedFilters;
+  // const handleActiveFilter = (filter: string) => {
+  //   setActiveFilter((prevFilters) => {
+  //     let updatedFilters;
 
-      if (filter !== "Kategori") {
-        if (prevFilters.includes(filter)) {
-          updatedFilters = prevFilters.filter(f => f !== filter);
-        } else {
-          updatedFilters = [...prevFilters, filter];
-        }
-      } else {
-        updatedFilters = prevFilters;
-        setCategoryModal(true);
-      }
+  //     if (filter !== "Kategori") {
+  //       if (prevFilters.includes(filter)) {
+  //         updatedFilters = prevFilters.filter(f => f !== filter);
+  //       } else {
+  //         updatedFilters = [...prevFilters, filter];
+  //       }
+  //     } else {
+  //       updatedFilters = prevFilters;
+  //       setCategoryModal(true);
+  //     }
 
-      return updatedFilters;
-    });
-  };
+  //     return updatedFilters;
+  //   });
+  // };
 
-  useEffect(() => {
-    setActiveFilter((prevFilters) => {
-      if (checkedCategories.length > 0) {
-        if (!prevFilters.includes("Kategori")) {
-          return [...prevFilters, "Kategori"];
-        }
-        return prevFilters;
-      }
+  // useEffect(() => {
+  //   setActiveFilter((prevFilters) => {
+  //     if (checkedCategories.length > 0) {
+  //       if (!prevFilters.includes("Kategori")) {
+  //         return [...prevFilters, "Kategori"];
+  //       }
+  //       return prevFilters;
+  //     }
 
-      return prevFilters.filter((f) => f !== "Kategori");
-    });
-    handleGetBakeryApi();
-  }, [checkedCategories]);
+  //     return prevFilters.filter((f) => f !== "Kategori");
+  //   });
+  //   handleGetBakeryApi();
+  // }, [checkedCategories]);
 
   const handleTempCheckboxClick = (categoryId: number) => {
     setTempCheckedCategories((prev) => {
@@ -220,36 +212,36 @@ const Bakery = () => {
   useEffect(() => {
     if (!localStorageData) return;
 
-    if (localStorageData === 'Dekat saya') {
-      handleActiveFilter(localStorageData);
-    } else {
-      let productItem: any[] = [];
-      try {
-        if (localStorageData) {
-          const parsedProducts = JSON.parse(localStorageData as string);
+    // if (localStorageData === 'Dekat saya') {
+    //   handleActiveFilter(localStorageData);
+    // } else {
+    //   let productItem: any[] = [];
+    //   try {
+    //     if (localStorageData) {
+    //       const parsedProducts = JSON.parse(localStorageData as string);
 
-          if (typeof parsedProducts === 'object' && !Array.isArray(parsedProducts)) {
-            productItem.push(parsedProducts);
-          } else if (Array.isArray(parsedProducts)) {
-            productItem = [...parsedProducts];
-          } else {
-            console.error("Parsed product is neither an array nor an object");
-          }
+    //       if (typeof parsedProducts === 'object' && !Array.isArray(parsedProducts)) {
+    //         productItem.push(parsedProducts);
+    //       } else if (Array.isArray(parsedProducts)) {
+    //         productItem = [...parsedProducts];
+    //       } else {
+    //         console.error("Parsed product is neither an array nor an object");
+    //       }
 
-          const categoryId = productItem[0].categoryId;
-          setCheckedCategories([categoryId]);
-        }
-      } catch (error) {
-        console.error("Failed to parse product:", error);
-      }
-    }
+    //       const categoryId = productItem[0].categoryId;
+    //       setCheckedCategories([categoryId]);
+    //     }
+    //   } catch (error) {
+    //     console.error("Failed to parse product:", error);
+    //   }
+    // }
   }, [localStorageData]);
 
   useEffect(() => {
     handleGetBakeryApi();
   }, [activeFilter]);
 
-  console.log("local storage data:", localStorageData)
+  console.log("local storage data:", localStorageData.categoryFilter)
   console.log("checked categories:", checkedCategories);
 
   return (
@@ -287,18 +279,24 @@ const Bakery = () => {
         <View className="mt-5 flex-row">
           <FilterButton
             label="Jangan lewatkan"
-            isSelected={activeFilter.includes("Jangan lewatkan")}
-            onPress={() => handleActiveFilter("Jangan lewatkan")}
+            isSelected={isExpiringFilter}
+            onPress={() => {
+              isExpiringFilter ?
+                setIsExpiringFilter(false) : setIsExpiringFilter(true);
+            }}
           />
           <FilterButton
             label="Dekat saya"
-            isSelected={activeFilter.includes("Dekat saya")}
-            onPress={() => handleActiveFilter("Dekat saya")}
+            isSelected={userLocationFilter !== 0}
+            onPress={() => {
+              userLocationFilter === 0 ?
+                setUserLocationFilter(Number(userData?.regionId)) : setUserLocationFilter(0);
+            }}
           />
           <FilterButton
             label="Kategori"
-            isSelected={activeFilter.includes("Kategori")}
-            onPress={() => handleActiveFilter("Kategori")}
+            isSelected={checkedCategories.length > 0}
+            onPress={() => setCategoryModal(true)}
           />
         </View>
 

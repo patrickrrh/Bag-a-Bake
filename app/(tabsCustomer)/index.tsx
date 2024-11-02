@@ -16,7 +16,7 @@ import { icons } from '@/constants/icons';
 import { useAuth } from '../context/AuthContext';
 import CustomButton from '@/components/CustomButton';
 import { FontAwesome } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setLocalStorage } from '@/utils/commonFunctions';
 
 type Category = {
   categoryId: number;
@@ -98,14 +98,6 @@ const Home = () => {
     }, 1000);
   }
 
-  const setLocalStorage = async (key: string, value: string) => {
-    try {
-      await AsyncStorage.setItem(key, value);
-    } catch (error) {
-      console.log("Failed to set local storage:", error);
-    }
-  }
-
   return (
     <View className='flex-1'>
 
@@ -178,7 +170,7 @@ const Home = () => {
                     router.replace({
                       pathname: '/bakery' as any,
                     })
-                    setLocalStorage('filter', JSON.stringify(item));
+                    setLocalStorage('filter', JSON.stringify({ categoryFilter: item.categoryId }));
                   }}
                 />
               )}
@@ -195,7 +187,7 @@ const Home = () => {
                   router.replace({
                     pathname: '/bakery' as any,
                   })
-                  setLocalStorage('filter', 'Dekat saya');
+                  setLocalStorage('filter', JSON.stringify({ userLocationFilter: true }));
                 }} />
             </View>
             <FlatList
@@ -225,7 +217,7 @@ const Home = () => {
                   router.replace({
                     pathname: '/bakery' as any,
                   })
-                  setLocalStorage('filter', 'Jangan lewatkan');
+                  setLocalStorage('filter', JSON.stringify({ isExpiringFilter: true }));
                 }} />
             </View>
             <FlatList
