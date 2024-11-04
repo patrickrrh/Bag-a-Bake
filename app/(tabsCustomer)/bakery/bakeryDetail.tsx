@@ -90,6 +90,7 @@ const BakeryDetail = () => {
     }
 
     useEffect(() => {
+        console.log("test", productId)
         handleGetBakeryByProductApi()
     }, [productId])
 

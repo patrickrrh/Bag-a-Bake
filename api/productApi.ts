@@ -8,12 +8,12 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
             url: `/${url}`,
             data: method === "post" || method === "put" ? data : undefined,
         });
-        return response.data
-    } catch(error) {    
+        return response.data;
+    } catch (error) {
         if (axios.isAxiosError(error)) {
-            return error.response?.data
+            return error.response?.data;
         }
-        return { message: "An unexpected error occured" };
+        return { message: "An unexpected error occurred" };
     }
 }
 

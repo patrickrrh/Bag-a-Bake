@@ -28,7 +28,7 @@ const ExpirationDatePicker: React.FC<Props> = ({ label, expirationDate, onConfir
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: 'white',
-          borderColor: expirationDate ? '#ccc' : '#d1d5db',
+          borderColor: error ? 'red' : (expirationDate ? '#ccc' : '#d1d5db'),
           borderWidth: 1,
           borderRadius: 8,
           paddingVertical: 10,

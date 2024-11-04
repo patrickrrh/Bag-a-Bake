@@ -53,7 +53,7 @@ const SignUpBakeryOwner = () => {
     const checkForm = async () => {
         try {
             setisSubmitting(true);
-            
+            console.log(form);
             const errors = checkEmptyForm(form, confirmPassword);
             if (Object.values(errors).some(error => error !== null)) {
                 setError(errors as ErrorState);
@@ -72,6 +72,7 @@ const SignUpBakeryOwner = () => {
             const res = await authenticationApi().isEmailRegistered({
                 email: form.email,
             })
+            console.log(res);
 
             if (res.error) {
                 showToast('error', res.error);
@@ -118,12 +119,12 @@ const SignUpBakeryOwner = () => {
 
     const footerContent = (
         <>
+          <View className='mr-1'>
             <TextHeadline label='Sudah memiliki akun?' />
-            <Link href="/(auth)/signIn">
-                <TextLink label='Masuk disini' size={14} />
-            </Link>
+          </View>
+          <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
         </>
-    );
+      );
 
     return (
         <AuthLayout headerContent={headerContent} footerContent={footerContent}>

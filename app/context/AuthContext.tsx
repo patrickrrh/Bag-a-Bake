@@ -35,6 +35,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             try {
                 setIsLoading(true);
                 const token = await SecureStore.getItemAsync("accessToken");
+
                 const userData = await SecureStore.getItemAsync("userData");
                 const parsedUserData = JSON.parse(userData || "{}");
 
@@ -92,6 +93,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             } else {
                 await SecureStore.setItemAsync("accessToken", response.accessToken);
                 await SecureStore.setItemAsync("refreshToken", response.refreshToken);
+                await SecureStore.setItemAsync("userData", JSON.stringify(response.user));
                 setIsAuthenticated(true);
             }
         } catch (error) {

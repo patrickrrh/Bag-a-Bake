@@ -16,6 +16,7 @@ import { icons } from '@/constants/icons';
 import { useAuth } from '../context/AuthContext';
 import CustomButton from '@/components/CustomButton';
 import { FontAwesome } from '@expo/vector-icons';
+import { setLocalStorage } from '@/utils/commonFunctions';
 
 type Category = {
   categoryId: number;
@@ -63,6 +64,7 @@ const Home = () => {
       const response = await productApi().getRecommendedProducts({
         regionId: userData?.regionId,
       });
+      console.log("NYIHAAAAAAAAAAAAAAAAAA", response)
       if (response.status === 200) {
         setRecommendedProducts(response.data);
       }
@@ -96,7 +98,6 @@ const Home = () => {
       setRefreshing(false);
     }, 1000);
   }
-
 
   return (
     <View className='flex-1'>
@@ -132,7 +133,7 @@ const Home = () => {
                   source={icons.location}
                   style={{ width: 12, height: 12, marginRight: 5, tintColor: "white" }}
                 />
-                <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white" }}>{userData?.regionUser.regionName}</Text>
+                <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white" }}>{userData?.regionUser?.regionName}</Text>
               </View>
             </View>
             <View>
@@ -167,10 +168,10 @@ const Home = () => {
                   label={item.categoryName}
                   image={item.categoryImage}
                   onPress={() => {
-                    router.push({
+                    router.replace({
                       pathname: '/bakery' as any,
-                      params: { product: JSON.stringify(item) },
                     })
+                    setLocalStorage('filter', JSON.stringify({ categoryFilter: item.categoryId }));
                   }}
                 />
               )}
@@ -182,7 +183,13 @@ const Home = () => {
           <View className='mt-6 w-full'>
             <View className='flex-row justify-between items-center w-full'>
               <TextTitle3 label="Rekomendasi untuk Anda" />
-              <TextLink label='Lihat semua >' size={10} link='/bakery' />
+              <TextLink label='Lihat semua >' size={10}
+                onPress={() => {
+                  router.replace({
+                    pathname: '/bakery' as any,
+                  })
+                  setLocalStorage('filter', JSON.stringify({ userLocationFilter: true }));
+                }} />
             </View>
             <FlatList
               horizontal={true}
@@ -206,7 +213,13 @@ const Home = () => {
           <View className='mt-5 w-full'>
             <View className='flex-row justify-between items-end w-full'>
               <TextTitle3 label="Dapatkan Sebelum Terlambat" />
-              <TextLink label='Lihat semua >' size={10} link='/bakery' />
+              <TextLink label='Lihat semua >' size={10}
+                onPress={() => {
+                  router.replace({
+                    pathname: '/bakery' as any,
+                  })
+                  setLocalStorage('filter', JSON.stringify({ isExpiringFilter: true }));
+                }} />
             </View>
             <FlatList
               horizontal={true}
@@ -224,7 +237,7 @@ const Home = () => {
         </View>
 
       </ScrollView>
-      
+
     </View>
   );
 };
