@@ -9,7 +9,7 @@ const TextTag: React.FC<Props> = ({ label }) => {
   return (
     <View>
       <Text
-        style={{ fontFamily: "poppinsMedium", fontSize: 8 }}
+        style={{ fontFamily: "poppinsMedium", fontSize: 12 }}
         className='text-white'
       >
         {label}

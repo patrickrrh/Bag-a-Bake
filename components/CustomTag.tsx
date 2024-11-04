@@ -9,7 +9,7 @@ interface BadgeProps {
 const CustomTag: React.FC<BadgeProps> = ({ count }) => {
   return (
     <View
-      className='bg-orange px-3 justify-center items-center rounded-full'
+      className='bg-orange px-3 py-1 justify-center items-center rounded-full'
     >
       <TextTag label={`${count} tersisa`} />
     </View>

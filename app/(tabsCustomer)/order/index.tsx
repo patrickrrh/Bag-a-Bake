@@ -12,18 +12,19 @@ import OrderCard from '@/components/OrderCard';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import orderCustomerApi from '@/api/orderCustomerApi';
 import { router } from 'expo-router';
+import { OrderType } from '@/types/types';
 
-type Order = {
-  orderId: number;
-  bakeryId: number;
-  orderDate: string;
-  orderStatus: number;
-  orderTotalPrice: number;
-};
+// type Order = {
+//   orderId: number;
+//   bakeryId: number;
+//   orderDate: string;
+//   orderStatus: number;
+//   orderTotalPrice: number;
+// };
 
 const Order = () => {
   const [selectedStatus, setSelectedStatus] = useState(2);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderType[]>([]);
 
   const filteredOrders = orders.filter((order) => order.orderStatus === selectedStatus);
 

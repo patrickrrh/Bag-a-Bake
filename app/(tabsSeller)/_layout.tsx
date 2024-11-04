@@ -1,117 +1,48 @@
 import { View, Text, Image } from 'react-native'
 import React from 'react'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NavigationContainer } from '@react-navigation/native';
-import CreateProduct from './createProduct';
-import Home from './home';
-import ListProduct from './listProduct';
-import Order from './order';
-import Profile from './profile';
-import OrderDetail from './orderDetail';
-
-const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator();
-
-const ListProductStack = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="ListProduct"
-        component={ListProduct}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="CreateProduct"
-        component={CreateProduct}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
-};
-
-const OrderStack = () => {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="OrderScreen"
-        component={Order}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="OrderDetail"
-        component={OrderDetail}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  )
-}
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from 'expo-router';
 
 const TabsSellerLayout = () => {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused }) => {
-          let iconSource;
-
-          switch (route.name) {
-            case 'Home':
-              iconSource = focused
-                ? require('@/assets/images/sellerNavBar/homeIconFocus.png')
-                : require('@/assets/images/sellerNavBar/homeIconUnfocus.png');
-              break;
-            case 'ListProduct':
-              iconSource = focused
-                ? require('@/assets/images/sellerNavBar/listProductIconFocus.png')
-                : require('@/assets/images/sellerNavBar/listProductIconUnfocus.png');
-              break;
-            case 'Order':
-              iconSource = focused
-                ? require('@/assets/images/sellerNavBar/orderIconFocus.png')
-                : require('@/assets/images/sellerNavBar/orderIconUnfocus.png');
-              break;
-            case 'Profile':
-              iconSource = focused
-                ? require('@/assets/images/sellerNavBar/profileIconFocus.png')
-                : require('@/assets/images/sellerNavBar/profileIconUnfocus.png');
-              break;
-            default:
-              iconSource = require('@/assets/images/sellerNavBar/homeIconUnfocus.png');
-          }
-
-          const title = route.name === 'Home' ? 'Beranda' :
-            route.name === 'Order' ? 'Pesanan' :
-              route.name === 'ListProduct' ? 'Daftar Produk' :
-                route.name === 'Profile' ? 'Profil' : '';
-
-          return (
-            <View style={{ alignItems: 'center' }}>
-              <Image
-                source={iconSource}
-                style={{ height: 17 }}
-                resizeMode="contain"
-              />
-
-              <Text style={{
-                marginTop: 2,
-                fontSize: 10,
-                fontWeight: focused ? 'bold' : 'normal',
-              }}>
-                {title}
-              </Text>
-
-            </View>
-          );
-        },
-        tabBarShowLabel: false,
-        headerShown: false,
-      })}
-    >
-      <Tab.Screen name="Home" component={Home} options={{ title: 'Beranda' }} />
-      <Tab.Screen name="Order" component={OrderStack} options={{ title: 'Pesanan' }} />
-      <Tab.Screen name="ListProduct" component={ListProductStack} options={{ title: 'Daftar Produk' }} />
-      <Tab.Screen name="Profile" component={Profile} options={{ title: 'Profil' }} />
-    </Tab.Navigator>
+    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#B0795A', tabBarInactiveTintColor: 'gray' }}>
+      <Tabs.Screen
+        name='home'
+        options={{
+          title: 'Beranda',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'home' : 'home-outline'} color={color} size={18} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name='order'
+        options={{
+          title: 'Pesanan',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'bag' : 'bag-outline'} color={color} size={18} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name='product'
+        options={{
+          title: 'Daftar Produk',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'list' : 'list-outline'} color={color} size={18} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name='profile'
+        options={{
+          title: 'Profil',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={18} />
+          ),
+        }}
+      />
+    </Tabs>
   );
 };
 

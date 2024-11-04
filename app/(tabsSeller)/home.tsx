@@ -1,6 +1,6 @@
-import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
@@ -18,20 +18,25 @@ import TextLink from '@/components/texts/TextLink';
 import SellerOrderCard from '@/components/SellerOrderCard';
 import SellerOrderCardPending from '@/components/SellerOrderCardPending';
 import orderSellerApi from '@/api/orderSellerApi';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { router, useFocusEffect } from 'expo-router';
+import { OrderType } from '@/types/types';
 
-const Home = () => {
+interface OrderDetailProps {
+  navigation: StackNavigationProp<any>;
+}
 
-  const { userData, signOut } = useAuth();
+const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
+
+  const { userData } = useAuth();
+  const insets = useSafeAreaInsets();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const [latestPendingOrder, setLatestPendingOrder] = useState(null);
-  const [latestOngoingOrder, setLatestOngoingOrder] = useState(null);
+  const [latestPendingOrder, setLatestPendingOrder] = useState<OrderType | null>(null);
+  const [latestOngoingOrder, setLatestOngoingOrder] = useState<OrderType | null>(null);
   const [latestPendingOrderCount, setLatestPendingOrderCount] = useState(null);
   const [latestOngoingOrderCount, setLatestOngoingOrderCount] = useState(null);
-
-  const handleSignOut = async () => {
-    signOut();
-  }
 
   const handleGetLatestPendingOrderApi = async () => {
     try {
@@ -77,16 +82,57 @@ const Home = () => {
     }
   }
 
-  useEffect(() => {
+  const handleActionOrder = async (orderStatus: number) => {
+    try {
+      const response = await orderSellerApi().actionOrder({
+        orderId: latestPendingOrder?.orderId,
+        orderStatus: orderStatus
+      })
+      if (response.status === 200) {
+        handleGetLatestPendingOrderApi();
+        handleGetLatestOngoingOrderApi();
+        handleCountAllPendingOrderApi();
+        handleCountAllOngoingOrderApi();
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      handleGetLatestPendingOrderApi();
+      handleGetLatestOngoingOrderApi();
+      handleCountAllPendingOrderApi();
+      handleCountAllOngoingOrderApi();
+      setRefreshing(false);
+    }, 1000);
+  }
+
+  useFocusEffect(useCallback(() => {
     handleGetLatestPendingOrderApi();
     handleGetLatestOngoingOrderApi();
     handleCountAllPendingOrderApi();
     handleCountAllOngoingOrderApi();
-  }, [])
+  }, []))
 
   return (
-    <SafeAreaView className="flex-1 p-5 bg-background h-full">
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <View className="flex-1 px-5 pb-5 bg-background h-full">
+
+      <View
+        style={{
+          backgroundColor: '#FEFAF9',
+          height: insets.top
+        }}
+      />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
 
         {/* Header */}
         <View className='flex-row justify-between items-center w-full'>
@@ -120,15 +166,39 @@ const Home = () => {
             <TextTitle3 label="Pesanan Terbaru" />
             {
               latestPendingOrderCount ? (
-                <TextLink label={`${latestPendingOrderCount} pesanan baru >`} size={10} />
+                <TextLink
+                  label={`${latestPendingOrderCount} pesanan baru >`}
+                  size={10}
+                  onPress={() => {
+                    router.replace({
+                      pathname: '/order',
+                      params: { status: 1, isFromHomePage: "true" }
+                    })
+                  }}
+                />
               ) : (null)
             }
           </View>
 
-          <SellerOrderCardPending
-            order={latestPendingOrder}
-            onPress={() => { }}
-          />
+          {
+            latestPendingOrder ? (
+              <SellerOrderCardPending
+                order={latestPendingOrder}
+                onPress={() => {
+                  router.push({
+                    pathname: '/order/orderDetail',
+                    params: { order: JSON.stringify(latestPendingOrder) }
+                  })
+                }}
+                onReject={() => handleActionOrder(4)}
+                onAccept={() => handleActionOrder(2)}
+              />
+            ) : (
+              <View className='w-full my-5 justify-center items-center'>
+                <TextTitle5Gray label="Tidak ada pesanan masuk saat ini" />
+              </View>
+            )
+          }
         </View>
 
         <View className='mt-8'>
@@ -136,27 +206,41 @@ const Home = () => {
             <TextTitle3 label="Pesanan Berlangsung" />
             {
               latestOngoingOrderCount ? (
-                <TextLink label={`${latestOngoingOrderCount} pesanan berlangsung >`} size={10} />
+                <TextLink
+                  label={`${latestOngoingOrderCount} pesanan berlangsung >`}
+                  size={10}
+                  onPress={() => {
+                    router.replace({
+                      pathname: '/order',
+                      params: { status: 2, isFromHomePage: "true" }
+                    })
+                  }}
+                />
               ) : (null)
             }
           </View>
 
-          <SellerOrderCard
-            order={latestOngoingOrder}
-            onPress={() => { }}
-          />
+          {
+            latestOngoingOrder ? (
+              <SellerOrderCard
+                order={latestOngoingOrder}
+                onPress={() => {
+                  router.push({
+                    pathname: '/order/orderDetail',
+                    params: { order: JSON.stringify(latestOngoingOrder) }
+                  })
+                }}
+              />
+            ) : (
+              <View className='w-full my-5 justify-center items-center'>
+                <TextTitle5Gray label="Tidak ada pesanan yang sedang berlangsung" />
+              </View>
+            )
+          }
+
         </View>
-
-        <CustomButton
-          label='logout sementara'
-          handlePress={handleSignOut}
-          buttonStyles='mt-4'
-          isLoading={isSubmitting}
-        />
-
-
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

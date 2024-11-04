@@ -12,6 +12,7 @@ const CustomTagOrderStatus: React.FC<Props> = ({ status }) => {
         1: 'Pending',
         2: 'Berlangsung',
         3: 'Selesai',
+        4: 'Dibatalkan',
     }
     
   return (

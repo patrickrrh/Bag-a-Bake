@@ -3,18 +3,7 @@ import authenticationApi from '@/api/authenticationApi';
 import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
 import Toast from 'react-native-toast-message';
-
-interface UserData {
-    userId: number;
-    email: string;
-    password: string;
-    regionId: number;
-    roleId: number;
-    signUpDate: string;
-    userImage: string;
-    userName: string;
-    userPhoneNumber: string;
-}
+import { UserType } from "@/types/types";
 
 const AuthContext = createContext<{
     signIn: (data: object) => void;
@@ -23,7 +12,7 @@ const AuthContext = createContext<{
     isAuthenticated: boolean | null;
     isLoading: boolean;
     justSignedIn: boolean;
-    userData: UserData | null;
+    userData: UserType | null;
 }>({
     signIn: (data: object) => null,
     signUp: (data: object) => null,
@@ -39,7 +28,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [justSignedIn, setJustSignedIn] = useState(false);
-    const [userData, setUserData] = useState<UserData | null>(null);
+    const [userData, setUserData] = useState<UserType | null>(null);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -63,7 +52,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         };
 
         checkAuth();
-    }, []);
+    }, [isAuthenticated]);
 
     if (isLoading) {
         return (
@@ -118,6 +107,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         await SecureStore.deleteItemAsync("refreshToken");
         await SecureStore.deleteItemAsync("userData");
         setIsAuthenticated(false);
+        setUserData(null);
         setJustSignedIn(true);
     };
 

@@ -20,34 +20,17 @@ import FilterButton from "@/components/FilterButton";
 import BakeryCard from "@/components/BakeryCard";
 import bakeryApi from "@/api/bakeryApi";
 import favoriteApi from "@/api/favoriteApi";
-import { useLocalSearchParams } from "expo-router";
-import { useAuth } from "../context/AuthContext";
+import { router, useLocalSearchParams } from "expo-router";
+import { useAuth } from "@/app/context/AuthContext";
 import TextTitle1 from "@/components/texts/TextTitle1";
 import categoryApi from "@/api/categoryApi";
 import CheckBox from 'react-native-check-box'
 import CustomButton from "@/components/CustomButton";
-
-type Bakery = {
-  bakeryId: number;
-  userId: number;
-  regionId: number;
-  bakeryName: string;
-  bakeryImage: string;
-  bakeryDescription: string;
-  bakeryPhoneNumber: string;
-  openingTime: string;
-  closingTime: string;
-}
-
-type Category = {
-  categoryId: number;
-  categoryName: string;
-  categoryImage: string;
-}
+import { BakeryType, CategoryType } from "@/types/types";
 
 const Bakery = () => {
 
-  const { userData, signOut } = useAuth();
+  const { userData } = useAuth();
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
 
@@ -76,14 +59,13 @@ const Bakery = () => {
   }, [product]);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites, setFavorites] = useState<number[]>([]);
   const [showFavorite, setShowFavorite] = useState(false);
   const [activeFilter, setActiveFilter] = useState<string[]>([]);
 
   const [categoryModal, setCategoryModal] = useState(false);
 
-  const [bakery, setBakery] = useState<Bakery[]>([]);
-  const [category, setCategory] = useState<Category[]>([]);
+  const [bakery, setBakery] = useState<BakeryType[]>([]);
+  const [category, setCategory] = useState<CategoryType[]>([]);
 
   const [isSubmitting, setisSubmitting] = useState(false);
 
@@ -123,27 +105,6 @@ const Bakery = () => {
     }
   }
 
-  const handleGetFavoriteBakeryApi = async () => {
-    try {
-      const response = await favoriteApi().getFavorite({
-        userId: userData?.userId,
-      });
-      if (response.status === 200) {
-        const bakeryData = response.data.map((favorite: { bakery: object; }) => favorite.bakery);      
-        setBakery(bakeryData);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  const filteredStores = bakery.filter((bakery) => {
-    const isMatch = bakery.bakeryName
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    return isMatch;
-  });
-
   const handleGetCategoryApi = async () => {
     try {
       const response = await categoryApi().getCategory();
@@ -155,25 +116,48 @@ const Bakery = () => {
     }
   }
 
-  // const toggleFavorite = (storeId: number) => {
-  //   setFavorites((prevFavorites) =>
-  //     prevFavorites.includes(storeId)
-  //       ? prevFavorites.filter((id) => id !== storeId)
-  //       : [...prevFavorites, storeId]
-  //   );
-  // };
+  // Filtering logics
+  const filterBakeries = () => {
+    if (showFavorite) {
+      const favoriteBakeries = bakery.filter(item => 
+        item.favorite.some(fav => fav.userId === userData?.userId)
+      );
+  
+      return favoriteBakeries.filter(item => 
+        item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
+    return bakery.filter(item => 
+      item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  //TO DO: update this to local state
   const toggleFavorite = async (bakeryId: number) => {
-    await favoriteApi().addFavorite({
-      userId: userData?.userId,
-      bakeryId: bakeryId
-    })
+    const bakeryItem = bakery.find(bakery => bakery.bakeryId === bakeryId);
+    const favoriteItem = bakeryItem?.favorite.find(fav => fav.userId === userData?.userId);
+
+    try {
+      if (favoriteItem) {
+        await favoriteApi().removeFavorite(favoriteItem.favoriteId)
+      } else {
+        await favoriteApi().addFavorite({
+          userId: userData?.userId,
+          bakeryId: bakeryId
+        })
+      }
+
+      handleGetBakeryApi();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   const handleActiveFilter = (filter: string) => {
     setActiveFilter((prevFilters) => {
       let updatedFilters;
-  
+
       if (filter !== "Kategori") {
         if (prevFilters.includes(filter)) {
           updatedFilters = prevFilters.filter(f => f !== filter);
@@ -181,19 +165,16 @@ const Bakery = () => {
           updatedFilters = [...prevFilters, filter];
         }
 
-        console.log("masuk mana")
-  
         if (updatedFilters.includes("Dekat saya")) {
           handleGetBakeryByRegionApi();
         } else {
-          console.log("masuk sini?")
           handleGetBakeryApi();
         }
       } else {
         updatedFilters = prevFilters;
         setCategoryModal(true);
       }
-  
+
       return updatedFilters;
     });
   };
@@ -237,20 +218,6 @@ const Bakery = () => {
       setTempCheckedCategories(checkedCategories);
     }
   }, [categoryModal]);
-
-  useEffect(() => {
-    if (showFavorite) {
-      handleGetFavoriteBakeryApi();
-    } else {
-      handleGetBakeryApi();
-    }
-  }, [showFavorite]);
-
-  console.log("bakery", JSON.stringify(bakery, null, 2));
-
-  // console.log('bakery', JSON.stringify(bakery, null, 2));
-  // console.log("category", checkedCategories);
-  // console.log("temp", tempCheckedCategories)
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -297,15 +264,18 @@ const Bakery = () => {
           />
         </View>
 
+        {/* TO DO: update the path to bakery detail */}
         <View className="mt-5 h-full">
           <FlatList
-            data={filteredStores}
+            data={filterBakeries()}
             keyExtractor={(item) => item.bakeryId.toString()}
             renderItem={({ item }) => (
               <BakeryCard
                 item={item}
-                favoriteStores={favorites}
-                onPress={() => { }}
+                onPress={() => router.push({
+                  pathname: '/bakery/bakeryDetail' as any,
+                  params: { bakeryId: item.bakeryId }
+                })}
                 onFavorite={() => toggleFavorite(item.bakeryId)}
               />
             )}

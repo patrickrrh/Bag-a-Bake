@@ -117,8 +117,6 @@ const SignIn = () => {
     return <SplashScreen />;
   }
 
-  console.log("form value", form)
-
   return (
     <AuthLayout headerContent={headerContent} footerContent={footerContent}>
       <FormField
