@@ -29,6 +29,7 @@ import CustomButton from "@/components/CustomButton";
 import { BakeryType, CategoryType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
+import { set } from "date-fns";
 
 const Bakery = () => {
 
@@ -40,7 +41,6 @@ const Bakery = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showFavorite, setShowFavorite] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<string[]>([]);
 
   const [categoryModal, setCategoryModal] = useState(false);
 
@@ -67,37 +67,13 @@ const Bakery = () => {
 
   const handleGetBakeryApi = async () => {
     try {
-      // setBakery([]);
-
-      // let response;
-
-      // if (checkedCategories.length > 0) {
-      //   const categoryIds = checkedCategories.map(item => item);
-      //   response = await bakeryApi().getBakeryByCategory({
-      //     categoryId: categoryIds,
-      //   });
-      // } else if (activeFilter.includes("Dekat saya")) {
-      //   response = await bakeryApi().getBakeryByRegion({
-      //     regionId: userData?.regionId,
-      //   })
-      // } else {
-      //   response = await bakeryApi().getBakery();
-      // }
-
-      // if (response.status === 200) {
-      //   let fetchedBakery = response.data ? response.data : [];
-
-      //   if (checkedCategories.length > 0 && activeFilter.includes("Dekat saya")) {
-      //     fetchedBakery = fetchedBakery.filter((item: { regionId: number; }) => item.regionId === userData?.regionId);
-      //   }
-      //   setBakery(fetchedBakery);
-      // }
-
       const response = await bakeryApi().getBakeryWithFilters({
         categoryId: checkedCategories,
         regionId: userLocationFilter,
         expiringProducts: isExpiringFilter
       })
+
+      console.log("response", response)
 
       if (response.status === 200) {
         setBakery(response.data ? response.data : []);
@@ -123,7 +99,6 @@ const Bakery = () => {
     );
   };
 
-  //TO DO: update this to local state
   const toggleFavorite = async (bakeryId: number) => {
     const bakeryItem = bakery.find(bakery => bakery.bakeryId === bakeryId);
     const favoriteItem = bakeryItem?.favorite.find(fav => fav.userId === userData?.userId);
@@ -143,39 +118,6 @@ const Bakery = () => {
       console.log(error);
     }
   }
-
-  // const handleActiveFilter = (filter: string) => {
-  //   setActiveFilter((prevFilters) => {
-  //     let updatedFilters;
-
-  //     if (filter !== "Kategori") {
-  //       if (prevFilters.includes(filter)) {
-  //         updatedFilters = prevFilters.filter(f => f !== filter);
-  //       } else {
-  //         updatedFilters = [...prevFilters, filter];
-  //       }
-  //     } else {
-  //       updatedFilters = prevFilters;
-  //       setCategoryModal(true);
-  //     }
-
-  //     return updatedFilters;
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   setActiveFilter((prevFilters) => {
-  //     if (checkedCategories.length > 0) {
-  //       if (!prevFilters.includes("Kategori")) {
-  //         return [...prevFilters, "Kategori"];
-  //       }
-  //       return prevFilters;
-  //     }
-
-  //     return prevFilters.filter((f) => f !== "Kategori");
-  //   });
-  //   handleGetBakeryApi();
-  // }, [checkedCategories]);
 
   const handleTempCheckboxClick = (categoryId: number) => {
     setTempCheckedCategories((prev) => {
@@ -200,12 +142,22 @@ const Bakery = () => {
 
   useFocusEffect(
     useCallback(() => {
-      getLocalStorage('filter');
+      const fetchData = async () => {
+        const data = await getLocalStorage('filter');
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setLocalStorageData(parsedData);
+        }
+      };
+
+      fetchData();
 
       return () => {
         removeLocalStorage('filter');
-        setActiveFilter([]);
+        setLocalStorageData(null);
         setCheckedCategories([]);
+        setUserLocationFilter(0);
+        setIsExpiringFilter(false);
       };
     }, [])
   );
@@ -213,37 +165,19 @@ const Bakery = () => {
   useEffect(() => {
     if (!localStorageData) return;
 
-    // if (localStorageData === 'Dekat saya') {
-    //   handleActiveFilter(localStorageData);
-    // } else {
-    //   let productItem: any[] = [];
-    //   try {
-    //     if (localStorageData) {
-    //       const parsedProducts = JSON.parse(localStorageData as string);
+    if (localStorageData.userLocationFilter) {
+      setUserLocationFilter(userData?.regionId || 0);
+    } else if (localStorageData.isExpiringFilter) {
+      setIsExpiringFilter(localStorageData.isExpiringFilter);
+    } else if (localStorageData.categoryFilter) {
+      setCheckedCategories([localStorageData.categoryFilter]); 
+    }
 
-    //       if (typeof parsedProducts === 'object' && !Array.isArray(parsedProducts)) {
-    //         productItem.push(parsedProducts);
-    //       } else if (Array.isArray(parsedProducts)) {
-    //         productItem = [...parsedProducts];
-    //       } else {
-    //         console.error("Parsed product is neither an array nor an object");
-    //       }
-
-    //       const categoryId = productItem[0].categoryId;
-    //       setCheckedCategories([categoryId]);
-    //     }
-    //   } catch (error) {
-    //     console.error("Failed to parse product:", error);
-    //   }
-    // }
   }, [localStorageData]);
 
   useEffect(() => {
     handleGetBakeryApi();
-  }, [activeFilter]);
-
-  console.log("local storage data:", localStorageData.categoryFilter)
-  console.log("checked categories:", checkedCategories);
+  }, [checkedCategories, userLocationFilter, isExpiringFilter]);
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">

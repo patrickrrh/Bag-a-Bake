@@ -5,7 +5,7 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import BackButton from '@/components/BackButton';
 import TextTitle5 from '@/components/texts/TextTitle5';
-import { calculateTotalOrderPrice, formatRupiah } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, formatRupiah, setLocalStorage } from '@/utils/commonFunctions';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import CustomButton from '@/components/CustomButton';
 import ContactButton from '@/components/ContactButton';
@@ -25,8 +25,6 @@ const OrderDetail = () => {
   const { order } = useLocalSearchParams();
   const orderData = order ? JSON.parse(order as string) : null;
 
-  console.log("order data", orderData)
-
   const [isSubmitting, setisSubmitting] = useState(false);
 
   const handleActionOrder = async (orderStatus: number) => {
@@ -39,8 +37,8 @@ const OrderDetail = () => {
       if (response.status === 200) {
         router.push({
           pathname: '/order',
-          params: { status: orderStatus }
         })
+        setLocalStorage('orderSellerParams', JSON.stringify({ status: orderStatus }))
       }
     } catch (error) {
       console.log(error)
@@ -57,8 +55,8 @@ const OrderDetail = () => {
           onPress={() => {
             router.push({
               pathname: '/order',
-              params: { status: orderData.orderStatus, isFromHomePage: "true" }
             })
+            setLocalStorage('orderSellerParams', JSON.stringify({ status: orderData.orderStatus }))
           }}
           activeOpacity={0.7}
           style={{ width: 10, height: 24 }}

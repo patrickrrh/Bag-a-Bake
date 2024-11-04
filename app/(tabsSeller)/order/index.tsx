@@ -17,15 +17,14 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OrderType } from '@/types/types';
+import { getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 
 const Order = () => {
 
-  const { status, isFromHomePage } = useLocalSearchParams() || { status: 1, isFromHomePage: "false" };
   const insets = useSafeAreaInsets();
 
-  const [selectedStatus, setSelectedStatus] = useState<number | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState(1);
   const hasManualSelection = useRef(false);
-  const initialHomePage = useRef(true);
   const [order, setOrder] = useState<OrderType[]>([]);
 
   const handleSelectStatus = (status: number) => {
@@ -33,7 +32,7 @@ const Order = () => {
     hasManualSelection.current = true;
   };
 
-  const handleGetAllOrderByStatusApi = useCallback(async () => {
+  const handleGetAllOrderByStatusApi = async () => {
     try {
       const response = await orderSellerApi().getAllOrderByStatus({
         orderStatus: selectedStatus
@@ -44,35 +43,32 @@ const Order = () => {
     } catch (error) {
       console.log(error);
     }
-  }, [selectedStatus]);
+  };
 
   useFocusEffect(
     useCallback(() => {
+      const fetchData = async () => {
+        const data = await getLocalStorage('orderSellerParams');
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setSelectedStatus(parsedData.status);
+        }
+      } 
 
-      if (isFromHomePage === "true" && initialHomePage.current) {
-        setSelectedStatus(Number(status));
-        initialHomePage.current = false;
-        hasManualSelection.current = false;
-      } else if (!hasManualSelection.current) {
-        setSelectedStatus(Number(status));
+      fetchData();
+      if (!hasManualSelection.current) {
+        handleGetAllOrderByStatusApi();
       }
-
+      
       return () => {
-        initialHomePage.current = true;
-      };
-    }, [status, isFromHomePage])
+        removeLocalStorage('orderSellerParams');
+      }
+    }, [])
   )
 
-  useFocusEffect(
-    useCallback(() => {
-
-      handleGetAllOrderByStatusApi();
-
-      return () => {
-        setOrder([]);
-      };
-    }, [handleGetAllOrderByStatusApi])
-  );
+  useEffect(() => {
+    handleGetAllOrderByStatusApi();
+  }, [selectedStatus]);
 
   const handleActionOrder = async (orderId: number, orderStatus: number) => {
     try {
@@ -110,7 +106,7 @@ const Order = () => {
           </View>
         </View>
 
-        <View className='flex-1 mx-5 pb-5'>
+        <View className='flex-1 mx-5'>
           <FlatList
             data={order}
             renderItem={({ item }) => (
@@ -140,6 +136,7 @@ const Order = () => {
             )}
             keyExtractor={(item) => item.orderId.toString()}
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
           />
         </View>
       </View>
