@@ -7,6 +7,7 @@ interface Props {
   placeholder?: string;
   onChangeText: (text: string) => void;
   moreStyles?: string;
+  editable?: boolean;
   error?: string | null;
 }
 
@@ -20,6 +21,7 @@ const DiscountInputField: React.FC<Props> = ({
   placeholder,
   onChangeText,
   moreStyles,
+  editable = true,
   error,
 }) => {
   const [internalValue, setInternalValue] = useState<string>(
@@ -44,6 +46,13 @@ const DiscountInputField: React.FC<Props> = ({
     onChangeText(numericValue);
   };
 
+  const inputStyle = {
+    backgroundColor: editable ? "white" : "#f0f0f0",
+    opacity: editable ? 1 : 0.5,
+  };
+
+  const textColor = editable ? "black" : "#b0b0b0";
+
   return (
     <View className={`space-y-1 ${moreStyles}`}>
       <View
@@ -51,15 +60,23 @@ const DiscountInputField: React.FC<Props> = ({
           error ? "border-red-500" : "border-gray-200"
         } flex-row items-center`}
       >
-        <TextTitle4 label="Rp   " />
+        <Text
+          style={{ fontFamily: "poppinsSemiBold", fontSize: 14, color: textColor }}
+          ellipsizeMode="tail"
+          numberOfLines={1}
+        >
+          {"Rp" + "\u00A0\u00A0\u00A0"}
+        </Text>
+
         <TextInput
           className="flex-1 text-black text-base"
-          style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
+          style={[{ fontFamily: "poppinsRegular", fontSize: 14 }, inputStyle]}
           value={internalValue}
           placeholder={placeholder}
           placeholderTextColor={"#828282"}
           onChangeText={handleChangeText}
           keyboardType="numeric"
+          editable={editable}
         />
       </View>
       {error && <Text className="text-red-500">{error}</Text>}

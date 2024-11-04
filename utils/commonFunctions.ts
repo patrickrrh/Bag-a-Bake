@@ -131,6 +131,10 @@ export const checkProductForm = (form: Record<string, unknown>) => {
   if (Array.isArray(form.discount)) {
     const discountAmounts = form.discount.map(d => parseFloat(d.discountAmount));
   
+    if (discountAmounts[0] >= (form.productPrice as number)) {
+      errors.discount = `Diskon 1 tidak boleh lebih besar atau sama dengan Harga Awal`;
+    }
+
     discountAmounts.forEach((amount, index) => {
       if (isNaN(amount) || amount < 0) {
         errors.discount = `Diskon ${index + 1} tidak boleh kurang dari 0`;
