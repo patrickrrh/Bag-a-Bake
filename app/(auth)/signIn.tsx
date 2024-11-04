@@ -26,7 +26,7 @@ type ErrorState = {
 
 const SignIn = () => {
 
-  const { signIn, signOut, justSignedIn } = useAuth();
+  const { signIn, justSignedIn } = useAuth();
 
   const emptyForm = {
     email: '',
@@ -75,17 +75,6 @@ const SignIn = () => {
     }
   };
 
-  console.log(isSubmitting);
-  console.log("form", form);
-
-  const handleSignOut = async () => {
-    signOut();
-  }
-
-  const handleCustomerPage = () => {
-    router.push('/(tabsCustomer)/home');
-  }
-
   const headerContent = (
     <>
       <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
@@ -100,7 +89,7 @@ const SignIn = () => {
       <View className='mr-1'>
         <TextHeadline label="Belum memiliki akun?" />
       </View>
-      <TextLink label='Daftar disini' size={14} link="/(auth)/signUp" />
+      <TextLink label='Daftar disini' size={14} onPress={() => router.push('/(auth)/signUp')} />
     </>
   );
 
@@ -146,7 +135,7 @@ const SignIn = () => {
       />
 
       <View className="mt-6 flex-row justify-end">
-        <TextLink label='Lupa kata sandi?' size={14} link="/TO DO: add link" />
+        <TextLink label='Lupa kata sandi?' size={14} onPress={() => router.push('/forgotPassword')} />
       </View>
 
       <CustomButton
@@ -156,26 +145,6 @@ const SignIn = () => {
         isLoading={isSubmitting}
       />
 
-      <CustomButton
-        label='logout sementara'
-        handlePress={handleSignOut}
-        buttonStyles='mt-4'
-        isLoading={isSubmitting}
-      />
-
-      <CustomButton
-        label='customerpage'
-        handlePress={handleCustomerPage}
-        buttonStyles='mt-4'
-        isLoading={isSubmitting}
-      />
-      {/* 
-      <CustomButton
-        label='Tambahkan Produk'
-        handlePress={() => router.push('/(tabsSeller)/product/createProduct')}
-        buttonStyles='mt-4'
-        isLoading={false}
-      /> */}
     </AuthLayout>
   );
 };

@@ -21,12 +21,9 @@ import orderSellerApi from '@/api/orderSellerApi';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { router, useFocusEffect } from 'expo-router';
 import { OrderType } from '@/types/types';
+import { setLocalStorage } from '@/utils/commonFunctions';
 
-interface OrderDetailProps {
-  navigation: StackNavigationProp<any>;
-}
-
-const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
+const Home = () => {
 
   const { userData } = useAuth();
   const insets = useSafeAreaInsets();
@@ -118,7 +115,7 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
   }, []))
 
   return (
-    <View className="flex-1 px-5 pb-5 bg-background h-full">
+    <View className="flex-1 px-5 bg-background h-full">
 
       <View
         style={{
@@ -161,83 +158,85 @@ const Home: React.FC<OrderDetailProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <View className='mt-8'>
-          <View className='flex-row justify-between items-center w-full'>
-            <TextTitle3 label="Pesanan Terbaru" />
+        <View className='pb-5'>
+          <View className='mt-8'>
+            <View className='flex-row justify-between items-center w-full'>
+              <TextTitle3 label="Pesanan Terbaru" />
+              {
+                latestPendingOrderCount ? (
+                  <TextLink
+                    label={`${latestPendingOrderCount} pesanan baru >`}
+                    size={10}
+                    onPress={() => {
+                      router.replace({
+                        pathname: '/order',
+                      })
+                      setLocalStorage("orderSellerParams", JSON.stringify({ status: 1, isFromHomePage: "true" }));
+                    }}
+                  />
+                ) : (null)
+              }
+            </View>
+
             {
-              latestPendingOrderCount ? (
-                <TextLink
-                  label={`${latestPendingOrderCount} pesanan baru >`}
-                  size={10}
+              latestPendingOrder ? (
+                <SellerOrderCardPending
+                  order={latestPendingOrder}
                   onPress={() => {
-                    router.replace({
-                      pathname: '/order',
-                      params: { status: 1, isFromHomePage: "true" }
+                    router.push({
+                      pathname: '/order/orderDetail',
+                      params: { order: JSON.stringify(latestPendingOrder) }
                     })
                   }}
+                  onReject={() => handleActionOrder(4)}
+                  onAccept={() => handleActionOrder(2)}
                 />
-              ) : (null)
+              ) : (
+                <View className='w-full my-5 justify-center items-center'>
+                  <TextTitle5Gray label="Tidak ada pesanan masuk saat ini" />
+                </View>
+              )
             }
           </View>
 
-          {
-            latestPendingOrder ? (
-              <SellerOrderCardPending
-                order={latestPendingOrder}
-                onPress={() => {
-                  router.push({
-                    pathname: '/order/orderDetail',
-                    params: { order: JSON.stringify(latestPendingOrder) }
-                  })
-                }}
-                onReject={() => handleActionOrder(4)}
-                onAccept={() => handleActionOrder(2)}
-              />
-            ) : (
-              <View className='w-full my-5 justify-center items-center'>
-                <TextTitle5Gray label="Tidak ada pesanan masuk saat ini" />
-              </View>
-            )
-          }
-        </View>
+          <View className='mt-8'>
+            <View className='flex-row justify-between items-center w-full'>
+              <TextTitle3 label="Pesanan Berlangsung" />
+              {
+                latestOngoingOrderCount ? (
+                  <TextLink
+                    label={`${latestOngoingOrderCount} pesanan berlangsung >`}
+                    size={10}
+                    onPress={() => {
+                      router.replace({
+                        pathname: '/order',
+                      })
+                      setLocalStorage("orderSellerParams", JSON.stringify({ status: 2, isFromHomePage: "true" }));
+                    }}
+                  />
+                ) : (null)
+              }
+            </View>
 
-        <View className='mt-8'>
-          <View className='flex-row justify-between items-center w-full'>
-            <TextTitle3 label="Pesanan Berlangsung" />
             {
-              latestOngoingOrderCount ? (
-                <TextLink
-                  label={`${latestOngoingOrderCount} pesanan berlangsung >`}
-                  size={10}
+              latestOngoingOrder ? (
+                <SellerOrderCard
+                  order={latestOngoingOrder}
                   onPress={() => {
-                    router.replace({
-                      pathname: '/order',
-                      params: { status: 2, isFromHomePage: "true" }
+                    router.push({
+                      pathname: '/order/orderDetail',
+                      params: { order: JSON.stringify(latestOngoingOrder) }
                     })
                   }}
                 />
-              ) : (null)
+              ) : (
+                <View className='w-full my-5 justify-center items-center'>
+                  <TextTitle5Gray label="Tidak ada pesanan yang sedang berlangsung" />
+                </View>
+              )
             }
+
           </View>
-
-          {
-            latestOngoingOrder ? (
-              <SellerOrderCard
-                order={latestOngoingOrder}
-                onPress={() => {
-                  router.push({
-                    pathname: '/order/orderDetail',
-                    params: { order: JSON.stringify(latestOngoingOrder) }
-                  })
-                }}
-              />
-            ) : (
-              <View className='w-full my-5 justify-center items-center'>
-                <TextTitle5Gray label="Tidak ada pesanan yang sedang berlangsung" />
-              </View>
-            )
-          }
-
         </View>
       </ScrollView>
     </View>
