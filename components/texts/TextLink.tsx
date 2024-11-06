@@ -11,7 +11,7 @@ interface Props {
 const TextLink: React.FC<Props> = ({ label, size, onPress }) => {
   return (
       <Text
-        style={{ fontFamily: "poppinsMedium", fontSize: size, color: "#B0795A" }}
+        style={{ fontFamily: "poppinsMedium", fontSize: size, color: "#B0795A", textDecorationLine: "underline" }}
         onPress={onPress}
       >
         {label}
