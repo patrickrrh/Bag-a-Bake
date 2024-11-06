@@ -135,7 +135,7 @@ const SignIn = () => {
       />
 
       <View className="mt-6 flex-row justify-end">
-        <TextLink label='Lupa kata sandi?' size={14} onPress={() => router.push('/forgotPassword')} />
+        <TextLink label='Lupa kata sandi?' size={14} onPress={() => router.push('/(auth)/forgotPassword')} />
       </View>
 
       <CustomButton
