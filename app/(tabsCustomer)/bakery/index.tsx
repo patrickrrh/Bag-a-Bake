@@ -244,7 +244,8 @@ const Bakery = () => {
               <BakeryCard
                 item={item}
                 onPress={() => router.push({
-                  pathname: '/bakery/bakeryDetail' as any
+                  pathname: '/bakery/bakeryDetail' as any,
+                  params: { bakeryId: item.bakeryId }
                 })}
                 onFavorite={() => toggleFavorite(item.bakeryId)}
               />
