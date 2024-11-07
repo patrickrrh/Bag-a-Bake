@@ -26,7 +26,7 @@ type ErrorState = {
 
 const SignIn = () => {
 
-  const { signIn, signOut, justSignedIn } = useAuth();
+  const { signIn, justSignedIn } = useAuth();
 
   const emptyForm = {
     email: '',
@@ -73,17 +73,6 @@ const SignIn = () => {
       setisSubmitting(false);
     }
   };
-
-  console.log(isSubmitting);
-  console.log("form", form);
-
-  const handleSignOut = async () => {
-    signOut();
-  }
-
-  const handleCustomerPage = () => {
-    router.push('/(tabsCustomer)/home');
-  }
 
   const headerContent = (
     <>
@@ -145,7 +134,7 @@ const SignIn = () => {
       />
 
       <View className="mt-6 flex-row justify-end">
-        <TextLink label='Lupa kata sandi?' size={14} onPress={() => router.push('TO DO: Forgot Password')} />
+        <TextLink label='Lupa kata sandi?' size={14} onPress={() => router.push('/forgotPassword')} />
       </View>
 
       <CustomButton
@@ -155,26 +144,6 @@ const SignIn = () => {
         isLoading={isSubmitting}
       />
 
-      <CustomButton
-        label='logout sementara'
-        handlePress={handleSignOut}
-        buttonStyles='mt-4'
-        isLoading={isSubmitting}
-      />
-
-      <CustomButton
-        label='customerpage'
-        handlePress={handleCustomerPage}
-        buttonStyles='mt-4'
-        isLoading={isSubmitting}
-      />
-      {/* 
-      <CustomButton
-        label='Tambahkan Produk'
-        handlePress={() => router.push('/(tabsSeller)/product/createProduct')}
-        buttonStyles='mt-4'
-        isLoading={false}
-      /> */}
     </AuthLayout>
   );
 };

@@ -15,6 +15,8 @@ import StockInput from '@/components/StockInput';
 import { useLocalSearchParams } from 'expo-router';
 import { ProductType } from '@/types/types';
 import AddOrderProductButton from '@/components/AddOrderProductButton';
+import BackButton from '@/components/BackButton';
+import CircleBackButton from '@/components/CircleBackButton';
 
 type BakeryOrderType = {
     bakeryName: string;
@@ -88,10 +90,16 @@ const OrderPage = () => {
 
   return (
     <View>
-        <Image 
+        <View>
+          <Image
             source={product?.productImage}
-            style={{ width: 375, height: 330, marginBottom: 16 }}
-        />
+            style={{ width: '100%', height: 330 }}
+          />
+          <View style={{ position: 'absolute', top: 70, left: 28 }}>
+            <CircleBackButton />
+          </View>
+        </View>
+
         <View className="mx-5">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
@@ -105,7 +113,6 @@ const OrderPage = () => {
           <View className="pb-1">
             <TextFormLabel label={bakery?.bakeryName || 'loading'} />
           </View>
-
 
           <View className="flex-row items-center">
             <View className='pr-1'>
