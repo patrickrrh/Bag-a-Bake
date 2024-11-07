@@ -28,5 +28,6 @@ export default function productApi() {
         getRecommendedProducts: createApiFunction("post", "get/recommended/products"),
         getExpiringProducts: createApiFunction("get", "get/expiring/products"),
         getBakeryByProduct: createApiFunction("post", "get/bakery/product"),
+        getProductsByBakery: createApiFunction("post", "get/products/bakery"),
     }
 }

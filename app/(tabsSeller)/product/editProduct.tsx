@@ -17,7 +17,7 @@ import StockInput from "@/components/StockInput";
 import TextAreaField from "@/components/TextAreaField";
 import CustomDropdown from "@/components/CustomDropdown";
 import TextTitle3 from "@/components/texts/TextTitle3";
-import ModalSubmission from "@/components/ModalSubmission";
+import ModalEditSubmission from "@/components/ModalEditSubmission";
 import dayjs from "dayjs";
 import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
@@ -30,6 +30,7 @@ import productApi from "@/api/productApi";
 import SquareButton from "@/components/SquareButton";
 import { useAuth } from "@/app/context/AuthContext";
 import Decimal from "decimal.js";
+import { RouteProp, useRoute } from "@react-navigation/native";
 
 type ErrorState = {
   productName: string | null;
@@ -42,14 +43,20 @@ type ErrorState = {
   productImage: string | null;
 };
 
-const CreateProduct = () => {
+type RouteParams = {
+  productId: number;
+};
+
+const EditProduct = () => {
   const { userData } = useAuth();
+  const route = useRoute<RouteProp<{ params: RouteParams }, "params">>();
+  const { productId } = route.params;
 
   const [form, setForm] = useState({
+    productId: 0,
     productName: "",
     productDescription: "",
     categoryId: 0,
-    category: "",
     productExpirationDate: new Date(),
     productPrice: "",
     discount: [{ discountAmount: "", discountDate: new Date().toISOString() }],
@@ -95,7 +102,7 @@ const CreateProduct = () => {
     setError((prevError) => ({ ...prevError, productExpirationDate: null }));
   };
 
-  const handleAddProduct = async () => {
+  const handleEditProduct = async () => {
     try {
       setIsSubmitting(true);
       form.bakeryId = userData?.bakery.bakeryId ?? 0;
@@ -107,6 +114,7 @@ const CreateProduct = () => {
       console.log(form);
       const formData = {
         ...form,
+        productId: new Number(form.productId),
         productPrice: new Decimal(form.productPrice),
         productExpirationDate: new Date(form.productExpirationDate),
         discount: form.discount.map((disc) => ({
@@ -116,7 +124,7 @@ const CreateProduct = () => {
         })),
       };
 
-      const response = await productApi().createProduct(formData);
+      const response = await productApi().updateProductById(formData);
       if (response.error) {
         throw new Error(response.error);
       }
@@ -154,7 +162,7 @@ const CreateProduct = () => {
       if (updatedDiscounts.length < 1) {
         const newDiscountDate = new Date();
         newDiscountDate.setDate(newDiscountDate.getDate());
-        
+
         updatedDiscounts.push({
           discountAmount: "",
           discountDate: newDiscountDate.toISOString(),
@@ -192,9 +200,52 @@ const CreateProduct = () => {
     }
   };
 
+  const handleGetProductById = async () => {
+    try {
+      const response = await productApi().getProductById({ productId });
+      console.log("product id", productId);
+      //   console.log(response);
+      if (response != null) {
+        setForm({
+          productId: response.productId,
+          productName: response.productName,
+          productDescription: response.productDescription,
+          categoryId: response.categoryId,
+          productExpirationDate: new Date(response.productExpirationDate),
+          productPrice: response.productPrice.toString(),
+          discount:
+            response.discount && response.discount.length > 0
+              ? response.discount.map(
+                  (discount: {
+                    discountAmount: string;
+                    discountDate: string;
+                  }) => ({
+                    discountAmount: discount.discountAmount.toString(),
+                    discountDate:
+                      discount.discountDate || new Date().toISOString(),
+                  })
+                )
+              : [
+                  {
+                    discountAmount: "",
+                    discountDate: new Date().toISOString(),
+                  },
+                ],
+          productStock: response.productStock,
+          productImage: response.productImage,
+          bakeryId: response.bakeryId,
+        });
+      }
+      //   console.log(form);
+    } catch (error) {
+      console.log("Error fetching product by ID:", error);
+    }
+  };
+
   useEffect(() => {
     handleGetCategoriesAPI();
-  }, []);
+    handleGetProductById();
+  }, [productId]);
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -215,7 +266,7 @@ const CreateProduct = () => {
             paddingTop: 10,
           }}
         >
-          <TextTitle3 label="Tambahkan Produk" />
+          <TextTitle3 label="Perbarui Produk" />
         </View>
       </View>
 
@@ -279,13 +330,13 @@ const CreateProduct = () => {
           <CustomDropdown
             label="Kategori"
             data={categories}
-            value={form.category}
+            value={form.categoryId}
             placeholder="Pilih Kategori"
             labelField="categoryName"
             valueField="categoryId"
             onChange={(text) => {
               setForm({ ...form, categoryId: Number(text) });
-              setError((prevError) => ({ ...prevError, category: null }));
+              setError((prevError) => ({ ...prevError, categoryId: null }));
             }}
             moreStyles="mt-7"
             error={error.category}
@@ -333,24 +384,30 @@ const CreateProduct = () => {
               </View>
             </View>
             <View className="flex-col">
-              {form.discount.map((discount, index) => (
-                <View
-                  key={index}
-                  className="flex-row items-center justify-between mb-4"
-                >
-                  <Text
-                    style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
-                    className="text-black"
+              {form.discount.map((discount, index) => {
+                const discountDate = dayjs(discount.discountDate);
+                const isPast = discountDate.isBefore(dayjs(), "day");
+
+                return (
+                  <View
+                    key={index}
+                    className="flex-row items-center justify-between mb-4"
                   >
-                    Hari ke-{index + 1}
-                  </Text>
-                  <DiscountInputField
-                    value={discount.discountAmount}
-                    onChangeText={(text) => handleDiscountChange(index, text)}
-                    placeholder={`Hari ke-${index + 1}`}
-                  />
-                </View>
-              ))}
+                    <Text
+                      style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
+                      className="text-black"
+                    >
+                      Hari ke-{index + 1}
+                    </Text>
+                    <DiscountInputField
+                      value={discount.discountAmount}
+                      onChangeText={(text) => handleDiscountChange(index, text)}
+                      placeholder={`Hari ke-${index + 1}`}
+                      editable={!isPast}
+                    />
+                  </View>
+                );
+              })}
             </View>
 
             <View className="mt-4 flex-col justify-center w-full">
@@ -373,18 +430,22 @@ const CreateProduct = () => {
 
           {/* Add Product Button */}
           <CustomButton
-            label="Tambahkan"
-            handlePress={handleAddProduct}
+            label="Perbarui"
+            handlePress={handleEditProduct}
             buttonStyles="mt-6"
             isLoading={isSubmitting}
           />
         </View>
       </ScrollView>
 
-      {modalVisible && <ModalSubmission setModalVisible={setModalVisible} modalVisible={modalVisible} />}
-
+      {modalVisible && (
+        <ModalEditSubmission
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+        />
+      )}
     </SafeAreaView>
   );
 };
 
-export default CreateProduct;
+export default EditProduct;

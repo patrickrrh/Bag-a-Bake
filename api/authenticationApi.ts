@@ -23,5 +23,8 @@ export default function registerApi() {
         signIn: createApiFunction("post", "sign_in"),
         isEmailRegistered: createApiFunction("post", "is_email_registered"),
         checkAccount: createApiFunction("post", "check_account"),
+        sendOTP: createApiFunction("post", "send/otp"),
+        verifyOTP: createApiFunction("post", "verify/otp"),
+        changePassword: createApiFunction("put", "change/password"),
     }
 }
