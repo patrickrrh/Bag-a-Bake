@@ -124,7 +124,7 @@ const SignIn = () => {
         error={error.email}
       />
       <FormField
-        label='Password'
+        label='Kata Sandi'
         value={form.password}
         onChangeText={(text) => {
           setForm({ ...form, password: text });

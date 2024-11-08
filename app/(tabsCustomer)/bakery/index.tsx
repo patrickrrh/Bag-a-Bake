@@ -11,7 +11,8 @@ import {
   FlatList,
   TouchableOpacity,
   Button,
-  Modal
+  Modal,
+  ActivityIndicator
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
@@ -49,6 +50,7 @@ const Bakery = () => {
 
   const [isSubmitting, setisSubmitting] = useState(false);
   const [localStorageData, setLocalStorageData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleGetCategoryApi = async () => {
     try {
@@ -66,6 +68,7 @@ const Bakery = () => {
   }, []);
 
   const handleGetBakeryApi = async () => {
+    setIsLoading(true);
     try {
       const response = await bakeryApi().getBakeryWithFilters({
         categoryId: checkedCategories,
@@ -73,14 +76,16 @@ const Bakery = () => {
         expiringProducts: isExpiringFilter
       })
 
-      console.log("response", response)
-
       if (response.status === 200) {
         setBakery(response.data ? response.data : []);
       }
     } catch (error) {
       console.log(error);
     }
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   }
 
   const filterBakeries = () => {
@@ -235,21 +240,28 @@ const Bakery = () => {
           />
         </View>
 
-        {/* TO DO: update the path to bakery detail */}
         <View className="mt-5 h-full">
-          <FlatList
-            data={filterBakeries()}
-            keyExtractor={(item) => item.bakeryId.toString()}
-            renderItem={({ item }) => (
-              <BakeryCard
-                item={item}
-                onPress={() => router.push({
-                  pathname: '/bakery/bakeryDetail' as any
-                })}
-                onFavorite={() => toggleFavorite(item.bakeryId)}
+          {
+            isLoading ? (
+              <View className='mt-10 items-center justify-center'>
+                <ActivityIndicator size="small" color="#828282" />
+              </View>
+            ) : (
+              <FlatList
+                data={filterBakeries()}
+                keyExtractor={(item) => item.bakeryId.toString()}
+                renderItem={({ item }) => (
+                  <BakeryCard
+                    item={item}
+                    onPress={() => router.push({
+                      pathname: '/bakery/bakeryDetail' as any
+                    })}
+                    onFavorite={() => toggleFavorite(item.bakeryId)}
+                  />
+                )}
               />
-            )}
-          />
+            )
+          }
         </View>
       </View>
 
