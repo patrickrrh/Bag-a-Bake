@@ -42,7 +42,6 @@ const SignIn = () => {
 
   const [isSubmitting, setisSubmitting] = useState(false);
   const [isSplashVisible, setisSplashVisible] = useState(true);
-
   const handleSignInAPI = async () => {
     try {
       setisSubmitting(true);

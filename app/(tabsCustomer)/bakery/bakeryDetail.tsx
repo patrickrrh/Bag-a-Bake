@@ -15,7 +15,7 @@ import CustomClickableButton from '@/components/CustomClickableButton';
 import { icons } from "@/constants/icons";
 import ProductCard from '@/components/ProductCard';
 import bakeryApi from '@/api/bakeryApi';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { images } from '@/constants/images';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
@@ -56,7 +56,7 @@ type Product = {
 
 const BakeryDetail = () => {
 
-    const { productId } = useLocalSearchParams();
+    const { productId, bakeryId } = useLocalSearchParams();
 
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
 
@@ -64,9 +64,23 @@ const BakeryDetail = () => {
 
     const handleGetBakeryByProductApi = async () => {
         try {
+
             const response = await bakeryApi().getBakeryByProduct({
                 productId: parseInt(productId as string),
             })
+            if (response.status === 200) {
+                setBakeryDetail(response.data ? response.data : {})
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const handleGetBakeryByIdApi = async () => {
+        try {
+            const response = await bakeryApi().getBakeryById({
+                bakeryId: parseInt(bakeryId as string),
+            })
+            console.log("response", response)
             if (response.status === 200) {
                 setBakeryDetail(response.data ? response.data : {})
             }
@@ -79,6 +93,10 @@ const BakeryDetail = () => {
         console.log("test", productId)
         handleGetBakeryByProductApi()
     }, [productId])
+
+    useEffect(() => {
+        handleGetBakeryByIdApi()
+    }, [bakeryId])
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
@@ -167,7 +185,14 @@ const BakeryDetail = () => {
                             >
                                 <ProductCardBakery
                                     product={product}
-                                    onPress={() => { }}
+                                    onPress={() => 
+                                        router.push({
+                                            pathname: '/order/orderPage',
+                                            params: {
+                                                productId: product.productId
+                                            }
+                                        })
+                                    }
                                 />
                             </View>
                         ))}

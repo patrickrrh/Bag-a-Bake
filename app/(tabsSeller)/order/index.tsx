@@ -20,6 +20,7 @@ import { OrderType } from '@/types/types';
 import { getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 import LoaderKit from 'react-native-loader-kit'
 
+
 const Order = () => {
 
   const insets = useSafeAreaInsets();
