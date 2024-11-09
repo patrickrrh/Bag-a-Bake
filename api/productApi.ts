@@ -6,7 +6,7 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
         const response = await apiClient({
             method,
             url: `/${url}`,
-            data: method === "post" || method === "put" ? data : undefined,
+            data: method === "post" || method === "put" || method === "delete" ? data : undefined,
         });
         return response.data;
     } catch (error) {

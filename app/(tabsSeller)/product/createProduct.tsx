@@ -17,7 +17,7 @@ import StockInput from "@/components/StockInput";
 import TextAreaField from "@/components/TextAreaField";
 import CustomDropdown from "@/components/CustomDropdown";
 import TextTitle3 from "@/components/texts/TextTitle3";
-import ModalSubmission from "@/components/ModalSubmission";
+import ModalAction from "@/components/ModalAction";
 import dayjs from "dayjs";
 import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
@@ -30,6 +30,7 @@ import productApi from "@/api/productApi";
 import SquareButton from "@/components/SquareButton";
 import { useAuth } from "@/app/context/AuthContext";
 import Decimal from "decimal.js";
+import { router } from "expo-router";
 
 type ErrorState = {
   productName: string | null;
@@ -381,7 +382,19 @@ const CreateProduct = () => {
         </View>
       </ScrollView>
 
-      {modalVisible && <ModalSubmission setModalVisible={setModalVisible} modalVisible={modalVisible} />}
+      {/* {modalVisible && <ModalSubmission setModalVisible={setModalVisible} modalVisible={modalVisible} />} */}
+
+      {modalVisible && (
+        <ModalAction
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+          title="Produk berhasil ditambahkan!"
+          primaryButtonLabel="Tambah Produk Lagi"
+          secondaryButtonLabel="Kembali ke Daftar Produk"
+          onPrimaryAction={() => router.push("/product/createProduct")}
+          onSecondaryAction={() => router.push("/product")}
+        />
+      )}
 
     </SafeAreaView>
   );

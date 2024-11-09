@@ -1,20 +1,27 @@
 import { View, Text, Modal } from "react-native";
 import React from "react";
-import ModalSubmissionButton from "@/components/ModalSubmissionButton";
+import ModalActionButton from "@/components/ModalActionButton";
 import { router } from "expo-router";
-import { useNavigation } from "@react-navigation/native";
 
-interface ModalProps {
+interface ModalActionProps {
   setModalVisible: (visible: boolean) => void;
   modalVisible: boolean;
+  title: string;
+  primaryButtonLabel: string;
+  secondaryButtonLabel: string;
+  onPrimaryAction: () => void;
+  onSecondaryAction: () => void;
 }
 
-const ModalSubmission: React.FC<ModalProps> = ({
+const ModalAction: React.FC<ModalActionProps> = ({
   setModalVisible,
   modalVisible,
+  title,
+  primaryButtonLabel,
+  secondaryButtonLabel,
+  onPrimaryAction,
+  onSecondaryAction,
 }) => {
-  const navigation = useNavigation();
-
   return (
     <Modal
       visible={modalVisible}
@@ -55,7 +62,7 @@ const ModalSubmission: React.FC<ModalProps> = ({
               marginBottom: 16,
             }}
           >
-            Produk berhasil ditambahkan!
+            {title}
           </Text>
           <View
             style={{
@@ -64,20 +71,20 @@ const ModalSubmission: React.FC<ModalProps> = ({
               paddingHorizontal: 10,
             }}
           >
-            <ModalSubmissionButton
-              label="Kembali ke Daftar Produk"
+            <ModalActionButton
+              label={secondaryButtonLabel}
               handlePress={() => {
                 setModalVisible(false);
-                router.push("/product");
+                onSecondaryAction();
               }}
               variant="outline"
               isLoading={false}
             />
-            <ModalSubmissionButton
-              label="Tambah Produk Lagi"
+            <ModalActionButton
+              label={primaryButtonLabel}
               handlePress={() => {
                 setModalVisible(false);
-                router.push("/product/createProduct");
+                onPrimaryAction();
               }}
               variant="solid"
               isLoading={false}
@@ -89,4 +96,4 @@ const ModalSubmission: React.FC<ModalProps> = ({
   );
 };
 
-export default ModalSubmission;
+export default ModalAction;
