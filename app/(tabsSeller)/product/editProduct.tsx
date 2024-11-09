@@ -31,6 +31,9 @@ import SquareButton from "@/components/SquareButton";
 import { useAuth } from "@/app/context/AuthContext";
 import Decimal from "decimal.js";
 import { RouteProp, useRoute } from "@react-navigation/native";
+import ModalAction from "@/components/ModalAction";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 type ErrorState = {
   productName: string | null;
@@ -242,6 +245,20 @@ const EditProduct = () => {
     }
   };
 
+  const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
+  const handleDeleteProduct = async () => {
+    try {
+      await productApi().deleteProductById({ productId });
+      router.push("/product");
+    } catch (error) {
+      console.error("Error deleting product", error);
+    }
+  };
+
+  const confirmDelete = () => {
+    setDeleteModalVisible(true);
+  };
+
   useEffect(() => {
     handleGetCategoriesAPI();
     handleGetProductById();
@@ -249,7 +266,7 @@ const EditProduct = () => {
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
-      <View className="flex-row items-center px-4 pt-4 pb-2 relative">
+      <View className="flex-row items-center px-4 pt-5 pb-2 relative">
         {/* Back Button */}
         <View className="pl-5">
           <BackButton />
@@ -263,11 +280,18 @@ const EditProduct = () => {
             right: 0,
             justifyContent: "center",
             alignItems: "center",
-            paddingTop: 10,
+            paddingTop: 14,
           }}
         >
           <TextTitle3 label="Perbarui Produk" />
         </View>
+
+        <TouchableOpacity
+          onPress={confirmDelete}
+          style={{ position: "absolute", right: 32, paddingTop: 8 }}
+        >
+          <Ionicons name="trash-outline" size={24} color="#b0795a" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -438,10 +462,42 @@ const EditProduct = () => {
         </View>
       </ScrollView>
 
-      {modalVisible && (
+      {/* {modalVisible && (
         <ModalEditSubmission
           setModalVisible={setModalVisible}
           modalVisible={modalVisible}
+        />
+      )} */}
+
+      {modalVisible && (
+        <ModalAction
+          setModalVisible={setModalVisible}
+          modalVisible={modalVisible}
+          title="Produk berhasil diperbarui!"
+          primaryButtonLabel="Lanjut Sunting Produk"
+          secondaryButtonLabel="Kembali ke Daftar Produk"
+          onPrimaryAction={() => {
+            console.log("Edit Product");
+          }}
+          onSecondaryAction={() => {
+            router.push("/product");
+          }}
+        />
+      )}
+
+      {isDeleteModalVisible && (
+        <ModalAction
+          setModalVisible={setDeleteModalVisible}
+          modalVisible={isDeleteModalVisible}
+          title="Apakah Anda yakin ingin menghapus produk ini?"
+          primaryButtonLabel="Batal"
+          secondaryButtonLabel="Hapus Produk"
+          onSecondaryAction={() => {
+            handleDeleteProduct();
+          }}
+          onPrimaryAction={() => {
+            // setDeleteModalVisible(false);
+          }}
         />
       )}
     </SafeAreaView>

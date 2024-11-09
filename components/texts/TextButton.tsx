@@ -10,7 +10,7 @@ const TextButton: React.FC<Props> = ({ label, color }) => {
   return (
     <View>
       <Text
-        style={{ fontFamily: "dk", fontSize: 18, color: color || "white" }}
+        style={{ fontFamily: "poppinsSemiBold", fontSize: 16, color: color || "white" }}
       >
         {label}
       </Text>
