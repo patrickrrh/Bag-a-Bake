@@ -1,26 +1,27 @@
-import OrderStatusTab from '@/components/OrderStatusTab';
-import SearchBar from '@/components/SearchBar';
-import TextHeader from '@/components/texts/TextHeader'
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    Image,
+    FlatList,
+    TouchableOpacity,
+    ScrollView,
+    Alert,
+    Button,
+} from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams, router } from 'expo-router';
+import ProductCardBakery from '@/components/ProductCardBakery';
+import CustomClickableButton from '@/components/CustomClickableButton';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle5 from '@/components/texts/TextTitle5';
-import TextRating from '@/components/texts/TextRating';
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacity, Button, ImageSourcePropType, ScrollView } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import TextTitle4 from '@/components/texts/TextTitle4';
-import TextTitle5Date from '@/components/texts/TextTitle5Date';
+import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
+import bakeryApi from '@/api/bakeryApi';
 import BackButton from '@/components/BackButton';
 import { Ionicons } from "@expo/vector-icons";
-import CustomClickableButton from '@/components/CustomClickableButton';
-import { icons } from "@/constants/icons";
-import ProductCard from '@/components/ProductCard';
-import bakeryApi from '@/api/bakeryApi';
-import { useLocalSearchParams } from 'expo-router';
-import { images } from '@/constants/images';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
-import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
-import ProductCardBakery from '@/components/ProductCardBakery';
 
 type Bakery = {
     bakeryId: number;
@@ -54,19 +55,61 @@ type Product = {
     isActive: number;
 }
 
+type OrderItem = {
+    productId: number;
+    productQuantity: number;
+    productPrice: number;
+};
+
 const BakeryDetail = () => {
 
-    const { productId } = useLocalSearchParams();
-
+    const { productId, bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
-
     const [isSubmitting, setisSubmitting] = useState(false);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [orderData, setOrderData] = useState<OrderItem[]>([]);
+
+    const fetchOrderData = async () => {
+        try {
+            const jsonValue = await AsyncStorage.getItem('orderData');
+            const data: OrderItem[] = jsonValue ? JSON.parse(jsonValue) : [];
+            const filteredData = data.filter(
+                (item: OrderItem) => bakeryDetail?.product.some((product) => product.productId === item.productId)
+            );
+
+            setOrderData(filteredData);
+
+            // Calculate total price
+            const total = filteredData.reduce(
+                (sum, item) => sum + (item.productQuantity * item.productPrice),
+                0
+            );
+            setTotalPrice(total);
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const handleGetBakeryByProductApi = async () => {
         try {
+
             const response = await bakeryApi().getBakeryByProduct({
                 productId: parseInt(productId as string),
             })
+            if (response.status === 200) {
+                setBakeryDetail(response.data ? response.data : {})
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const handleGetBakeryByIdApi = async () => {
+        try {
+            const response = await bakeryApi().getBakeryById({
+                bakeryId: parseInt(bakeryId as string),
+            })
+            console.log("response", response)
             if (response.status === 200) {
                 setBakeryDetail(response.data ? response.data : {})
             }
@@ -79,6 +122,14 @@ const BakeryDetail = () => {
         console.log("test", productId)
         handleGetBakeryByProductApi()
     }, [productId])
+
+    useEffect(() => {
+        handleGetBakeryByIdApi()
+    }, [bakeryId])
+
+    useEffect(() => {
+        fetchOrderData()
+    }, [bakeryId])
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
@@ -167,7 +218,14 @@ const BakeryDetail = () => {
                             >
                                 <ProductCardBakery
                                     product={product}
-                                    onPress={() => { }}
+                                    onPress={() => 
+                                        router.push({
+                                            pathname: '/order/orderPage',
+                                            params: {
+                                                productId: product.productId
+                                            }
+                                        })
+                                    }
                                 />
                             </View>
                         ))}
@@ -175,6 +233,21 @@ const BakeryDetail = () => {
                 </View>
 
             </ScrollView>
+
+            {/* Display Cart Button if there are items in the orderData */}
+            {orderData.length > 0 && (
+                <View className="p-5">
+                <CustomClickableButton
+                    label={`Lihat Keranjang (${orderData.length} item) - Rp. ${totalPrice.toLocaleString('id-ID')}`}
+                    handlePress={() => {
+                        router.push('/order/orderDetail');
+                    }}
+                    buttonStyles="bg-orange"
+                    isLoading={false} // Add this line
+                    icon="map" // Add this line
+                />
+                </View>
+            )}
         </SafeAreaView>
     )
 }

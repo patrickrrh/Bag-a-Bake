@@ -2,14 +2,14 @@ import { View, Text } from 'react-native'
 import React from 'react'
 
 interface Props {
-    label: string
+    label: number
 }
 
-const TextTag: React.FC<Props> = ({ label }) => {
+const TextTitle2: React.FC<Props> = ({ label }) => {
   return (
     <View>
       <Text
-        style={{ fontFamily: "poppinsMedium", fontSize: 12 }}
+        style={{ fontFamily: "dk", fontSize: 18 }}
         className='text-white'
       >
         {label}
@@ -18,4 +18,4 @@ const TextTag: React.FC<Props> = ({ label }) => {
   )
 }
 
-export default TextTag
+export default TextTitle2

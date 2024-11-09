@@ -19,6 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OrderType } from '@/types/types';
 import { getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 
+
 const Order = () => {
 
   const insets = useSafeAreaInsets();

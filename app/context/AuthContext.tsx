@@ -69,6 +69,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         try {
             const response = await authenticationApi().signIn(data);
+            console.log("Bro", response)
             if (response.error) {
                 throw new Error(response.error);
             } else {
