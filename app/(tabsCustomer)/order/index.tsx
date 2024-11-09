@@ -14,14 +14,6 @@ import orderCustomerApi from '@/api/orderCustomerApi';
 import { router } from 'expo-router';
 import { OrderType } from '@/types/types';
 
-// type Order = {
-//   orderId: number;
-//   bakeryId: number;
-//   orderDate: string;
-//   orderStatus: number;
-//   orderTotalPrice: number;
-// };
-
 const Order = () => {
   const [selectedStatus, setSelectedStatus] = useState(2);
   const [orders, setOrders] = useState<OrderType[]>([]);

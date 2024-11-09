@@ -1,4 +1,4 @@
-import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView, FlatList } from 'react-native';
+import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView, FlatList, ActivityIndicator } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -18,6 +18,7 @@ import { RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OrderType } from '@/types/types';
 import { getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
+import LoaderKit from 'react-native-loader-kit'
 
 
 const Order = () => {
@@ -27,6 +28,7 @@ const Order = () => {
   const [selectedStatus, setSelectedStatus] = useState(1);
   const hasManualSelection = useRef(false);
   const [order, setOrder] = useState<OrderType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSelectStatus = (status: number) => {
     setSelectedStatus(status);
@@ -34,6 +36,7 @@ const Order = () => {
   };
 
   const handleGetAllOrderByStatusApi = async () => {
+    setIsLoading(true);
     try {
       const response = await orderSellerApi().getAllOrderByStatus({
         orderStatus: selectedStatus
@@ -44,6 +47,10 @@ const Order = () => {
     } catch (error) {
       console.log(error);
     }
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
   };
 
   useFocusEffect(
@@ -54,13 +61,13 @@ const Order = () => {
           const parsedData = JSON.parse(data);
           setSelectedStatus(parsedData.status);
         }
-      } 
+      }
 
       fetchData();
       if (!hasManualSelection.current) {
         handleGetAllOrderByStatusApi();
       }
-      
+
       return () => {
         removeLocalStorage('orderSellerParams');
       }
@@ -108,37 +115,45 @@ const Order = () => {
         </View>
 
         <View className='flex-1 mx-5'>
-          <FlatList
-            data={order}
-            renderItem={({ item }) => (
-              item.orderStatus === 1 ? (
-                <SellerOrderCardPending
-                  order={item}
-                  onPress={() => {
-                    router.push({
-                      pathname: '/order/orderDetail',
-                      params: { order: JSON.stringify(item) }
-                    })
-                  }}
-                  onAccept={() => handleActionOrder(item.orderId, 2)}
-                  onReject={() => handleActionOrder(item.orderId, 4)}
-                />
-              ) : (
-                <SellerOrderCard
-                  order={item}
-                  onPress={() => {
-                    router.push({
-                      pathname: '/order/orderDetail',
-                      params: { order: JSON.stringify(item) }
-                    })
-                  }}
-                />
-              )
-            )}
-            keyExtractor={(item) => item.orderId.toString()}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
+          {
+            isLoading ? (
+              <View className='flex-1 items-center justify-center'>
+                <ActivityIndicator size="small" color="#828282" />
+              </View>
+            ) : (
+              <FlatList
+                data={order}
+                renderItem={({ item }) => (
+                  item.orderStatus === 1 ? (
+                    <SellerOrderCardPending
+                      order={item}
+                      onPress={() => {
+                        router.push({
+                          pathname: '/order/orderDetail',
+                          params: { order: JSON.stringify(item) }
+                        })
+                      }}
+                      onAccept={() => handleActionOrder(item.orderId, 2)}
+                      onReject={() => handleActionOrder(item.orderId, 4)}
+                    />
+                  ) : (
+                    <SellerOrderCard
+                      order={item}
+                      onPress={() => {
+                        router.push({
+                          pathname: '/order/orderDetail',
+                          params: { order: JSON.stringify(item) }
+                        })
+                      }}
+                    />
+                  )
+                )}
+                keyExtractor={(item) => item.orderId.toString()}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              />
+            )
+          }
         </View>
       </View>
     </View>
