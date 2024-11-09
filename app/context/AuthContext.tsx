@@ -13,6 +13,7 @@ const AuthContext = createContext<{
     isLoading: boolean;
     justSignedIn: boolean;
     userData: UserType | null;
+    refreshUserData: () => Promise<void>;
 }>({
     signIn: (data: object) => null,
     signUp: (data: object) => null,
@@ -21,6 +22,7 @@ const AuthContext = createContext<{
     isLoading: false,
     justSignedIn: false,
     userData: null,
+    refreshUserData: async () => {}
 })
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -113,8 +115,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setJustSignedIn(true);
     };
 
+    const refreshUserData = async () => {
+        try {
+            const updatedUserData = await SecureStore.getItemAsync("userData");
+            const parsedUserData = JSON.parse(updatedUserData || "{}");
+            setUserData(parsedUserData);
+        } catch (error) {
+            console.error("Error refreshing user data:", error);
+        }
+    };
+    
     return (
-        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData }}>
+        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData, refreshUserData }}>
             {children}
         </AuthContext.Provider>
     )
