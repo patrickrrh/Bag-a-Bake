@@ -17,7 +17,6 @@ import StockInput from "@/components/StockInput";
 import TextAreaField from "@/components/TextAreaField";
 import CustomDropdown from "@/components/CustomDropdown";
 import TextTitle3 from "@/components/texts/TextTitle3";
-import ModalSubmission from "@/components/ModalSubmission";
 import ModalAction from "@/components/ModalAction";
 import dayjs from "dayjs";
 import TextFormLabel from "@/components/texts/TextFormLabel";
