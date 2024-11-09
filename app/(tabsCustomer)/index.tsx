@@ -64,7 +64,6 @@ const Home = () => {
       const response = await productApi().getRecommendedProducts({
         regionId: userData?.regionId,
       });
-      console.log("NYIHAAAAAAAAAAAAAAAAAA", response)
       if (response.status === 200) {
         setRecommendedProducts(response.data);
       }
