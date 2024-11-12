@@ -26,5 +26,6 @@ export default function registerApi() {
         sendOTP: createApiFunction("post", "send/otp"),
         verifyOTP: createApiFunction("post", "verify/otp"),
         changePassword: createApiFunction("put", "change/password"),
+        updateUser: createApiFunction("put", "update/user"),
     }
 }

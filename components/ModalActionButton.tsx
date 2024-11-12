@@ -8,7 +8,7 @@ interface Props {
   variant?: "solid" | "outline";
 }
 
-const ModalSubmissionButton: React.FC<Props> = ({
+const ModalActionButton: React.FC<Props> = ({
   label,
   handlePress,
   isLoading,
@@ -44,4 +44,4 @@ const ModalSubmissionButton: React.FC<Props> = ({
   );
 };
 
-export default ModalSubmissionButton;
+export default ModalActionButton;
