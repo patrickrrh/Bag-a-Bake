@@ -24,6 +24,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
+import { calculateTotalOrderItem, calculateTotalOrderPrice } from '@/utils/commonFunctions';
 
 type Bakery = {
     bakeryId: number;
@@ -57,10 +58,18 @@ type Product = {
     isActive: number;
 }
 
+// type OrderItem = {
+//     productId: number;
+//     productQuantity: number;
+//     productPrice: number;
+// };
+
 type OrderItem = {
-    productId: number;
-    productQuantity: number;
-    productPrice: number;
+    bakeryId: number;
+    items: {
+        orderQuantity: number;
+        productId: number;
+    }[];
 };
 
 const BakeryDetail = () => {
@@ -68,22 +77,33 @@ const BakeryDetail = () => {
     const { productId, bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
-    const [totalPrice, setTotalPrice] = useState(0);
+    const [totalPrice, setTotalPrice] = useState("");
     const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
 const fetchOrderData = async () => {
     try {
         const jsonValue = await getLocalStorage('orderData');
         const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
-
+        console.log("INIII APAAA", data)
         setOrderData(data);
 
-        // Calculate total price
-        // const total = filteredData.reduce(
-        //     (sum, item) => sum + (item.productQuantity * item.productPrice),
-        //     0
-        // );
-        // setTotalPrice(total);
+        // Calculate Total Order Price
+        const products = bakeryDetail?.product || [];
+
+        const mappedOrderDetail = data?.items.map((item: any) => {
+            const product = products.find(prod => prod.productId === item.productId);
+            return {
+                product: product || {},
+                productQuantity: item.orderQuantity
+            };
+        }) || [];
+
+        if (mappedOrderDetail.length > 0) {
+            const total = calculateTotalOrderPrice(mappedOrderDetail);
+            setTotalPrice(total);
+        } else {
+            setTotalPrice("0");
+        }
 
     } catch (error) {
         console.log(error);
