@@ -38,6 +38,8 @@ export type CategoryType = {
 }
 
 export type OrderType = {
+    isRated: boolean;
+    bakery: any;
     orderId: number;
     orderStatus: number;
     userId: number;
