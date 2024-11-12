@@ -17,7 +17,7 @@ const AuthLayout: React.FC<Props> = ({ children, headerContent, footerContent })
                 <Toast topOffset={50} />
             </View>
 
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            {/* <ScrollView contentContainerStyle={{ flexGrow: 1 }}> */}
                 <View className="flex-1 justify-center px-8">
 
                     {/* Header */}
@@ -37,7 +37,7 @@ const AuthLayout: React.FC<Props> = ({ children, headerContent, footerContent })
                     </View>
 
                 </View>
-            </ScrollView>
+            {/* </ScrollView> */}
         </SafeAreaView>
     )
 }

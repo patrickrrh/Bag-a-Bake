@@ -17,7 +17,7 @@ export default function SplashScreen() {
   }, [fadeAnimation]);
 
   return (
-    <SafeAreaView className="h-full">
+    <SafeAreaView className="h-full bg-background">
       <ScrollView contentContainerStyle={{ height: "100%" }}>
         <View className="h-full w-full justify-center items-center px-4 bg-background">
           <Animated.View style={{ opacity: fadeAnimation }}>

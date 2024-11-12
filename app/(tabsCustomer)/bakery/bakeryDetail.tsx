@@ -153,7 +153,7 @@ const fetchOrderData = async () => {
         }, [])
     );
 
-    console.log("order data oiiiiiiiiiiii", orderData);
+    console.log("order data oiiiii", orderData);
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
@@ -262,7 +262,7 @@ const fetchOrderData = async () => {
             {orderData && (
                 <View className="p-5">
                 <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.length} item) - Rp. ${totalPrice.toLocaleString('id-ID')}`}
+                    label={`Lihat Keranjang (${orderData.items.length} item) - Rp. ${totalPrice.toLocaleString('id-ID')}`}
                     handlePress={() => {
                         router.push('/order/orderDetail');
                     }}

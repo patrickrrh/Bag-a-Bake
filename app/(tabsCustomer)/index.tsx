@@ -99,12 +99,12 @@ const Home = () => {
   }
 
   return (
-    <View className='flex-1'>
+    <View className='flex-1 bg-brown'>
 
       <View style={{ backgroundColor: '#B0795A', height: insets.top }} />
 
       <ScrollView
-        className='bg-brown'
+        style={{ backgroundColor: 'transparent' }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

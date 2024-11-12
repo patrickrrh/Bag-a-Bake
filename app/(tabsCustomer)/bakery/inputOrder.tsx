@@ -17,7 +17,7 @@ import { BakeryType, ProductType } from '@/types/types';
 import AddOrderProductButton from '@/components/AddOrderProductButton';
 import BackButton from '@/components/BackButton';
 import CircleBackButton from '@/components/CircleBackButton';
-import { getLocalStorage, removeLocalStorage, updateLocalStorage } from '@/utils/commonFunctions';
+import { getLocalStorage, removeLocalStorage, updateLocalStorage, calculateTotalOrderPrice } from '@/utils/commonFunctions';
 
 const InputOrder = () => {
 
@@ -50,7 +50,7 @@ const InputOrder = () => {
         productId: parseInt(productId as string),
       })
 
-      console.log("Hello", response)
+      // console.log("Hello", response)
       if (response.status === 200) {
         setBakery(response.data ? response.data?.bakery : {})
       }
@@ -152,16 +152,14 @@ const InputOrder = () => {
 
   useFocusEffect(
     useCallback(() => {
-      removeLocalStorage('orderData')
+      // removeLocalStorage('orderData')
       handleGetProductByIdApi()
       handleGetBakeryByProductApi()
       loadProductQuantity()
     }, [])
   )
 
-  console.log("bakery", bakery)
-
-  // const totalAmount = product?.productPrice ? product.productPrice * form.productQuantity : 0;
+  const totalAmount = product?.productPrice ? product.productPrice * form.orderQuantity : 0;
 
   return (
     <View>
@@ -215,7 +213,6 @@ const InputOrder = () => {
             <TextTitle5 label={product?.productDescription} />
           </View>
 
-
           <View className="flex-row items-center mt-8">
             <View className="pr-2">
               <Text style={{ fontFamily: 'poppins', textDecorationLine: 'line-through', fontSize: 16 }}>
@@ -251,8 +248,7 @@ const InputOrder = () => {
           </View>
 
           <AddOrderProductButton 
-            // label={`Rp. ${totalAmount.toLocaleString('id-ID')}`}         
-            label='1'
+            label={`Rp. ${totalAmount.toLocaleString('id-ID')}`}         
             handlePress={handleAddOrder}
             isLoading={false} />
         </View>
