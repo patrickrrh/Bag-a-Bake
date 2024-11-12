@@ -19,8 +19,6 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
 
   const [showPassword, setShowPassword] = useState(false)
 
-  console.log("show password", showPassword)
-
   return (
     <View className={`space-y-1 ${moreStyles}`}>
       <TextFormLabel label={label} />
