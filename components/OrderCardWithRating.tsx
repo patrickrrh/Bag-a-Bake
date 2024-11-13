@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { images } from '@/constants/images';
 import TextTitle5Gray from './texts/TextTitle5Gray';
 import { icons } from '@/constants/icons';
-import { calculateTotalOrderItem, calculateTotalOrderPrice, formatDate } from '@/utils/commonFunctions';
+import { calculateTotalOrderItem, calculateTotalOrderPrice, formatDate, formatRupiah } from '@/utils/commonFunctions';
 import UploadButton from './UploadButton';
 
 type Props = {
@@ -36,10 +36,10 @@ const OrderCardWithRating: React.FC<Props> = ({ item, onPress, onPressRating }) 
                             <TextTitle5Gray label={formatDate(item.orderDate)} />
                         </View>
                         <TextRating rating={item.prevRating.averageRating} reviewCount={item.prevRating.reviewCount} containerStyle='mb-1' />
-                        <TextTitle5 label={`Jumlah: ${calculateTotalOrderItem(item.orderDetail)} item`} />
+                        <TextTitle5 label={`Jumlah: ${item.totalOrderQuantity} item`} />
                         <View className="flex-row justify-between items-center">
                             <UploadButton label="Beri penilaian" handlePress={onPressRating} />
-                            <TextTitle4 label={calculateTotalOrderPrice(item.orderDetail)} />
+                            <TextTitle4 label={formatRupiah(item.totalOrderPrice)} />
                         </View>
                     </View>
                 </View>

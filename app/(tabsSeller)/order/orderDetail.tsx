@@ -5,7 +5,7 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import BackButton from '@/components/BackButton';
 import TextTitle5 from '@/components/texts/TextTitle5';
-import { calculateTotalOrderPrice, formatRupiah, setLocalStorage } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, formatDate, formatRupiah, setLocalStorage } from '@/utils/commonFunctions';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import CustomButton from '@/components/CustomButton';
 import ContactButton from '@/components/ContactButton';
@@ -69,7 +69,7 @@ const OrderDetail = () => {
         </TouchableOpacity>
         <View className='flex-1 items-center pr-3'>
           <TextTitle3 label={`#${orderData.orderId}`} />
-          <TextTitle5Date label={orderData.orderDate} />
+          <TextTitle5Date label={formatDate(orderData.orderDate)} />
         </View>
       </View>
 
