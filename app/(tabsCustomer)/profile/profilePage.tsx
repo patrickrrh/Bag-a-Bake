@@ -19,7 +19,6 @@ import TextHeader from "@/components/texts/TextHeader";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
 import regionApi from "@/api/regionApi";
-import ModalSaveChanges from "@/components/ModalSaveChanges";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
 import { checkEmptyForm } from "@/utils/commonFunctions";
@@ -42,7 +41,7 @@ const EditProfile = () => {
     userPhoneNumber: userData?.userPhoneNumber || "",
     email: userData?.email || "",
     userImage: userData?.userImage || "",
-    regionId: userData?.regionUser?.regionId || 0,
+    regionId: userData?.regionId || 0,
   });
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -75,7 +74,7 @@ const EditProfile = () => {
       form.userPhoneNumber !== userData?.userPhoneNumber ||
       form.email !== userData?.email ||
       form.userImage !== userData?.userImage ||
-      form.regionId !== userData?.regionUser?.regionId
+      form.regionId !== userData?.regionId
     );
   };
 
@@ -89,6 +88,7 @@ const EditProfile = () => {
   };
 
   const handlePasswordChange = () => {
+    console.log("UNSAVED CHANGES?", hasUnsavedChanges());
     if (hasUnsavedChanges()) {
       setNextRoute("/(tabsCustomer)/profile/changePassword");
       setModalVisible(true);
@@ -124,12 +124,10 @@ const EditProfile = () => {
         userImage: form.userImage,
         regionId: form.regionId,
       });
-      console.log(form);
-      console.log(userData?.userId);
 
       const userDataToStore = {
         ...form,
-        userId: userData?.userId,
+        userId: userData?.userId
       };
 
       await SecureStore.setItemAsync(
@@ -256,6 +254,7 @@ const EditProfile = () => {
             handlePress={handlePasswordChange}
             buttonStyles="mt-8 w-full"
             isLoading={isSubmitting}
+            color="brown"
           />
 
           <CustomButton
@@ -296,7 +295,7 @@ const EditProfile = () => {
           setModalVisible={setLogoutModalVisible}
           modalVisible={logoutModalVisible}
           title="Apakah Anda yakin ingin keluar?"
-          secondaryButtonLabel="Ya"
+          secondaryButtonLabel="Iya"
           primaryButtonLabel="Tidak"
           onSecondaryAction={() => signOut()}
           onPrimaryAction={() => console.log("Cancel Log Out")}

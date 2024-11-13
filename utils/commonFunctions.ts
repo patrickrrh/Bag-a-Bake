@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as EmailValidator from "email-validator";
 
 export const checkEmptyForm = (
@@ -10,20 +10,20 @@ export const checkEmptyForm = (
   const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
   const phoneRegex = /^(?:\+62|62|0)8[1-9][0-9]{6,10}$/;
 
-    const fieldLabels: Record<string, string> = {
-        userName: 'Nama Pengguna',
-        email: 'Email',
-        password: 'Password',
-        userPhoneNumber: 'Nomor HP',
-        regionId: 'Lokasi',
-        openingTime: 'Jam Buka',
-        closingTime: 'Jam Tutup',
-        bakeryName: 'Nama Toko',
-        bakeryRegionId: 'Lokasi Toko',
-        bakeryPhoneNumber: 'Nomor HP Toko',
-        bakeryDescription: 'Deskripsi Toko',
-        bakeryImage: 'Gambar Toko',
-    };
+  const fieldLabels: Record<string, string> = {
+    userName: "Nama Pengguna",
+    email: "Email",
+    password: "Password",
+    userPhoneNumber: "Nomor HP",
+    regionId: "Lokasi",
+    openingTime: "Jam Buka",
+    closingTime: "Jam Tutup",
+    bakeryName: "Nama Toko",
+    bakeryRegionId: "Lokasi Toko",
+    bakeryPhoneNumber: "Nomor HP Toko",
+    bakeryDescription: "Deskripsi Toko",
+    bakeryImage: "Gambar Toko",
+  };
 
   for (const value in form) {
     if (value === "userImage") {
@@ -128,10 +128,12 @@ export const checkProductForm = (form: Record<string, unknown>) => {
   // Discounts
 
   errors.discount = null;
-  
+
   if (Array.isArray(form.discount)) {
-    const discountAmounts = form.discount.map(d => parseFloat(d.discountAmount));
-  
+    const discountAmounts = form.discount.map((d) =>
+      parseFloat(d.discountAmount)
+    );
+
     if (discountAmounts[0] >= (form.productPrice as number)) {
       errors.discount = `Diskon 1 tidak boleh lebih besar atau sama dengan Harga Awal`;
     }
@@ -140,11 +142,13 @@ export const checkProductForm = (form: Record<string, unknown>) => {
       if (isNaN(amount) || amount < 0) {
         errors.discount = `Diskon ${index + 1} tidak boleh kurang dari 0`;
       } else if (index > 0 && amount >= discountAmounts[index - 1]) {
-        errors.discount = `Diskon ${index + 1} harus kurang dari Diskon ${index}`;
+        errors.discount = `Diskon ${
+          index + 1
+        } harus kurang dari Diskon ${index}`;
       }
     });
   } else {
-    errors.discount = "Diskon tidak valid"; 
+    errors.discount = "Diskon tidak valid";
   }
 
   // Product Photo
@@ -157,43 +161,81 @@ export const checkProductForm = (form: Record<string, unknown>) => {
   return errors;
 };
 
-
 export const calculateTotalOrderPrice = (orderDetail: any): string => {
-    const total = orderDetail.reduce((sum: number, detail: any) => {
-        const price = parseFloat(detail.product.productPrice);
-        return sum + price * detail.productQuantity;
-    }, 0);
+  const total = orderDetail.reduce((sum: number, detail: any) => {
+    const price = parseFloat(detail.product.productPrice);
+    return sum + price * detail.productQuantity;
+  }, 0);
 
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total);
-}
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+  }).format(total);
+};
 
 export const formatRupiah = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-    }).format(amount);
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+  }).format(amount);
 };
 
 export const setLocalStorage = async (key: string, value: string) => {
-    try {
-        await AsyncStorage.setItem(key, value);
-    } catch (error) {
-        console.log("Failed to set local storage:", error);
-    }
-}
+  try {
+    await AsyncStorage.setItem(key, value);
+  } catch (error) {
+    console.log("Failed to set local storage:", error);
+  }
+};
 
 export const getLocalStorage = async (key: string) => {
-    try {
-        return await AsyncStorage.getItem(key);
-    } catch (error) {
-        console.log("Failed to get local storage:", error);
-    }
-}
+  try {
+    return await AsyncStorage.getItem(key);
+  } catch (error) {
+    console.log("Failed to get local storage:", error);
+  }
+};
 
 export const removeLocalStorage = async (key: string) => {
-    try {
-        await AsyncStorage.removeItem(key);
-    } catch (error) {
-        console.log("Failed to remove local storage:", error);
+  try {
+    await AsyncStorage.removeItem(key);
+  } catch (error) {
+    console.log("Failed to remove local storage:", error);
+  }
+};
+
+export const checkPasswordErrors = async (
+  form: Record<string, string>,
+  confirmPassword: string,
+  userEmail: string,
+  authenticationApi: any
+) => {
+  const errors: Record<string, string | null> = {};
+  const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+
+  if (!form.oldPassword) {
+    errors.oldPassword = "Password lama tidak boleh kosong";
+  } else {
+    const resCheck = await authenticationApi().checkAccount({
+      email: userEmail,
+      password: form.oldPassword,
+    });
+
+    if (resCheck.error) {
+      errors.oldPassword = "Password lama tidak valid";
+    } else if (!form.password) {
+      errors.password = "Password baru tidak boleh kosong";
+    } else if (!passwordRegex.test(form.password)) {
+      errors.password = "Password baru minimal 8 karakter & 1 karakter spesial";
+    } else if (form.oldPassword === form.password) {
+      errors.password = "Password baru tidak boleh sama dengan password lama";
+    } else if (form.password !== confirmPassword) {
+      errors.confirmPassword = "Password tidak cocok";
+    } else {
+      errors.password = null;
+      errors.confirmPassword = null;
     }
-}
+  }
+
+  return errors;
+};

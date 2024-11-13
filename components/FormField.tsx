@@ -29,11 +29,11 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
           placeholder={placeholder}
           placeholderTextColor={"#828282"}
           onChangeText={onChangeText}
-          secureTextEntry={(label === "Password" || label === "Konfirmasi Password") && !showPassword}
+          secureTextEntry={(label === "Password" || label === "Konfirmasi Password" || label === "Password Lama" || label === "Password Baru" || label === "Konfirmasi Password Baru") && !showPassword}
           keyboardType={keyboardType}
         />
 
-        {(label === "Password" || label === "Konfirmasi Password") && (
+        {(label === "Password" || label === "Konfirmasi Password" || label === "Password Lama" || label === "Password Baru" || label === "Konfirmasi Password Baru") && (
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Image
               source={!showPassword ? images.eyeOpen : images.eyeClose}

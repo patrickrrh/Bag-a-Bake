@@ -28,6 +28,8 @@ import ModalAction from "@/components/ModalAction";
 import ProfileTab from "@/components/ProfileTab";
 import TextTitle3 from "@/components/texts/TextTitle3";
 import TextAreaField from "@/components/TextAreaField";
+import TimeField from "@/components/TimeField";
+import { format, toZonedTime } from "date-fns-tz";
 
 type ErrorState = {
   userName: string | null;
@@ -54,7 +56,17 @@ const EditProfile = () => {
     userPhoneNumber: userData?.userPhoneNumber || "",
     email: userData?.email || "",
     userImage: userData?.userImage || "",
-    regionId: userData?.regionUser?.regionId || 0,
+    regionId: userData?.regionId || 0,
+  });
+
+  const [bakeryForm, setBakeryForm] = useState({
+    bakeryName: userData?.bakery.bakeryName || "",
+    bakeryImage: userData?.bakery.bakeryImage || "",
+    bakeryDescription: userData?.bakery.bakeryDescription || "",
+    bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
+    openingTime: userData?.bakery.openingTime || "",
+    closingTime: userData?.bakery.closingTime || "",
+    bakeryRegionId: userData?.bakery.regionId || "",
   });
 
   const [selectedStatus, setSelectedStatus] = useState<number>(1);
@@ -67,7 +79,20 @@ const EditProfile = () => {
     regionId: null,
     email: null,
   };
+
+  const emptyBakeryError: BakeryErrorState = {
+    bakeryName: null,
+    bakeryImage: null,
+    bakeryDescription: null,
+    bakeryPhoneNumber: null,
+    openingTime: null,
+    closingTime: null,
+    bakeryRegionId: null,
+  };
+
   const [error, setError] = useState<ErrorState>(emptyError);
+  const [bakeryError, setBakeryError] =
+    useState<BakeryErrorState>(emptyBakeryError);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -161,9 +186,38 @@ const EditProfile = () => {
     }
   };
 
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [timeFieldType, setTimeFieldType] = useState<
+    "openingTime" | "closingTime"
+  >("openingTime");
+
+  const showDatePicker = (type: "openingTime" | "closingTime") => {
+    setTimeFieldType(type);
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleSelectTime = (time: any) => {
+    const timezone = toZonedTime(time, "Asia/Jakarta");
+    const formattedTime = format(timezone, "HH:mm");
+
+    if (timeFieldType === "openingTime") {
+      setForm((prevForm) => ({ ...prevForm, openingTime: formattedTime }));
+      setError((prevError) => ({ ...prevError, openingTime: null }));
+    } else {
+      setForm((prevForm) => ({ ...prevForm, closingTime: formattedTime }));
+      setError((prevError) => ({ ...prevError, closingTime: null }));
+    }
+
+    hideDatePicker();
+  };
+
   const [isSubmitting, setisSubmitting] = useState(false);
   const [region, setRegion] = useState([]);
-
+  console.log("user data from bakery", userData);
   const handleGetRegionAPI = async () => {
     try {
       const response = await regionApi().getRegion();
@@ -291,11 +345,103 @@ const EditProfile = () => {
               </>
             ) : (
               <>
+                <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
+                  <Image
+                    source={{ uri: bakeryForm.bakeryImage }}
+                    className="w-full h-full rounded-full"
+                  />
+                </View>
+                <UploadButton label="Unggah Foto" handlePress={pickImage} />
+
                 <FormField
                   label="Nama Toko"
-                  value={form.userName}
-                  onChangeText={(text) => setForm({ ...form, userName: text })}
-                  error={error.userName}
+                  value={bakeryForm.bakeryName}
+                  onChangeText={(text) =>
+                    setBakeryForm({ ...bakeryForm, bakeryName: text })
+                  }
+                  error={bakeryError.bakeryName}
+                />
+
+                <View className="flex-row space-x-4">
+                  <View className="flex-1">
+                    <TimeField
+                      label="Jam Buka"
+                      value={bakeryForm.openingTime}
+                      onPress={() => showDatePicker("openingTime")}
+                      error={bakeryError.openingTime}
+                      moreStyles="mt-7"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <TimeField
+                      label="Jam Tutup"
+                      value={bakeryForm.closingTime}
+                      onPress={() => showDatePicker("closingTime")}
+                      error={bakeryError.closingTime}
+                      moreStyles="mt-7"
+                    />
+                  </View>
+                </View>
+                <CustomDropdown
+                  label="Lokasi"
+                  value={bakeryForm.bakeryRegionId}
+                  data={region}
+                  placeholder="Pilih lokasi toko Anda"
+                  labelField="regionName"
+                  valueField="regionId"
+                  onChange={(text) => {
+                    setForm((prevForm) => ({
+                      ...prevForm,
+                      bakeryRegionId: Number(text),
+                    }));
+                    setError((prevError) => ({
+                      ...prevError,
+                      bakeryRegionId: null,
+                    }));
+                  }}
+                  moreStyles="mt-7 w-full"
+                  error={bakeryError.bakeryRegionId}
+                />
+                <FormField
+                  label="Nomor Telepon Toko"
+                  value={bakeryForm.bakeryPhoneNumber}
+                  onChangeText={(text) => {
+                    setForm((prevForm) => ({
+                      ...prevForm,
+                      bakeryPhoneNumber: text,
+                    }));
+                    setError((prevError) => ({
+                      ...prevError,
+                      bakeryPhoneNumber: null,
+                    }));
+                  }}
+                  keyboardType="phone-pad"
+                  moreStyles="mt-7"
+                  error={bakeryError.bakeryPhoneNumber}
+                />
+                <TextAreaField
+                  label="Deskripsi Toko"
+                  value={bakeryForm.bakeryDescription}
+                  onChangeText={(text) => {
+                    setForm((prevForm) => ({
+                      ...prevForm,
+                      bakeryDescription: text,
+                    }));
+                    setError((prevError) => ({
+                      ...prevError,
+                      bakeryDescription: null,
+                    }));
+                  }}
+                  keyboardType="default"
+                  moreStyles="mt-7"
+                  error={bakeryError.bakeryDescription}
+                />
+
+                <CustomButton
+                  label="Simpan Perubahan"
+                  handlePress={handleSubmitChange}
+                  buttonStyles="mt-4 w-full"
+                  isLoading={isSubmitting}
                 />
               </>
             )}
@@ -325,7 +471,7 @@ const EditProfile = () => {
           setModalVisible={setLogoutModalVisible}
           modalVisible={logoutModalVisible}
           title="Apakah Anda yakin ingin keluar?"
-          secondaryButtonLabel="Ya"
+          secondaryButtonLabel="Iya"
           primaryButtonLabel="Tidak"
           onSecondaryAction={() => signOut()}
           onPrimaryAction={() => console.log("Cancel Log Out")}
