@@ -20,6 +20,7 @@ import TextAreaField from '@/components/TextAreaField';
 import CustomButton from '@/components/CustomButton';
 import ErrorMessage from '@/components/texts/ErrorMessage';
 import ratingApi from '@/api/ratingApi';
+import RatingInput from '@/components/RatingInput';
 
 type RatingErrorState = {
   rating: string | null;
@@ -193,18 +194,14 @@ const Order = () => {
                     <FontAwesome name="close" size={18} color="#B0795A" />
                   </TouchableOpacity>
                 </View>
-                <AirbnbRating
-                  count={5}
-                  defaultRating={0}
-                  size={30}
-                  showRating={false}
-                  ratingContainerStyle={{ marginTop: 10 }}
-                  onFinishRating={(rating) => {
-                    setRatingForm((prevForm) => ({ ...prevForm, rating: rating }));
-                    setRatingError((prevError) => ({ ...prevError, rating: null }));
-                  }}
-                />
-                <View className='items-center'>
+                <View className='items-center mt-2'>
+                  <RatingInput
+                    rating={ratingForm.rating}
+                    onRatingChange={(rating) => {
+                      setRatingForm((prevForm) => ({ ...prevForm, rating: rating }));
+                      setRatingError((prevError) => ({ ...prevError, rating: null }));
+                    }}
+                  />
                   {ratingError.rating && <ErrorMessage label={ratingError.rating} />}
                 </View>
                 <TextAreaField

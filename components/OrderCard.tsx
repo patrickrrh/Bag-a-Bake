@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import { images } from '@/constants/images';
 import TextTitle5Gray from './texts/TextTitle5Gray';
 import { icons } from '@/constants/icons';
-import { calculateTotalOrderItem, calculateTotalOrderPrice, formatDate, formatRupiah } from '@/utils/commonFunctions';
+import { formatDate, formatRupiah } from '@/utils/commonFunctions';
 
 type Props = {
   item: any;

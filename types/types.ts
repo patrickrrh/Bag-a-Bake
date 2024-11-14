@@ -55,6 +55,7 @@ export type OrderDetailType = {
     productId: number;
     productQuantity: number;
     product: ProductType;
+    totalDetailPrice: number;
 };
 
 export type ProductType = {

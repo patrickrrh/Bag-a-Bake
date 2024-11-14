@@ -4,7 +4,7 @@ import TextTitle5 from '@/components/texts/TextTitle5';
 import TextTitle4 from './texts/TextTitle4';
 import CustomTagOrderStatus from './CustomTagOrderStatus';
 import TextTitle5Gray from './texts/TextTitle5Gray';
-import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
+import { formatDate, formatDatewithtime, formatRupiah } from '@/utils/commonFunctions';
 
 interface Props {
     order: any;
@@ -28,7 +28,7 @@ const SellerOrderCard: React.FC<Props> = ({ order, onPress }) => {
             <View style={{ flexDirection: 'column', flex: 1 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                     <TextTitle4 label={`#${order.orderId}`} />
-                    <TextTitle5Gray label={order.user.userName} />
+                    <TextTitle5Gray label={formatDatewithtime(order.orderDate)} />
                 </View>
 
                 <View className='h-[1px] bg-gray-100 my-4' />
@@ -46,7 +46,7 @@ const SellerOrderCard: React.FC<Props> = ({ order, onPress }) => {
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1 }}>
                     <CustomTagOrderStatus status={order.orderStatus} />
-                    <TextTitle4 label={calculateTotalOrderPrice(order.orderDetail)} />
+                    <TextTitle4 label={formatRupiah(order.totalOrderPrice)} />
                 </View>
             </View>
         </TouchableOpacity>
