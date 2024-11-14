@@ -157,7 +157,6 @@ export const checkProductForm = (form: Record<string, unknown>) => {
   return errors;
 };
 
-
 export const calculateTotalOrderPrice = (orderDetail: any): string => {
     const total = orderDetail.reduce((sum: number, detail: any) => {
         const price = parseFloat(detail.product.productPrice);
@@ -167,32 +166,12 @@ export const calculateTotalOrderPrice = (orderDetail: any): string => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total);
 }
 
-export const calculateTotalOrderItem = (orderDetail: any): number => {
-    const total = orderDetail.reduce((sum: number, detail: any) => {
-        return sum + detail.productQuantity;
-    }, 0);
-
-    return total
-}
-
 export const formatRupiah = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
     }).format(amount);
 };
-
-export const formatDate = (date: string) => {
-  const dateObj = new Date(date);
-  const options: any = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour12: false,
-  };
-  return dateObj.toLocaleString('id-ID', options);
-};
-
 
 export const setLocalStorage = async (key: string, value: string) => {
     try {
@@ -217,3 +196,21 @@ export const removeLocalStorage = async (key: string) => {
         console.log("Failed to remove local storage:", error);
     }
 }
+
+export const updateLocalStorage = async <T>(
+  key: string,
+  value: T,
+  updateFunction: (data: T[], value: T) => T[]
+) => {  try {
+      const jsonValue = await AsyncStorage.getItem(key);
+      const data = jsonValue ? JSON.parse(jsonValue) : [];
+
+      // Apply the custom update logic provided by the updateFunction
+      const updatedData = updateFunction(data, value);
+
+      // Store the updated data back in AsyncStorage
+      await AsyncStorage.setItem(key, JSON.stringify(updatedData));
+  } catch (error) {
+      console.log("Failed to update local storage:", error);
+  }
+};
