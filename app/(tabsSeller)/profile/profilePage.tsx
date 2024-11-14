@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import UploadButton from "@/components/UploadButton";
@@ -205,11 +206,11 @@ const EditProfile = () => {
     const formattedTime = format(timezone, "HH:mm");
 
     if (timeFieldType === "openingTime") {
-      setForm((prevForm) => ({ ...prevForm, openingTime: formattedTime }));
-      setError((prevError) => ({ ...prevError, openingTime: null }));
+      setBakeryForm((prevBakeryForm) => ({ ...prevBakeryForm, openingTime: formattedTime }));
+      setBakeryError((prevBakeryError) => ({ ...prevBakeryError, openingTime: null }));
     } else {
-      setForm((prevForm) => ({ ...prevForm, closingTime: formattedTime }));
-      setError((prevError) => ({ ...prevError, closingTime: null }));
+      setBakeryForm((prevBakeryForm) => ({ ...prevBakeryForm, closingTime: formattedTime }));
+      setBakeryError((prevBakeryError) => ({ ...prevBakeryError, closingTime: null }));
     }
 
     hideDatePicker();
@@ -390,12 +391,12 @@ const EditProfile = () => {
                   labelField="regionName"
                   valueField="regionId"
                   onChange={(text) => {
-                    setForm((prevForm) => ({
-                      ...prevForm,
+                    setForm((prevBakeryForm) => ({
+                      ...prevBakeryForm,
                       bakeryRegionId: Number(text),
                     }));
-                    setError((prevError) => ({
-                      ...prevError,
+                    setError((prevBakeryError) => ({
+                      ...prevBakeryError,
                       bakeryRegionId: null,
                     }));
                   }}
@@ -406,12 +407,12 @@ const EditProfile = () => {
                   label="Nomor Telepon Toko"
                   value={bakeryForm.bakeryPhoneNumber}
                   onChangeText={(text) => {
-                    setForm((prevForm) => ({
-                      ...prevForm,
+                    setForm((prevBakeryForm) => ({
+                      ...prevBakeryForm,
                       bakeryPhoneNumber: text,
                     }));
-                    setError((prevError) => ({
-                      ...prevError,
+                    setError((prevBakeryError) => ({
+                      ...prevBakeryError,
                       bakeryPhoneNumber: null,
                     }));
                   }}
@@ -423,12 +424,12 @@ const EditProfile = () => {
                   label="Deskripsi Toko"
                   value={bakeryForm.bakeryDescription}
                   onChangeText={(text) => {
-                    setForm((prevForm) => ({
-                      ...prevForm,
+                    setForm((prevBakeryForm) => ({
+                      ...prevBakeryForm,
                       bakeryDescription: text,
                     }));
-                    setError((prevError) => ({
-                      ...prevError,
+                    setError((prevBakeryError) => ({
+                      ...prevBakeryError,
                       bakeryDescription: null,
                     }));
                   }}
@@ -442,6 +443,13 @@ const EditProfile = () => {
                   handlePress={handleSubmitChange}
                   buttonStyles="mt-4 w-full"
                   isLoading={isSubmitting}
+                />
+
+                <DateTimePickerModal
+                  isVisible={isDatePickerVisible}
+                  mode="time"
+                  onConfirm={handleSelectTime}
+                  onCancel={hideDatePicker}
                 />
               </>
             )}

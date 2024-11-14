@@ -92,12 +92,7 @@ const ChangePassword = () => {
   };
 
   return (
-    <View className='bg-background px-5 flex-1'>
-      <View style={{ height: insets.top }} />
-
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
-        <Toast topOffset={50} />
-      </View>
+    <SafeAreaView className='bg-background h-full flex-1'>
       <View className="flex-row items-center px-4 pt-10 pb-2 relative">
         {/* Back Button */}
         <View className="pl-5">
@@ -168,7 +163,7 @@ const ChangePassword = () => {
           isLoading={isSubmitting}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

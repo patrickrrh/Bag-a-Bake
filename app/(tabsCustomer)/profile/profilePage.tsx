@@ -25,6 +25,7 @@ import { checkEmptyForm } from "@/utils/commonFunctions";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import ModalAction from "@/components/ModalAction";
+import Toast from "react-native-toast-message";
 
 type ErrorState = {
   userName: string | null;
@@ -167,6 +168,10 @@ const EditProfile = () => {
   return (
     <SafeAreaView className="bg-background h-full flex-1">
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+        <Toast topOffset={50} />
+      </View>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View
             style={{
