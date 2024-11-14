@@ -24,7 +24,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
-import { calculateTotalOrderItem, calculateTotalOrderPrice } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 
 type Bakery = {
     bakeryId: number;
@@ -282,7 +282,7 @@ const fetchOrderData = async () => {
             {orderData && (
                 <View className="p-5">
                 <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.items.length} item) - Rp. ${totalPrice.toLocaleString('id-ID')}`}
+                    label={`Lihat Keranjang (${orderData.items.length} item) - Rp. ${totalPrice}`}
                     handlePress={() => {
                         router.push('/order/orderDetail');
                     }}
