@@ -229,3 +229,21 @@ export const removeLocalStorage = async (key: string) => {
         console.log("Failed to remove local storage:", error);
     }
 }
+
+export const updateLocalStorage = async <T>(
+  key: string,
+  value: T,
+  updateFunction: (data: T[], value: T) => T[]
+) => {  try {
+      const jsonValue = await AsyncStorage.getItem(key);
+      const data = jsonValue ? JSON.parse(jsonValue) : [];
+
+      // Apply the custom update logic provided by the updateFunction
+      const updatedData = updateFunction(data, value);
+
+      // Store the updated data back in AsyncStorage
+      await AsyncStorage.setItem(key, JSON.stringify(updatedData));
+  } catch (error) {
+      console.log("Failed to update local storage:", error);
+  }
+};

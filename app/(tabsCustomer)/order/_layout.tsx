@@ -7,7 +7,6 @@ const OrderCustomerLayout = () => {
     <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name='index' />
         <Stack.Screen name="orderDetail" />
-        <Stack.Screen name="orderPage" />
     </Stack>
   )
 }

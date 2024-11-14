@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -22,6 +22,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
+import { getLocalStorage } from '@/utils/commonFunctions';
+import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
+import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 
 type Bakery = {
     bakeryId: number;
@@ -55,10 +58,18 @@ type Product = {
     isActive: number;
 }
 
+// type OrderItem = {
+//     productId: number;
+//     productQuantity: number;
+//     productPrice: number;
+// };
+
 type OrderItem = {
-    productId: number;
-    productQuantity: number;
-    productPrice: number;
+    bakeryId: number;
+    items: {
+        orderQuantity: number;
+        productId: number;
+    }[];
 };
 
 const BakeryDetail = () => {
@@ -66,30 +77,38 @@ const BakeryDetail = () => {
     const { productId, bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
-    const [totalPrice, setTotalPrice] = useState(0);
-    const [orderData, setOrderData] = useState<OrderItem[]>([]);
+    const [totalPrice, setTotalPrice] = useState("");
+    const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
-    const fetchOrderData = async () => {
-        try {
-            const jsonValue = await AsyncStorage.getItem('orderData');
-            const data: OrderItem[] = jsonValue ? JSON.parse(jsonValue) : [];
-            const filteredData = data.filter(
-                (item: OrderItem) => bakeryDetail?.product.some((product) => product.productId === item.productId)
-            );
+const fetchOrderData = async () => {
+    try {
+        const jsonValue = await getLocalStorage('orderData');
+        const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+        console.log("INIII APAAA", data)
+        setOrderData(data);
 
-            setOrderData(filteredData);
+        // Calculate Total Order Price
+        const products = bakeryDetail?.product || [];
 
-            // Calculate total price
-            const total = filteredData.reduce(
-                (sum, item) => sum + (item.productQuantity * item.productPrice),
-                0
-            );
+        const mappedOrderDetail = data?.items.map((item: any) => {
+            const product = products.find(prod => prod.productId === item.productId);
+            return {
+                product: product || {},
+                productQuantity: item.orderQuantity
+            };
+        }) || [];
+
+        if (mappedOrderDetail.length > 0) {
+            const total = calculateTotalOrderPrice(mappedOrderDetail);
             setTotalPrice(total);
-
-        } catch (error) {
-            console.log(error);
+        } else {
+            setTotalPrice("0");
         }
-    };
+
+    } catch (error) {
+        console.log(error);
+    }
+};
 
     const handleGetBakeryByProductApi = async () => {
         try {
@@ -109,7 +128,6 @@ const BakeryDetail = () => {
             const response = await bakeryApi().getBakeryById({
                 bakeryId: parseInt(bakeryId as string),
             })
-            console.log("response", response)
             if (response.status === 200) {
                 setBakeryDetail(response.data ? response.data : {})
             }
@@ -118,18 +136,44 @@ const BakeryDetail = () => {
         }
     }
 
-    useEffect(() => {
-        console.log("test", productId)
-        handleGetBakeryByProductApi()
-    }, [productId])
+    const handleBakeryChangeAlert = async () => {
+        const jsonValue = await AsyncStorage.getItem('orderData');
+        const data = jsonValue ? JSON.parse(jsonValue) : [];
+
+        // If there are items from a different bakery, show the alert
+        if (data.length > 0 && !bakeryDetail?.product.some(product => data.some(order => order.productId === product.productId))) {
+            Alert.alert(
+                "Switch Bakery",
+                "Adding products from this bakery will clear items from the previous bakery. Proceed?",
+                [
+                    {
+                        text: "Cancel",
+                        style: "cancel",
+                    },
+                    {
+                        text: "Proceed",
+                        onPress: async () => {
+                            await AsyncStorage.removeItem('orderData');
+                            fetchOrderData();
+                        },
+                    },
+                ]
+            );
+        }
+    };
 
     useEffect(() => {
-        handleGetBakeryByIdApi()
-    }, [bakeryId])
+        handleGetBakeryByIdApi();
+        handleBakeryChangeAlert();
+    }, [bakeryId]);
 
-    useEffect(() => {
-        fetchOrderData()
-    }, [bakeryId])
+    useFocusEffect(
+        useCallback(() => {
+            fetchOrderData();
+        }, [])
+    );
+
+    console.log("order data oiiiii", orderData);
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
@@ -150,10 +194,10 @@ const BakeryDetail = () => {
                     </TouchableOpacity>
                 </View>
 
-                <Image
-                    source={images.logo}
+                {/* <Image
+                    source={images.starIcon}
                     className='w-full h-40 mt-5 rounded-xl border border-gray-500'
-                />
+                /> */}
 
                 <View className="mt-5">
                     <View className="flex-row justify-between items-center">
@@ -220,7 +264,7 @@ const BakeryDetail = () => {
                                     product={product}
                                     onPress={() => 
                                         router.push({
-                                            pathname: '/order/orderPage',
+                                            pathname: '/bakery/inputOrder',
                                             params: {
                                                 productId: product.productId
                                             }
@@ -235,10 +279,10 @@ const BakeryDetail = () => {
             </ScrollView>
 
             {/* Display Cart Button if there are items in the orderData */}
-            {orderData.length > 0 && (
+            {orderData && (
                 <View className="p-5">
                 <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.length} item) - Rp. ${totalPrice.toLocaleString('id-ID')}`}
+                    label={`Lihat Keranjang (${orderData.items.length} item) - Rp. ${totalPrice}`}
                     handlePress={() => {
                         router.push('/order/orderDetail');
                     }}

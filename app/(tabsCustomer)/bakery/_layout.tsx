@@ -7,6 +7,7 @@ const BakeryLayout = () => {
     <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name='index' />
         <Stack.Screen name="bakeryDetail" />
+        <Stack.Screen name="inputOrder" />
     </Stack>
   )
 }
