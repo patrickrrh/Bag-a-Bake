@@ -24,7 +24,7 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
-import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, formatRupiah } from '@/utils/commonFunctions';
 
 type Bakery = {
     bakeryId: number;
@@ -77,38 +77,37 @@ const BakeryDetail = () => {
     const { productId, bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
-    const [totalPrice, setTotalPrice] = useState("");
+    const [totalPrice, setTotalPrice] = useState<number>(0.0);
     const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
-const fetchOrderData = async () => {
-    try {
-        const jsonValue = await getLocalStorage('orderData');
-        const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
-        console.log("INIII APAAA", data)
-        setOrderData(data);
+    const fetchOrderData = async () => {
+        try {
+            const jsonValue = await getLocalStorage('orderData');
+            const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+            setOrderData(data);
 
-        // Calculate Total Order Price
-        const products = bakeryDetail?.product || [];
+            // Calculate Total Order Price
+            const products = bakeryDetail?.product || [];
 
-        const mappedOrderDetail = data?.items.map((item: any) => {
-            const product = products.find(prod => prod.productId === item.productId);
-            return {
-                product: product || {},
-                productQuantity: item.orderQuantity
-            };
-        }) || [];
+            const mappedOrderDetail = data?.items.map((item: any) => {
+                const product = products.find(prod => prod.productId === item.productId);
+                return {
+                    product: product || {},
+                    productQuantity: item.orderQuantity
+                };
+            }) || [];
 
-        if (mappedOrderDetail.length > 0) {
-            const total = calculateTotalOrderPrice(mappedOrderDetail);
-            setTotalPrice(total);
-        } else {
-            setTotalPrice("0");
+            if (mappedOrderDetail.length > 0) {
+                const total = calculateTotalOrderPrice(mappedOrderDetail);
+                setTotalPrice(total);
+            } else {
+                setTotalPrice(0);
+            }
+
+        } catch (error) {
+            console.log(error);
         }
-
-    } catch (error) {
-        console.log(error);
-    }
-};
+    };
 
     const handleGetBakeryByProductApi = async () => {
         try {
@@ -161,7 +160,6 @@ const fetchOrderData = async () => {
             );
         }
     };
-
     useEffect(() => {
         handleGetBakeryByIdApi();
         handleBakeryChangeAlert();
@@ -282,9 +280,14 @@ const fetchOrderData = async () => {
             {orderData && (
                 <View className="p-5">
                 <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.items.length} item) - Rp. ${totalPrice}`}
+                    label={`Lihat Keranjang (${orderData.items.length} item) - ${formatRupiah(totalPrice)}`}
                     handlePress={() => {
-                        router.push('/order/orderDetail');
+                        router.push({
+                            pathname: '/order/orderDetail',
+                            params: {
+                                bakeryId: bakeryId
+                            }
+                        })
                     }}
                     buttonStyles="bg-orange"
                     isLoading={false} // Add this line

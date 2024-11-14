@@ -19,7 +19,7 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
 
 export default function orderCustomerApi() {
     return {
-        createOrder: createApiFunction("post", "/create/order"),
+        createOrder: createApiFunction("post", "create/order"),
         getOrderByStatus: createApiFunction("post", "get/order/status"),
         getOrderDetailById: createApiFunction("post", "get/order/detail/id"),
     }
