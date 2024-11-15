@@ -80,8 +80,7 @@ import {
         if (res.status === 200) {
           console.log("sudah terganti passwordnya");
           showToast("success", "Kata Sandi berhasil diubah");
-          // router.back();
-          router.push("/(tabsCustomer)/profile/profilePage");
+          router.back();
         } else {
           showToast("error", res.error);
         }
