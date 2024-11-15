@@ -6,7 +6,7 @@ import CustomTagOrderStatus from './CustomTagOrderStatus';
 import TextTitle5Gray from './texts/TextTitle5Gray';
 import RejectOrderButton from './rejectOrderButton';
 import AcceptOrderButton from './AcceptOrderButton';
-import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
+import { formatDate, formatDatewithtime, formatRupiah } from '@/utils/commonFunctions';
 
 interface Props {
     order: any;
@@ -31,7 +31,7 @@ const SellerOrderCardPending: React.FC<Props> = ({ order, onPress, onAccept, onR
             <View style={{ flexDirection: 'column', flex: 1 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                     <TextTitle4 label={`#${order.orderId}`} />
-                    <TextTitle5Gray label={order.user.userName} />
+                    <TextTitle5Gray label={formatDatewithtime(order.orderDate)} />
                 </View>
 
                 <View className='h-[1px] bg-gray-100 my-4' />
@@ -49,7 +49,7 @@ const SellerOrderCardPending: React.FC<Props> = ({ order, onPress, onAccept, onR
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                     <TextTitle4 label='Total Harga' />
-                    <TextTitle4 label={calculateTotalOrderPrice(order.orderDetail)} />
+                    <TextTitle4 label={formatRupiah(order.totalOrderPrice)} />
                 </View>
 
                 <View className='h-[1px] bg-gray-100 my-4' />

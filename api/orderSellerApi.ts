@@ -19,10 +19,10 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
 
 export default function orderSellerApi() {
     return {
-        getLatestPendingOrder: createApiFunction("get", "get/latest/pending/order"),
-        getLatestOngoingOrder: createApiFunction("get", "get/latest/ongoing/order"),
-        countAllPendingOrder: createApiFunction("get", "count/all/pending/order"),
-        countAllOngoingOrder: createApiFunction("get", "count/all/ongoing/order"),
+        getLatestPendingOrder: createApiFunction("post", "get/latest/pending/order"),
+        getLatestOngoingOrder: createApiFunction("post", "get/latest/ongoing/order"),
+        countAllPendingOrder: createApiFunction("post", "count/all/pending/order"),
+        countAllOngoingOrder: createApiFunction("post", "count/all/ongoing/order"),
         getAllOrderByStatus: createApiFunction("post", "get/all/order/status"),
         actionOrder: createApiFunction("put", "action/order"),
     }

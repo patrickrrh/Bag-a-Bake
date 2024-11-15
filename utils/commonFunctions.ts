@@ -173,12 +173,44 @@ export const calculateTotalOrderPrice = (orderDetail: any): string => {
   }).format(total);
 };
 
+export const calculateTotalOrderItem = (orderDetail: any): number => {
+    const total = orderDetail.reduce((sum: number, detail: any) => {
+        return sum + detail.productQuantity;
+    }, 0);
+
+    return total
+}
+
 export const formatRupiah = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
   }).format(amount);
 };
+
+export const formatDate = (date: string) => {
+  const dateObj = new Date(date);
+  const options: any = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour12: false,
+  };
+  return dateObj.toLocaleString('id-ID', options);
+};
+
+export const formatDatewithtime = (date: string) => {
+  const dateObj = new Date(date);
+  const options: any = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+  };
+  return dateObj.toLocaleString('id-ID', options);
+}
 
 export const setLocalStorage = async (key: string, value: string) => {
   try {
