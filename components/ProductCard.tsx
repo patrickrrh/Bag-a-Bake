@@ -18,7 +18,7 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
     return (
         <TouchableOpacity
             onPress={onPress}
-            className='w-[162px] h-[248px] bg-white rounded-lg shadow-sm mr-4 mb-1'
+            className='w-[162px] h-[266px] bg-white rounded-lg shadow-sm mr-4 mb-1'
         >
             <View className='p-4'>
                 <View style={{ position: 'relative' }}>
@@ -36,7 +36,7 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
                 </View>
                 <TextTitle5 label={product.bakery.bakeryName} />
                 <View className='mt-2'>
-                    <View className='flex-row mb-1'>
+                    <View className='flex-row'>
                         <View className='mr-2'>
                             <TextBeforePrice label={formatRupiah(product.productPrice)} />
                         </View>
