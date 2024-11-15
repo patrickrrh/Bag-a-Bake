@@ -19,12 +19,15 @@ import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
 import bakeryApi from '@/api/bakeryApi';
 import BackButton from '@/components/BackButton';
 import { Ionicons } from "@expo/vector-icons";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
 import { getLocalStorage } from '@/utils/commonFunctions';
-import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
+import { useFocusEffect } from '@react-navigation/native';
 import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
+import LargeImage from '@/components/LargeImage';
+import { images } from '@/constants/images'
+import TextRating from '@/components/texts/TextRating';
 
 type Bakery = {
     bakeryId: number;
@@ -37,7 +40,12 @@ type Bakery = {
     closingTime: string;
     regionId: number;
     regionBakery: RegionBakery;
+    bakery: Bakery;
     product: Product[];
+    prevRating: {
+        averageRating: string;
+        reviewCount: string;
+    }
 };
 
 type RegionBakery = {
@@ -58,21 +66,20 @@ type Product = {
     isActive: number;
 }
 
-// type OrderItem = {
-//     productId: number;
-//     productQuantity: number;
-//     productPrice: number;
-// };
-
 type OrderItem = {
     bakeryId: number;
-    items: {
-        orderQuantity: number;
-        productId: number;
-    }[];
+    items:
+    [
+        {
+            orderQuantity: number;
+            productId: number;
+        }
+    ];
 };
 
 const BakeryDetail = () => {
+
+    const insets = useSafeAreaInsets();
 
     const { productId, bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
@@ -80,35 +87,37 @@ const BakeryDetail = () => {
     const [totalPrice, setTotalPrice] = useState("");
     const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
-const fetchOrderData = async () => {
-    try {
-        const jsonValue = await getLocalStorage('orderData');
-        const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
-        console.log("INIII APAAA", data)
-        setOrderData(data);
+    const [showFavorite, setShowFavorite] = useState(false);
 
-        // Calculate Total Order Price
-        const products = bakeryDetail?.product || [];
+    const fetchOrderData = async () => {
+        try {
+            const jsonValue = await getLocalStorage('orderData');
+            const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+            console.log("INIII APAAA", data)
+            setOrderData(data);
 
-        const mappedOrderDetail = data?.items.map((item: any) => {
-            const product = products.find(prod => prod.productId === item.productId);
-            return {
-                product: product || {},
-                productQuantity: item.orderQuantity
-            };
-        }) || [];
+            // Calculate Total Order Price
+            const products = bakeryDetail?.product || [];
 
-        if (mappedOrderDetail.length > 0) {
-            const total = calculateTotalOrderPrice(mappedOrderDetail);
-            setTotalPrice(total);
-        } else {
-            setTotalPrice("0");
+            const mappedOrderDetail = data?.items.map((item: any) => {
+                const product = products.find(prod => prod.productId === item.productId);
+                return {
+                    product: product || {},
+                    productQuantity: item.orderQuantity
+                };
+            }) || [];
+
+            if (mappedOrderDetail.length > 0) {
+                const total = calculateTotalOrderPrice(mappedOrderDetail);
+                setTotalPrice(total);
+            } else {
+                setTotalPrice("0");
+            }
+
+        } catch (error) {
+            console.log(error);
         }
-
-    } catch (error) {
-        console.log(error);
-    }
-};
+    };
 
     const handleGetBakeryByProductApi = async () => {
         try {
@@ -141,7 +150,7 @@ const fetchOrderData = async () => {
         const data = jsonValue ? JSON.parse(jsonValue) : [];
 
         // If there are items from a different bakery, show the alert
-        if (data.length > 0 && !bakeryDetail?.product.some(product => data.some(order => order.productId === product.productId))) {
+        if (data.length > 0 && !bakeryDetail?.product.some(product => data.some((order: { productId: number; }) => order.productId === product.productId))) {
             Alert.alert(
                 "Switch Bakery",
                 "Adding products from this bakery will clear items from the previous bakery. Proceed?",
@@ -173,96 +182,99 @@ const fetchOrderData = async () => {
         }, [])
     );
 
-    console.log("order data oiiiii", orderData);
+    console.log("bakery detail", JSON.stringify(bakeryDetail, null, 2));
 
     return (
-        <SafeAreaView className="bg-background h-full flex-1">
+        <View className="flex-1 bg-background">
+
+            <View style={{ height: insets.top }} />
+
             <ScrollView className="px-5">
-                <View className="flex-row">
+                <View className="flex-row w-full justify-between">
                     <BackButton />
-                    <View className="flex-1 items-center pr-3">
-                        <TextTitle3 label={bakeryDetail?.bakeryName as string} />
-                    </View>
-                    <TouchableOpacity onPress={() => { }} className="flex-2 items-center">
-                        <Ionicons
-                            // name={favorites.includes(store.id) ? "heart" : "heart-outline"}
-                            name='heart-outline'
-                            size={24}
-                            // color={favorites.includes(store.id) ? "red" : "black"}
-                            color='black'
-                        />
+                    <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
+                    {/* TO DO: Toggle Favorite */}
+                    <TouchableOpacity
+                        onPress={() => {
+                            setShowFavorite(!showFavorite);
+                        }}
+                    >
+                        {
+                            showFavorite ? (
+                                <Ionicons
+                                    name="heart"
+                                    size={24}
+                                    color="red"
+                                />
+                            ) : (
+                                <Ionicons
+                                    name="heart-outline"
+                                    size={24}
+                                    color="black"
+                                />
+                            )
+                        }
                     </TouchableOpacity>
                 </View>
 
-                {/* <Image
-                    source={images.starIcon}
-                    className='w-full h-40 mt-5 rounded-xl border border-gray-500'
-                /> */}
+                <View className='mt-5 rounded-lg'>
+                    <LargeImage
+                        image={images.logo}
+                    />
+                </View>
 
                 <View className="mt-5">
-                    <View className="flex-row justify-between items-center">
-                        <View className="flex-row items-center">
-
-                        </View>
+                    <View className='flex-row justify-between items-start'>
                         <View>
-                            <CustomClickableButton label={"Buka Toko"} handlePress={() => { }} buttonStyles={"bg-brown"} isLoading={false} icon="map" />
+                            <View className='flex-row'>
+                                <FontAwesome6 name='location-dot' size={14} />
+                                <TextTitle5 label={bakeryDetail?.bakery?.regionBakery?.regionName as string} containerStyle={{ marginLeft: 5 }} />
+                            </View>
+                            <TextRating
+                                rating={bakeryDetail?.prevRating.averageRating || "0"}
+                                reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
+                            />
+                        </View>
+
+                        <View>
+                            <CustomClickableButton
+                                label={"Hubungi Bakeri"}
+                                handlePress={() => { }}
+                                isLoading={isSubmitting}
+                                icon="whatsapp"
+                                iconColor='#25D366'
+                            />
                         </View>
                     </View>
 
-                    <View className="flex-row items-center">
-                        <View className="pr-1">
-                            <FontAwesome6 name="location-dot" size={14} color="black" />
-                        </View>
-                        <View className="pr-1 pt-1">
-                            <TextTitle5 label={bakeryDetail?.regionBakery?.regionName as string} />
-                        </View>
-                    </View>
-
-                    <View className="mt-2">
-                        <CustomClickableButton
-                            label={"Hubungi Bakeri"}
-                            handlePress={() => { }}
-                            isLoading={isSubmitting}
-                            icon="whatsapp"
-                            iconColor='#25D366'
-                        />
-                    </View>
-
-                    <View>
+                    <View className='mt-3'>
                         <TextTitle3 label={"Deskripsi Toko"} />
-                        <View className='mt-1'>
-                            <TextTitle5 label={bakeryDetail?.bakeryDescription as string} />
-                        </View>
+                        <TextTitle5 label={bakeryDetail?.bakery.bakeryDescription as string} />
                     </View>
 
-                    <View>
+                    <View className='mt-3'>
                         <TextTitle5Bold label={"Jam Operasional:"} />
-                        <View className="mt-1">
-                            <TextTitle5 label={`${bakeryDetail?.openingTime} - ${bakeryDetail?.closingTime}`} />
-                        </View>
+                        <TextTitle5 label={`${bakeryDetail?.bakery.openingTime} - ${bakeryDetail?.bakery.closingTime}`} />
                     </View>
 
-                    <View className="h-px bg-black my-4" />
+                    <View className="h-px bg-gray-200 my-4" />
 
                     <View>
                         <TextTitle3 label={"Produk Bakeri"} />
                     </View>
 
-                    <View 
+                    <View
                         style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
                         className='mt-3'
                     >
-                        {bakeryDetail?.product.map((product) => (
+                        {bakeryDetail?.bakery?.product.map((product) => (
                             <View
                                 key={product.productId}
-                                style={{
-                                    width: '50%',
-                                    marginBottom: 10,
-                                }}
+                                className='pb-5 w-[50%]'
                             >
                                 <ProductCardBakery
                                     product={product}
-                                    onPress={() => 
+                                    onPress={() =>
                                         router.push({
                                             pathname: '/bakery/inputOrder',
                                             params: {
@@ -281,18 +293,18 @@ const fetchOrderData = async () => {
             {/* Display Cart Button if there are items in the orderData */}
             {orderData && (
                 <View className="p-5">
-                <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.items.length} item) - Rp. ${totalPrice}`}
-                    handlePress={() => {
-                        router.push('/order/orderDetail');
-                    }}
-                    buttonStyles="bg-orange"
-                    isLoading={false} // Add this line
-                    icon="map" // Add this line
-                />
+                    <CustomClickableButton
+                        label={`Lihat Keranjang (${orderData.items.length} item) - Rp. ${totalPrice}`}
+                        handlePress={() => {
+                            router.push('/order/orderDetail');
+                        }}
+                        buttonStyles="bg-orange"
+                        isLoading={false} // Add this line
+                        icon="map" // Add this line
+                    />
                 </View>
             )}
-        </SafeAreaView>
+        </View>
     )
 }
 

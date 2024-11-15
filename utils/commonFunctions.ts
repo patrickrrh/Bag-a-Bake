@@ -157,23 +157,22 @@ export const checkProductForm = (form: Record<string, unknown>) => {
   return errors;
 };
 
+export const calculateTotalOrderPrice = (orderDetail: any): string => {
+    const total = orderDetail.reduce((sum: number, detail: any) => {
+        const price = parseFloat(detail.product.productPrice);
+        return sum + price * detail.productQuantity;
+    }, 0);
 
-// export const calculateTotalOrderPrice = (orderDetail: any): string => {
-//     const total = orderDetail.reduce((sum: number, detail: any) => {
-//         const price = parseFloat(detail.product.productPrice);
-//         return sum + price * detail.productQuantity;
-//     }, 0);
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total);
+}
 
-//     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(total);
-// }
+export const calculateTotalOrderItem = (orderDetail: any): number => {
+    const total = orderDetail.reduce((sum: number, detail: any) => {
+        return sum + detail.productQuantity;
+    }, 0);
 
-// export const calculateTotalOrderItem = (orderDetail: any): number => {
-//     const total = orderDetail.reduce((sum: number, detail: any) => {
-//         return sum + detail.productQuantity;
-//     }, 0);
-
-//     return total
-// }
+    return total
+}
 
 export const formatRupiah = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {

@@ -18,7 +18,7 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
     return (
         <TouchableOpacity
             onPress={onPress}
-            className='w-[162px] h-[248px] bg-white rounded-lg shadow-sm mr-4 mb-1'
+            className='bg-white rounded-lg shadow-sm mr-4 mb-1'
         >
             <View className='p-4'>
                 <View style={{ position: 'relative' }}>
