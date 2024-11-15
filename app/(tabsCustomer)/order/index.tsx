@@ -71,6 +71,8 @@ const Order = () => {
     handleGetOrderByStatusApi();
   }, [selectedStatus]);
 
+  console.log("oders", JSON.stringify(orders, null, 2))
+
   const handleSubmitRatingApi = async () => {
     try {
       if (ratingForm.rating === 0) {
@@ -133,7 +135,7 @@ const Order = () => {
                       onPress={() => {
                         router.push({
                           pathname: '/order/orderDetail',
-                          params: { order: JSON.stringify(item) }
+                          params: { order: JSON.stringify(item.bakeryId) }
                         })
                       }}
                       onPressRating={() => {

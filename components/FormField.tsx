@@ -30,12 +30,12 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
           placeholder={placeholder}
           placeholderTextColor={"#828282"}
           onChangeText={onChangeText}
-          secureTextEntry={(label === "Kata Sandi" || label === "Konfirmasi Kata Sandi") && !showPassword}
+          secureTextEntry={(label === "Kata Sandi" || label === "Konfirmasi Kata Sandi" || label === "Password Lama" || label === "Password Baru" || label === "Konfirmasi Password Baru") && !showPassword}
           keyboardType={keyboardType}
           textAlignVertical='center'
         />
 
-        {(label === "Kata Sandi" || label === "Konfirmasi Kata Sandi") && (
+        {(label === "Kata Sandi" || label === "Konfirmasi Kata Sandi" || label === "Password Lama" || label === "Password Baru" || label === "Konfirmasi Password Baru") && (
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             {
               showPassword ? (

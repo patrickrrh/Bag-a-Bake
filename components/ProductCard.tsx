@@ -36,7 +36,7 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
                 </View>
                 <TextTitle5 label={product.bakery.bakeryName} />
                 <View className='mt-2'>
-                    <View className='flex-row mb-1'>
+                    <View className='flex-row'>
                         <View className='mr-2'>
                             <TextBeforePrice label={formatRupiah(product.productPrice)} />
                         </View>

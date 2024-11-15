@@ -22,7 +22,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
-import { getLocalStorage } from '@/utils/commonFunctions';
+import { formatRupiah, getLocalStorage } from '@/utils/commonFunctions';
 import { useFocusEffect } from '@react-navigation/native';
 import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 import LargeImage from '@/components/LargeImage';
@@ -84,7 +84,7 @@ const BakeryDetail = () => {
     const { productId, bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
-    const [totalPrice, setTotalPrice] = useState("");
+    const [totalPrice, setTotalPrice] = useState<number>(0.0);
     const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
     const [showFavorite, setShowFavorite] = useState(false);
@@ -93,7 +93,6 @@ const BakeryDetail = () => {
         try {
             const jsonValue = await getLocalStorage('orderData');
             const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
-            console.log("INIII APAAA", data)
             setOrderData(data);
 
             // Calculate Total Order Price
@@ -109,9 +108,9 @@ const BakeryDetail = () => {
 
             if (mappedOrderDetail.length > 0) {
                 const total = calculateTotalOrderPrice(mappedOrderDetail);
-                setTotalPrice(total);
+                // setTotalPrice(total);
             } else {
-                setTotalPrice("0");
+                setTotalPrice(0);
             }
 
         } catch (error) {
@@ -170,7 +169,6 @@ const BakeryDetail = () => {
             );
         }
     };
-
     useEffect(() => {
         handleGetBakeryByIdApi();
         handleBakeryChangeAlert();
@@ -293,15 +291,20 @@ const BakeryDetail = () => {
             {/* Display Cart Button if there are items in the orderData */}
             {orderData && (
                 <View className="p-5">
-                    <CustomClickableButton
-                        label={`Lihat Keranjang (${orderData.items.length} item) - Rp. ${totalPrice}`}
-                        handlePress={() => {
-                            router.push('/order/orderDetail');
-                        }}
-                        buttonStyles="bg-orange"
-                        isLoading={false} // Add this line
-                        icon="map" // Add this line
-                    />
+                <CustomClickableButton
+                    label={`Lihat Keranjang (${orderData.items.length} item) - ${formatRupiah(totalPrice)}`}
+                    handlePress={() => {
+                        router.push({
+                            pathname: '/order/orderDetail',
+                            params: {
+                                bakeryId: bakeryId
+                            }
+                        })
+                    }}
+                    buttonStyles="bg-orange"
+                    isLoading={false} // Add this line
+                    icon="map" // Add this line
+                />
                 </View>
             )}
         </View>

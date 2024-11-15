@@ -206,18 +206,18 @@ const EditProduct = () => {
     try {
       const response = await productApi().getProductById({ productId });
       console.log("product id", productId);
-      //   console.log(response);
-      if (response != null) {
+      console.log(response.data);
+      if (response.status === 200) {
         setForm({
-          productId: response.productId,
-          productName: response.productName,
-          productDescription: response.productDescription,
-          categoryId: response.categoryId,
-          productExpirationDate: new Date(response.productExpirationDate),
-          productPrice: response.productPrice.toString(),
+          productId: response.data.productId,
+          productName: response.data.productName,
+          productDescription: response.data.productDescription,
+          categoryId: response.data.categoryId,
+          productExpirationDate: new Date(response.data.productExpirationDate),
+          productPrice: response.data.productPrice.toString(),
           discount:
-            response.discount && response.discount.length > 0
-              ? response.discount.map(
+            response.data.discount && response.data.discount.length > 0
+              ? response.data.discount.map(
                   (discount: {
                     discountAmount: string;
                     discountDate: string;
@@ -233,12 +233,12 @@ const EditProduct = () => {
                     discountDate: new Date().toISOString(),
                   },
                 ],
-          productStock: response.productStock,
-          productImage: response.productImage,
-          bakeryId: response.bakeryId,
+          productStock: response.data.productStock,
+          productImage: response.data.productImage,
+          bakeryId: response.data.bakeryId,
         });
       }
-      //   console.log(form);
+        console.log(form);
     } catch (error) {
       console.log("Error fetching product by ID:", error);
     }
