@@ -19,13 +19,13 @@ import TextHeader from "@/components/texts/TextHeader";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
 import regionApi from "@/api/regionApi";
-import ModalSaveChanges from "@/components/ModalSaveChanges";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
 import { checkEmptyForm } from "@/utils/commonFunctions";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import ModalAction from "@/components/ModalAction";
+import Toast from "react-native-toast-message";
 
 type ErrorState = {
   userName: string | null;
@@ -42,7 +42,7 @@ const EditProfile = () => {
     userPhoneNumber: userData?.userPhoneNumber || "",
     email: userData?.email || "",
     userImage: userData?.userImage || "",
-    regionId: userData?.regionUser?.regionId || 0,
+    regionId: userData?.regionId || 0,
   });
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -75,7 +75,7 @@ const EditProfile = () => {
       form.userPhoneNumber !== userData?.userPhoneNumber ||
       form.email !== userData?.email ||
       form.userImage !== userData?.userImage ||
-      form.regionId !== userData?.regionUser?.regionId
+      form.regionId !== userData?.regionId
     );
   };
 
@@ -89,6 +89,7 @@ const EditProfile = () => {
   };
 
   const handlePasswordChange = () => {
+    console.log("UNSAVED CHANGES?", hasUnsavedChanges());
     if (hasUnsavedChanges()) {
       setNextRoute("/(tabsCustomer)/profile/changePassword");
       setModalVisible(true);
@@ -124,12 +125,10 @@ const EditProfile = () => {
         userImage: form.userImage,
         regionId: form.regionId,
       });
-      console.log(form);
-      console.log(userData?.userId);
 
       const userDataToStore = {
         ...form,
-        userId: userData?.userId,
+        userId: userData?.userId
       };
 
       await SecureStore.setItemAsync(
@@ -169,6 +168,10 @@ const EditProfile = () => {
   return (
     <SafeAreaView className="bg-background h-full flex-1">
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+        <Toast topOffset={50} />
+      </View>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View
             style={{
@@ -256,6 +259,7 @@ const EditProfile = () => {
             handlePress={handlePasswordChange}
             buttonStyles="mt-8 w-full"
             isLoading={isSubmitting}
+            color="brown"
           />
 
           <CustomButton
@@ -296,7 +300,7 @@ const EditProfile = () => {
           setModalVisible={setLogoutModalVisible}
           modalVisible={logoutModalVisible}
           title="Apakah Anda yakin ingin keluar?"
-          secondaryButtonLabel="Ya"
+          secondaryButtonLabel="Iya"
           primaryButtonLabel="Tidak"
           onSecondaryAction={() => signOut()}
           onPrimaryAction={() => console.log("Cancel Log Out")}

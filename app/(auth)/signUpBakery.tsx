@@ -173,20 +173,36 @@ const SignUpBakery = () => {
         setDatePickerVisibility(false);
     };
 
-    const handleSelectTime = (time: any) => {
-        const timezone = toZonedTime(time, 'Asia/Jakarta');
-        const formattedTime = format(timezone, 'HH:mm');
+    // const handleSelectTime = (time: any) => {
+    //     const timezone = toZonedTime(time, 'Asia/Jakarta');
+    //     const formattedTime = format(timezone, 'HH:mm');
 
-        if (timeFieldType === 'openingTime') {
-            setForm((prevForm) => ({ ...prevForm, openingTime: formattedTime }));
-            setError((prevError) => ({ ...prevError, openingTime: null }));
-        } else {
-            setForm((prevForm) => ({ ...prevForm, closingTime: formattedTime }));
-            setError((prevError) => ({ ...prevError, closingTime: null }));
-        }
+    //     if (timeFieldType === 'openingTime') {
+    //         setForm((prevForm) => ({ ...prevForm, openingTime: formattedTime }));
+    //         setError((prevError) => ({ ...prevError, openingTime: null }));
+    //     } else {
+    //         setForm((prevForm) => ({ ...prevForm, closingTime: formattedTime }));
+    //         setError((prevError) => ({ ...prevError, closingTime: null }));
+    //     }
 
+    //     hideDatePicker();
+    // };
+    const handleSelectTime = (time: Date) => {
+        const timezone = toZonedTime(time, "Asia/Jakarta");
+        const formattedTime = format(timezone, "HH:mm");
+      
+        setBakeryForm((prevForm) => ({
+          ...prevForm,
+          [timeFieldType]: formattedTime,
+        }));
+      
+        setBakeryError((prevError) => ({
+          ...prevError,
+          [timeFieldType]: null,
+        }));
+      
         hideDatePicker();
-    };
+      };
 
     return (
         <ScrollView className='bg-background'>
