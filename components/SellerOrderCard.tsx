@@ -20,11 +20,6 @@ type OrderDetail = {
 
 const SellerOrderCard: React.FC<Props> = ({ order, onPress }) => {
 
-    //TO DO: kasih loader
-    if (!order) {
-        return null;
-    }
-
     return (
         <TouchableOpacity
             onPress={onPress}

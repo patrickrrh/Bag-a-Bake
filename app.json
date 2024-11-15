@@ -19,7 +19,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logoBagABake.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.bagabakefrontend"
     },
     "web": {
       "bundler": "metro",

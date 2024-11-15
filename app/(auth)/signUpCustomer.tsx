@@ -143,6 +143,7 @@ const SignUpCustomer = () => {
     }, []);
 
     return (
+        <ScrollView className='bg-background'>
         <AuthLayout headerContent={headerContent} footerContent={footerContent}>
             <View className="mt-4 w-full items-center">
                 {form.userImage ? (
@@ -215,7 +216,7 @@ const SignUpCustomer = () => {
                 error={error.email}
             />
             <FormField
-                label='Password'
+                label='Kata Sandi'
                 // placeholder='Masukkan Password Anda'
                 value={form.password}
                 onChangeText={(text) => {
@@ -227,7 +228,7 @@ const SignUpCustomer = () => {
                 error={error.password}
             />
             <FormField
-                label='Konfirmasi Password'
+                label='Konfirmasi Kata Sandi'
                 // placeholder='Konfirmasi Password Anda'
                 value={confirmPassword}
                 onChangeText={(text) => {
@@ -247,6 +248,7 @@ const SignUpCustomer = () => {
             />
 
         </AuthLayout>
+        </ScrollView>
     )
 }
 

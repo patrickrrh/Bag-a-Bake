@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import TextFormLabel from './texts/TextFormLabel'
 import { images } from '@/constants/images'
 import ErrorMessage from './texts/ErrorMessage';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
   label: string;
@@ -21,25 +22,28 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
   return (
     <View className={`space-y-1 ${moreStyles}`}>
       <TextFormLabel label={label} />
-      <View className={`w-full h-[40px] px-4 pb-1 bg-white rounded-[8px] justify-center items-center border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row`}>
+      <View className={`w-full h-[40px] px-4 bg-white rounded-[8px] justify-center items-center border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row`}>
         <TextInput
-          className='flex-1 text-black text-base'
+          className='flex-1 text-black'
           style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
           value={value as any}
           placeholder={placeholder}
           placeholderTextColor={"#828282"}
           onChangeText={onChangeText}
-          secureTextEntry={(label === "Password" || label === "Konfirmasi Password" || label === "Password Lama" || label === "Password Baru" || label === "Konfirmasi Password Baru") && !showPassword}
+          secureTextEntry={(label === "Kata Sandi" || label === "Konfirmasi Kata Sandi" || label === "Password Lama" || label === "Password Baru" || label === "Konfirmasi Password Baru") && !showPassword}
           keyboardType={keyboardType}
+          textAlignVertical='center'
         />
 
-        {(label === "Password" || label === "Konfirmasi Password" || label === "Password Lama" || label === "Password Baru" || label === "Konfirmasi Password Baru") && (
+        {(label === "Kata Sandi" || label === "Konfirmasi Kata Sandi" || label === "Password Lama" || label === "Password Baru" || label === "Konfirmasi Password Baru") && (
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Image
-              source={!showPassword ? images.eyeOpen : images.eyeClose}
-              className='w-4 h-4'
-              resizeMode="contain"
-            />
+            {
+              showPassword ? (
+                <Ionicons name="eye-off" size={14} color="black" />
+              ) : (
+                <Ionicons name="eye" size={14} color="black" />
+              )
+            }
           </TouchableOpacity>
         )}
       </View>

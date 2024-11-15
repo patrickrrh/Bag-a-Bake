@@ -205,6 +205,7 @@ const SignUpBakery = () => {
       };
 
     return (
+        <ScrollView className='bg-background'>
         <AuthLayout headerContent={headerContent} footerContent={footerContent}>
             <FormField
                 label='Nama Toko'
@@ -303,6 +304,7 @@ const SignUpBakery = () => {
                 onCancel={hideDatePicker}
             />
         </AuthLayout>
+        </ScrollView>
     )
 }
 

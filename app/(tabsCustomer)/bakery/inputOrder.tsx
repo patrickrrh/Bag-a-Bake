@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { View, Text, Image, FlatList, TouchableOpacityBase, Animated } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import productApi from '@/api/productApi';
@@ -12,25 +12,23 @@ import TextOrangeBold from '@/components/texts/TextOrangeBold';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import CustomButton from '@/components/CustomButton';
 import StockInput from '@/components/StockInput';
-import { useLocalSearchParams } from 'expo-router';
-import { ProductType } from '@/types/types';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { BakeryType, ProductType } from '@/types/types';
 import AddOrderProductButton from '@/components/AddOrderProductButton';
 import BackButton from '@/components/BackButton';
 import CircleBackButton from '@/components/CircleBackButton';
+import { getLocalStorage, removeLocalStorage, updateLocalStorage, calculateTotalOrderPrice } from '@/utils/commonFunctions';
 
-type BakeryOrderType = {
-    bakeryName: string;
-    closingTime: string;
-}
-const OrderPage = () => {
+const InputOrder = () => {
 
   const { productId } = useLocalSearchParams();
   const [product, setProduct] = useState<ProductType | null>(null);
-  const [bakery, setBakery] = useState<BakeryOrderType | null>(null);
-  const [form, setForm] = useState({
-    productId: 0,
-    productQuantity: 0,
-  })
+  const [bakery, setBakery] = useState<BakeryType | null>(null);
+  const emptyForm = {
+    productId: parseInt(productId as string),
+    orderQuantity: 0,
+  }
+  const [form, setForm] = useState(emptyForm);
 
   const handleGetProductByIdApi = async () => {
     try {
@@ -52,7 +50,7 @@ const OrderPage = () => {
         productId: parseInt(productId as string),
       })
 
-      console.log("Hello", response)
+      // console.log("Hello", response)
       if (response.status === 200) {
         setBakery(response.data ? response.data?.bakery : {})
       }
@@ -75,62 +73,93 @@ const OrderPage = () => {
   //   }
   // }
 
-  const loadProductQuantityFromAsyncStorage = async() => {
+  const loadProductQuantity = async () => {
     try {
-      const jsonValue = await AsyncStorage.getItem('orderData');
-      const existingOrders = jsonValue ? JSON.parse(jsonValue) : [];
-      const existingProduct = existingOrders.find(
-        (item : { productId: number }) => item.productId === parseInt(productId as string)
-      );
+      const jsonValue = await getLocalStorage('orderData');
+      console.log("son value", jsonValue)
+      if (jsonValue !== null && jsonValue !== undefined) {
+        const existingOrders = JSON.parse(jsonValue);
+        const existingProduct = existingOrders.items.find(
+          (item: { productId: number }) => item.productId === parseInt(productId as string)
+        );
 
-      if (existingProduct) {
-        setForm({ ...form, productQuantity: existingProduct.productQuantity});
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  const updateAsyncStorage = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem('orderData');
-      const existingOrders = jsonValue ? JSON.parse(jsonValue) : [];
-
-      const existingIndex = existingOrders.findIndex(
-        (item: { productId: number }) => item.productId === parseInt(productId as string) 
-      );
-
-      if (form.productQuantity === 0) {
-        if (existingIndex !== -1) {
-          existingOrders.splice(existingIndex, 1);
+        if (existingProduct) {
+          console.log("masuk sini gak")
+          setForm({ ...form, orderQuantity: existingProduct.orderQuantity });
         }
       } else {
-        if (existingIndex === -1) {
-          existingOrders.push(form);
-        } else {
-          existingOrders[existingIndex] = form;
-        }
+        // Handle the case where jsonValue is null or undefined
+        console.log('No order data found');
       }
-
-      await AsyncStorage.setItem('orderData', JSON.stringify(existingOrders));
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-  const handleAddOrder = () => {
-    updateAsyncStorage();
-  }
+  const updateOrderData = (
+    currentOrder: { productId: number; orderQuantity: number }[], 
+    newOrder: { productId: number; orderQuantity: number }
+  ) => {
+    const index = currentOrder.findIndex(item => item.productId === newOrder.productId);
   
-  useEffect(() => {
-    handleGetProductByIdApi()
-  }, [productId])
+    if (index !== -1) {
+      currentOrder[index].orderQuantity = newOrder.orderQuantity; // Update quantity
+    } else {
+      currentOrder.push(newOrder); // Add new product
+    }
+  
+    return currentOrder;
+  };
 
-  useEffect(() => {
-    handleGetBakeryByProductApi()
-  }, [productId])
+  const handleAddOrder = async () => {
+    try {
+      // Retrieve the current order data from AsyncStorage
+      const jsonValue = await AsyncStorage.getItem('orderData');
+      const orderData = jsonValue ? JSON.parse(jsonValue) : [];
+  
+      // Check if no order exists
+      if (orderData.length === 0) {
+        // Insert the bakeryId outside the array if no order data exists
+        const newOrder = {
+          bakeryId: bakery?.bakeryId, // Assuming bakeryId comes from bakery object
+          items: [form]
+        };
+  
+        // Save the new order with bakeryId
+        await AsyncStorage.setItem('orderData', JSON.stringify(newOrder));
+        console.log('New order created with bakeryId:', bakery?.bakeryId);
+      } else {
+        // If an order exists, check if bakeryId matches
+        const currentBakeryId = orderData.bakeryId;
+  
+        if (currentBakeryId !== bakery?.bakeryId) {
+          console.log('Bakery ID does not match! Handle error or switch bakery');
+        } else {
+          // If bakeryId matches, update the order items
+          const updatedItems = updateOrderData(orderData.items, {
+            productId: parseInt(productId as string),
+            orderQuantity: form.orderQuantity
+          });
+  
+          // Save the updated data with the same bakeryId
+          await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
+        }
+      }
+    } catch (error) {
+      console.log('Error handling the order:', error);
+    }
+  };
 
-  const totalAmount = product?.productPrice ? product.productPrice * form.productQuantity : 0;
+  useFocusEffect(
+    useCallback(() => {
+      // removeLocalStorage('orderData')
+      handleGetProductByIdApi()
+      handleGetBakeryByProductApi()
+      loadProductQuantity()
+    }, [])
+  )
+
+  const totalAmount = product?.productPrice ? product.productPrice * form.orderQuantity : 0;
 
   return (
     <View>
@@ -184,7 +213,6 @@ const OrderPage = () => {
             <TextTitle5 label={product?.productDescription} />
           </View>
 
-
           <View className="flex-row items-center mt-8">
             <View className="pr-2">
               <Text style={{ fontFamily: 'poppins', textDecorationLine: 'line-through', fontSize: 16 }}>
@@ -212,9 +240,9 @@ const OrderPage = () => {
             <TextTitle3 label={"Jumlah Pembelian"} />
 
             <StockInput 
-              value={form.productQuantity}
+              value={form.orderQuantity}
               onChangeText={(text) => 
-                setForm({ ...form, productQuantity: parseInt(text) || 1})
+                setForm({ ...form, orderQuantity: parseInt(text) || 1})
               }
             />
           </View>
@@ -228,4 +256,4 @@ const OrderPage = () => {
   )
 }
 
-export default OrderPage
+export default InputOrder

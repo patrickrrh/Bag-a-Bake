@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomLogo from '@/components/CustomLogo';
@@ -123,7 +123,7 @@ const SignIn = () => {
         error={error.email}
       />
       <FormField
-        label='Password'
+        label='Kata Sandi'
         value={form.password}
         onChangeText={(text) => {
           setForm({ ...form, password: text });
