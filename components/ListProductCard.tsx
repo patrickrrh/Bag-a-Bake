@@ -13,19 +13,7 @@ type Props = {
 };
 
 const ListProductCard: React.FC<Props> = ({ item, onPress }) => {
-  const getTodayPrice = () => {
-    const today = new Date().toISOString().split('T')[0];
-    // console.log("today is", today);
-    const todayDiscount = item.discount.find((discount: any) => {
-      const discountDate = discount.discountDate.split('T')[0];
-      return discountDate === today;
-    });
-    // console.log(todayDiscount);
-    return todayDiscount ? parseFloat(todayDiscount.discountAmount) : item.productPrice;
-  };
-
-  const todayPrice = getTodayPrice();
-
+  
   return (
     <TouchableOpacity
       className="bg-white rounded-lg shadow-sm mt-4 p-4"
@@ -50,7 +38,7 @@ const ListProductCard: React.FC<Props> = ({ item, onPress }) => {
             </View>
             <TextTitle5Gray label={formatDate(item.productExpirationDate)} />
             <View className="items-end">
-              <TextTitle4 label={formatRupiah(todayPrice)} />
+              <TextTitle4 label={formatRupiah(item.todayPrice)} />
             </View>
           </View>
         </View>
