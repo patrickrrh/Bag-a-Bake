@@ -488,11 +488,11 @@ const EditProfile = () => {
                   labelField="regionName"
                   valueField="regionId"
                   onChange={(text) => {
-                    setForm((prevBakeryForm) => ({
+                    setBakeryForm((prevBakeryForm) => ({
                       ...prevBakeryForm,
                       bakeryRegionId: Number(text),
                     }));
-                    setError((prevBakeryError) => ({
+                    setBakeryError((prevBakeryError) => ({
                       ...prevBakeryError,
                       bakeryRegionId: null,
                     }));
@@ -504,11 +504,11 @@ const EditProfile = () => {
                   label="Nomor Telepon Toko"
                   value={bakeryForm.bakeryPhoneNumber}
                   onChangeText={(text) => {
-                    setForm((prevBakeryForm) => ({
+                    setBakeryForm((prevBakeryForm) => ({
                       ...prevBakeryForm,
                       bakeryPhoneNumber: text,
                     }));
-                    setError((prevBakeryError) => ({
+                    setBakeryError((prevBakeryError) => ({
                       ...prevBakeryError,
                       bakeryPhoneNumber: null,
                     }));
@@ -521,11 +521,11 @@ const EditProfile = () => {
                   label="Deskripsi Toko"
                   value={bakeryForm.bakeryDescription}
                   onChangeText={(text) => {
-                    setForm((prevBakeryForm) => ({
+                    setBakeryForm((prevBakeryForm) => ({
                       ...prevBakeryForm,
                       bakeryDescription: text,
                     }));
-                    setError((prevBakeryError) => ({
+                    setBakeryError((prevBakeryError) => ({
                       ...prevBakeryError,
                       bakeryDescription: null,
                     }));
