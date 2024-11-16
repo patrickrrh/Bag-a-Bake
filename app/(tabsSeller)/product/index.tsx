@@ -71,6 +71,7 @@ const ListProduct = () => {
       if (response.status === 200) {
         setProducts(response.data);
       }
+      console.log("data is:", response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
