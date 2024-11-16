@@ -152,8 +152,11 @@ const OrderDetail = () => {
 
             const response = await orderCustomerApi().createOrder(formData);
             console.log("HASILNYA APA", response);
-            if (response.status === 200) {
+            if (response.status === 201) {
                 console.log("Berhasilll", response)
+                router.push({
+                    pathname: '/index' as any,
+                });
                 await removeLocalStorage('orderData');
             }
         } catch (error) {
@@ -231,10 +234,6 @@ const OrderDetail = () => {
             <View className="absolute bottom-0 left-0 right-0 mb-5 mx-5 ">
                 <CustomButton label="Pesan" handlePress={async () => {
                     await handleCreateOrder();
-
-                    router.push({
-                        pathname: '/bakery/inputOrder',
-                    });
                 }} buttonStyles="w-full" isLoading={false} />
             </View>
         </SafeAreaView>
