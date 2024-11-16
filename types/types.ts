@@ -38,6 +38,7 @@ export type CategoryType = {
 }
 
 export type OrderType = {
+    totalOrderPrice: any;
     isRated: boolean;
     bakery: any;
     orderId: number;

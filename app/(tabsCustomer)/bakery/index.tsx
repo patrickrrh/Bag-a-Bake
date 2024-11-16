@@ -79,6 +79,8 @@ const Bakery = () => {
       if (response.status === 200) {
         setBakery(response.data ? response.data : []);
       }
+
+      console.log("response", JSON.stringify(response.data, null, 2));
     } catch (error) {
       console.log(error);
     }
