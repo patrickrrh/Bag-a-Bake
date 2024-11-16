@@ -8,7 +8,7 @@ import productApi from "@/api/productApi";
 import { useAuth } from "@/app/context/AuthContext";
 import dayjs from "dayjs";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -17,13 +17,16 @@ import {
   TouchableOpacityBase,
   Animated,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import TextTitle4 from "@/components/texts/TextTitle4";
 import TextTitle5Date from "@/components/texts/TextTitle5Date";
 import CustomButton from "@/components/CustomButton";
 import { router } from "expo-router";
+import ListProductCard from "@/components/ListProductCard";
+import { G } from "react-native-svg";
 
 interface ListDiscount {
   discountId: number;
@@ -48,45 +51,63 @@ interface Product {
 }
 
 const ListProduct = () => {
-  const [selectedStatus, setSelectedStatus] = useState<number>(1);
+
   const { userData } = useAuth();
+  const insets = useSafeAreaInsets();
+
+  const [selectedStatus, setSelectedStatus] = useState<number>(1);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const handleGetProductsByBakeryId = async () => {
-    const bakeryId = userData?.bakery?.bakeryId;
+  const handleGetProductsByBakeryId = async (isActive: number) => {
+    setIsLoading(true);
 
     try {
-      setIsLoading(true);
-      const response = await productApi().getProductsByBakery({ bakeryId });
-      if (response && Array.isArray(response)) {
-        setProducts(response);
+      const response = await productApi().getProductsByBakery({
+        bakeryId: userData?.bakery?.bakeryId,
+        isActive
+      });
+      if (response.status === 200) {
+        setProducts(response.data);
       }
+      console.log("data is:", response.data);
     } catch (error) {
       console.error("Error fetching products:", error);
-    } finally {
-      setIsLoading(false);
     }
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
   };
 
   useFocusEffect(
-    React.useCallback(() => {
-      handleGetProductsByBakeryId();
+    useCallback(() => {
+      if (selectedStatus === 1) {
+        handleGetProductsByBakeryId(1);
+      } else {
+        handleGetProductsByBakeryId(2);
+      }
+
+      return () => {
+        setProducts([]);
+      };
     }, [])
   );
 
   useEffect(() => {
-    handleGetProductsByBakeryId();
-    console.log("products", products);
+    setProducts([]);
+    if (selectedStatus === 1) {
+      handleGetProductsByBakeryId(1);
+    } else {
+      handleGetProductsByBakeryId(2);
+    }
   }, [selectedStatus]);
 
+
   const filteredProducts = products.filter((product) => {
-    const matchesStatus = product.isActive === selectedStatus;
-    const matchesSearchQuery =
-      searchQuery === "" ||
-      product.productName.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearchQuery;
+    const matchesSearchQuery = searchQuery === "" || product.productName.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearchQuery;
   });
 
   const sortedProducts = filteredProducts.sort((a, b) => {
@@ -99,105 +120,77 @@ const ListProduct = () => {
   });
 
   return (
-    <SafeAreaView className="bg-background h-full flex-1">
-      <View className="bg-white">
-        <View className="mx-5 flex-row items-center justify-between">
-          <TextHeader label="DAFTAR PRODUK" />
-          <TouchableOpacity
-            onPress={() => {
-              router.push("/product/createProduct");
-            }}
-          >
-            <Ionicons name="add-outline" size={24} color="#b0795a" />
-          </TouchableOpacity>
+    <View className="flex-1">
+      <View
+        style={{
+          backgroundColor: 'white',
+          height: insets.top,
+        }}
+      />
+
+      <View className='bg-background h-full flex-1'>
+        <View className="px-5 bg-white">
+          <View className="flex-row items-center justify-between">
+            <TextHeader label="DAFTAR PRODUK" />
+            <TouchableOpacity
+              onPress={() => {
+                router.push("/product/createProduct");
+              }}
+            >
+              <Ionicons name="add-outline" size={24} color="#b0795a" />
+            </TouchableOpacity>
+          </View>
+
+          <View className="mt-6">
+            <ProductStatusTab
+              selectedStatus={selectedStatus}
+              onSelectStatus={(status) => {
+                setSelectedStatus(status);
+                setSearchQuery("");
+              }}
+            />
+          </View>
         </View>
-        <View className="mx-5 mt-6">
-          <ProductStatusTab
-            selectedStatus={selectedStatus}
-            onSelectStatus={(status) => {
-              setSelectedStatus(status);
-              setSearchQuery("");
-            }}
+
+        <View className="mx-5 mt-4">
+          <SearchBar
+            value={searchQuery}
+            placeholder="Roti coklat, roti keju..."
+            onChange={(text) => setSearchQuery(text)}
           />
         </View>
-      </View>
 
-      <View className="mx-5 mt-4">
-        <SearchBar
-          value={searchQuery}
-          placeholder="Roti kismis, roti keju..."
-          onChange={(text) => setSearchQuery(text)}
-        />
-      </View>
-
-      <View>
-        <View className="mx-5 mt-4">
-          <FlatList
-            data={sortedProducts}
-            keyExtractor={(item) => item.productId.toString()}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() =>
-                  router.push({
-                    pathname: "/product/editProduct" as any,
-                    params: { productId: item.productId },
-                  })
-                }
-                className="bg-white rounded-lg shadow-md mb-4 pt-4 pb-4 pl-5 pr-5 flex-row"
-              >
-                {/* <View className="bg-white rounded-lg shadow-md mb-4 pt-4 pb-4 pl-5 pr-5 flex-row"> */}
-                <Image
-                  source={{ uri: item.productImage }}
-                  className="w-20 h-20 mr-4"
-                  style={{ borderRadius: 10 }}
-                />
-
-                <View className="flex-1 justify-between">
-                  <View className="flex-row justify-between items-start">
-                    <TextTitle3 label={item.productName} />
-                    <View
-                      style={{
-                        backgroundColor: "#FA6F33",
-                        paddingHorizontal: 10,
-                        paddingVertical: 2,
-                        borderRadius: 999,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: "white",
-                          fontSize: 10,
-                          fontFamily: "poppinsMedium",
-                        }}
-                      >
-                        {item.productStock} tersisa
-                      </Text>
-                    </View>
-                  </View>
-
-                  <TextDateGrey
-                    label={
-                      "EXP: " +
-                      dayjs(item.productExpirationDate).format("DD/MM/YYYY")
-                    }
+        <View className="flex-1 mx-5">
+          {
+            isLoading ? (
+              <View className="flex-1 items-center justify-center">
+                <ActivityIndicator size="small" color="#828282" />
+              </View>
+            ) : (
+              <FlatList
+                data={sortedProducts}
+                keyExtractor={(item) => item.productId.toString()}
+                renderItem={({ item }) => (
+                  <ListProductCard
+                    item={item}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/product/editProduct",
+                        params: { productId: item.productId },
+                      });
+                    }}
                   />
 
-                  <View className="flex-row justify-end mt-2">
-                    <TextTitle4
-                      label={`Rp ${item.productPrice
-                        .toString()
-                        .replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`}
-                    />
-                  </View>
-                </View>
-                {/* </View> */}
-              </TouchableOpacity>
-            )}
-            contentContainerStyle={{ paddingBottom: 200 }}
-          />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              />
+            )
+          }
         </View>
       </View>
-    </SafeAreaView>
+
+    </View>
   );
 };
 

@@ -7,6 +7,7 @@ import CustomTag from './CustomTag';
 import TextBeforePrice from './texts/TextBeforePrice';
 import TextAfterPrice from './texts/TextAfterPrice';
 import TextDiscount from './texts/TextDiscount';
+import { formatRupiah } from '@/utils/commonFunctions';
 
 interface Props {
     product: any;
@@ -15,32 +16,35 @@ interface Props {
 
 const ProductCardBakery: React.FC<Props> = ({ product, onPress }) => {
 
-    console.log("product", product)
+    console.log("product here", product)
 
     return (
         <TouchableOpacity
             onPress={onPress}
-            className='w-[162px] h-[248px] bg-white rounded-lg shadow-sm mr-4 mb-1'
+            className='bg-white rounded-lg shadow-sm mr-4 mb-1'
         >
             <View className='p-4'>
-                <Image
-                    source={require('../assets/images/bakery.png')}
-                    style={{ width: '100%', height: 134, borderRadius: 8, marginBottom: 10 }}
-                    resizeMode="cover"
-                />
-                <View className='flex-row justify-between w-full'>
-                    <TextTitle4 label={product.productName} />
-                    <CustomTag count={product.productStock} />
+                <View style={{ position: 'relative' }}>
+                    <Image
+                        source={require('../assets/images/bakery.png')}
+                        style={{ width: '100%', height: 134, borderRadius: 8, marginBottom: 10 }}
+                        resizeMode="cover"
+                    />
+                    <View style={{ position: 'absolute', top: 10, right: 10 }}>
+                        <CustomTag count={product.productStock} />
+                    </View>
                 </View>
-                <TextTitle5 label={product.bakeryName} />
+                <View className='flex-row justify-between items-center w-full'>
+                    <TextTitle4 label={product.productName} />
+                </View>
                 <View className='mt-2'>
                     <View className='flex-row mb-1'>
                         <View className='mr-2'>
-                            <TextBeforePrice label={product.productPrice} />
+                            <TextBeforePrice label={formatRupiah(product.productPrice)} />
                         </View>
                         <TextDiscount label={"10"} />
                     </View>
-                    <TextAfterPrice label={product.productPrice} />
+                    <TextAfterPrice label={formatRupiah(product.productPrice)} />
                 </View>
             </View>
         </TouchableOpacity>

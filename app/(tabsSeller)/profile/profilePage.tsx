@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useState, useEffect } from "react";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import UploadButton from "@/components/UploadButton";
@@ -19,6 +20,7 @@ import TextHeader from "@/components/texts/TextHeader";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
 import regionApi from "@/api/regionApi";
+import bakeryApi from "@/api/bakeryApi";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
 import { checkEmptyForm } from "@/utils/commonFunctions";
@@ -28,6 +30,9 @@ import ModalAction from "@/components/ModalAction";
 import ProfileTab from "@/components/ProfileTab";
 import TextTitle3 from "@/components/texts/TextTitle3";
 import TextAreaField from "@/components/TextAreaField";
+import TimeField from "@/components/TimeField";
+import { format, toZonedTime } from "date-fns-tz";
+import Toast from "react-native-toast-message";
 
 type ErrorState = {
   userName: string | null;
@@ -48,13 +53,23 @@ type BakeryErrorState = {
 
 const EditProfile = () => {
   const { userData, refreshUserData, signOut } = useAuth();
-
+  console.log("userdata", userData);
   const [form, setForm] = useState({
     userName: userData?.userName || "",
     userPhoneNumber: userData?.userPhoneNumber || "",
     email: userData?.email || "",
     userImage: userData?.userImage || "",
-    regionId: userData?.regionUser?.regionId || 0,
+    regionId: userData?.regionId || 0,
+  });
+
+  const [bakeryForm, setBakeryForm] = useState({
+    bakeryName: userData?.bakery.bakeryName || "",
+    bakeryImage: userData?.bakery.bakeryImage || "",
+    bakeryDescription: userData?.bakery.bakeryDescription || "",
+    bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
+    openingTime: userData?.bakery.openingTime || "",
+    closingTime: userData?.bakery.closingTime || "",
+    bakeryRegionId: userData?.bakery.regionId || "",
   });
 
   const [selectedStatus, setSelectedStatus] = useState<number>(1);
@@ -67,7 +82,20 @@ const EditProfile = () => {
     regionId: null,
     email: null,
   };
+
+  const emptyBakeryError: BakeryErrorState = {
+    bakeryName: null,
+    bakeryImage: null,
+    bakeryDescription: null,
+    bakeryPhoneNumber: null,
+    openingTime: null,
+    closingTime: null,
+    bakeryRegionId: null,
+  };
+
   const [error, setError] = useState<ErrorState>(emptyError);
+  const [bakeryError, setBakeryError] =
+    useState<BakeryErrorState>(emptyBakeryError);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -92,67 +120,138 @@ const EditProfile = () => {
     );
   };
 
+  const hasBakeryUnsavedChanges = () => {
+    return (
+      bakeryForm.bakeryName !== userData?.bakery.bakeryName ||
+      bakeryForm.bakeryImage !== userData?.bakery.bakeryImage ||
+      bakeryForm.bakeryDescription !== userData?.bakery.bakeryDescription ||
+      bakeryForm.bakeryPhoneNumber !== userData?.bakery.bakeryPhoneNumber ||
+      bakeryForm.openingTime !== userData?.bakery.openingTime ||
+      bakeryForm.closingTime !== userData?.bakery.closingTime ||
+      bakeryForm.bakeryRegionId !== userData?.bakery.regionId
+    );
+  };
+
   const [nextRoute, setNextRoute] = useState<Href | null>(null);
   const handleRouteChange = () => {
     if (nextRoute) {
       router.push(nextRoute);
     } else {
-      router.replace("/(tabsCustomer)/profile");
+      router.replace("/(tabsSeller)/profile");
     }
   };
 
   const handlePasswordChange = () => {
     if (hasUnsavedChanges()) {
-      setNextRoute("/(tabsCustomer)/profile/changePassword");
+      setNextRoute("/(tabsSeller)/profile/changePassword");
       setModalVisible(true);
     } else {
-      router.push("/(tabsCustomer)/profile/changePassword");
+      router.push("/(tabsSeller)/profile/changePassword");
     }
   };
 
   const handleSubmitChange = () => {
-    if (hasUnsavedChanges()) {
-      setNextRoute("/(tabsCustomer)/profile");
+    if (hasUnsavedChanges() || hasBakeryUnsavedChanges()) {
+      setNextRoute("/(tabsSeller)/profile");
       setModalVisible(true);
     } else {
-      router.push("/(tabsCustomer)/profile");
+      router.push("/(tabsSeller)/profile");
     }
   };
+
+  // const handleSaveChanges = async () => {
+  //   try {
+  //     setisSubmitting(true);
+
+  //     const errors = checkEmptyForm(form);
+  //     if (Object.values(errors).some((error) => error !== null)) {
+  //       setError(errors as ErrorState);
+  //       return;
+  //     }
+
+  //     await authenticationApi().updateUser({
+  //       userId: userData?.userId,
+  //       userName: form.userName,
+  //       userPhoneNumber: form.userPhoneNumber,
+  //       email: form.email,
+  //       userImage: form.userImage,
+  //       regionId: form.regionId,
+  //     });
+  //     console.log(form);
+  //     console.log(userData?.userId);
+
+  //     const userDataToStore = {
+  //       ...form,
+  //       userId: userData?.userId,
+  //     };
+
+  //     await SecureStore.setItemAsync(
+  //       "userData",
+  //       JSON.stringify(userDataToStore)
+  //     );
+
+  //     await refreshUserData();
+
+  //     router.replace("/(tabsSeller)/profile");
+  //   } catch (error) {
+  //     console.log(error);
+  //     showToast("error", "An unexpected error occurred");
+  //   } finally {
+  //     setisSubmitting(false);
+  //   }
+  // };
 
   const handleSaveChanges = async () => {
     try {
       setisSubmitting(true);
 
-      const errors = checkEmptyForm(form);
-      if (Object.values(errors).some((error) => error !== null)) {
-        setError(errors as ErrorState);
-        return;
+      if (selectedStatus === 1) {
+        const errors = checkEmptyForm(form);
+        if (Object.values(errors).some((error) => error !== null)) {
+          setError(errors as ErrorState);
+          return;
+        }
+
+        await authenticationApi().updateUser({
+          userId: userData?.userId,
+          userName: form.userName,
+          userPhoneNumber: form.userPhoneNumber,
+          email: form.email,
+          userImage: form.userImage,
+          regionId: form.regionId,
+        });
+
+        showToast("success", "User data updated successfully!");
+      } else if (selectedStatus === 2) {
+
+        await bakeryApi().updateBakery({
+          bakeryId: userData?.bakery.bakeryId,
+          bakeryName: bakeryForm.bakeryName,
+          bakeryImage: bakeryForm.bakeryImage,
+          bakeryDescription: bakeryForm.bakeryDescription,
+          bakeryPhoneNumber: bakeryForm.bakeryPhoneNumber,
+          openingTime: bakeryForm.openingTime,
+          closingTime: bakeryForm.closingTime, 
+          regionId: bakeryForm.bakeryRegionId,
+        });
+
+        showToast("success", "Bakery Data updated successfully!");
       }
 
-      await authenticationApi().updateUser({
-        userId: userData?.userId,
-        userName: form.userName,
-        userPhoneNumber: form.userPhoneNumber,
-        email: form.email,
-        userImage: form.userImage,
-        regionId: form.regionId,
-      });
-      console.log(form);
-      console.log(userData?.userId);
+      // const userDataToStore = {
+      //   ...form,
+      //   ...bakeryForm,
+      //   userId: userData?.userId,
+      //   bakeryId: userData?.bakery.bakeryId,
+      // };
 
-      const userDataToStore = {
-        ...form,
-        userId: userData?.userId,
-      };
+      // await SecureStore.setItemAsync(
+      //   "userData",
+      //   JSON.stringify(userDataToStore)
+      // );
 
-      await SecureStore.setItemAsync(
-        "userData",
-        JSON.stringify(userDataToStore)
-      );
-
-      await refreshUserData();
-
-      router.replace("/(tabsCustomer)/profile");
+      // await refreshUserData();
+      router.replace("/(tabsSeller)/profile");
     } catch (error) {
       console.log(error);
       showToast("error", "An unexpected error occurred");
@@ -161,9 +260,50 @@ const EditProfile = () => {
     }
   };
 
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [timeFieldType, setTimeFieldType] = useState<
+    "openingTime" | "closingTime"
+  >("openingTime");
+
+  const showDatePicker = (type: "openingTime" | "closingTime") => {
+    setTimeFieldType(type);
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleSelectTime = (time: any) => {
+    const timezone = toZonedTime(time, "Asia/Jakarta");
+    const formattedTime = format(timezone, "HH:mm");
+
+    if (timeFieldType === "openingTime") {
+      setBakeryForm((prevBakeryForm) => ({
+        ...prevBakeryForm,
+        openingTime: formattedTime,
+      }));
+      setBakeryError((prevBakeryError) => ({
+        ...prevBakeryError,
+        openingTime: null,
+      }));
+    } else {
+      setBakeryForm((prevBakeryForm) => ({
+        ...prevBakeryForm,
+        closingTime: formattedTime,
+      }));
+      setBakeryError((prevBakeryError) => ({
+        ...prevBakeryError,
+        closingTime: null,
+      }));
+    }
+
+    hideDatePicker();
+  };
+
   const [isSubmitting, setisSubmitting] = useState(false);
   const [region, setRegion] = useState([]);
-
+  console.log("user data from bakery", userData);
   const handleGetRegionAPI = async () => {
     try {
       const response = await regionApi().getRegion();
@@ -182,6 +322,18 @@ const EditProfile = () => {
   return (
     <SafeAreaView className="bg-background h-full flex-1">
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+          }}
+        >
+          <Toast topOffset={50} />
+        </View>
+
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View
             style={{
@@ -291,11 +443,110 @@ const EditProfile = () => {
               </>
             ) : (
               <>
+                <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
+                  <Image
+                    source={{ uri: bakeryForm.bakeryImage }}
+                    className="w-full h-full rounded-full"
+                  />
+                </View>
+                <UploadButton label="Unggah Foto" handlePress={pickImage} />
+
                 <FormField
                   label="Nama Toko"
-                  value={form.userName}
-                  onChangeText={(text) => setForm({ ...form, userName: text })}
-                  error={error.userName}
+                  value={bakeryForm.bakeryName}
+                  onChangeText={(text) =>
+                    setBakeryForm({ ...bakeryForm, bakeryName: text })
+                  }
+                  error={bakeryError.bakeryName}
+                />
+
+                <View className="flex-row space-x-4">
+                  <View className="flex-1">
+                    <TimeField
+                      label="Jam Buka"
+                      value={bakeryForm.openingTime}
+                      onPress={() => showDatePicker("openingTime")}
+                      error={bakeryError.openingTime}
+                      moreStyles="mt-7"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <TimeField
+                      label="Jam Tutup"
+                      value={bakeryForm.closingTime}
+                      onPress={() => showDatePicker("closingTime")}
+                      error={bakeryError.closingTime}
+                      moreStyles="mt-7"
+                    />
+                  </View>
+                </View>
+                <CustomDropdown
+                  label="Lokasi"
+                  value={bakeryForm.bakeryRegionId}
+                  data={region}
+                  placeholder="Pilih lokasi toko Anda"
+                  labelField="regionName"
+                  valueField="regionId"
+                  onChange={(text) => {
+                    setBakeryForm((prevBakeryForm) => ({
+                      ...prevBakeryForm,
+                      bakeryRegionId: Number(text),
+                    }));
+                    setBakeryError((prevBakeryError) => ({
+                      ...prevBakeryError,
+                      bakeryRegionId: null,
+                    }));
+                  }}
+                  moreStyles="mt-7 w-full"
+                  error={bakeryError.bakeryRegionId}
+                />
+                <FormField
+                  label="Nomor Telepon Toko"
+                  value={bakeryForm.bakeryPhoneNumber}
+                  onChangeText={(text) => {
+                    setBakeryForm((prevBakeryForm) => ({
+                      ...prevBakeryForm,
+                      bakeryPhoneNumber: text,
+                    }));
+                    setBakeryError((prevBakeryError) => ({
+                      ...prevBakeryError,
+                      bakeryPhoneNumber: null,
+                    }));
+                  }}
+                  keyboardType="phone-pad"
+                  moreStyles="mt-7"
+                  error={bakeryError.bakeryPhoneNumber}
+                />
+                <TextAreaField
+                  label="Deskripsi Toko"
+                  value={bakeryForm.bakeryDescription}
+                  onChangeText={(text) => {
+                    setBakeryForm((prevBakeryForm) => ({
+                      ...prevBakeryForm,
+                      bakeryDescription: text,
+                    }));
+                    setBakeryError((prevBakeryError) => ({
+                      ...prevBakeryError,
+                      bakeryDescription: null,
+                    }));
+                  }}
+                  keyboardType="default"
+                  moreStyles="mt-7"
+                  error={bakeryError.bakeryDescription}
+                />
+
+                <CustomButton
+                  label="Simpan Perubahan"
+                  handlePress={handleSubmitChange}
+                  buttonStyles="mt-4 w-full"
+                  isLoading={isSubmitting}
+                />
+
+                <DateTimePickerModal
+                  isVisible={isDatePickerVisible}
+                  mode="time"
+                  onConfirm={handleSelectTime}
+                  onCancel={hideDatePicker}
                 />
               </>
             )}
@@ -325,7 +576,7 @@ const EditProfile = () => {
           setModalVisible={setLogoutModalVisible}
           modalVisible={logoutModalVisible}
           title="Apakah Anda yakin ingin keluar?"
-          secondaryButtonLabel="Ya"
+          secondaryButtonLabel="Iya"
           primaryButtonLabel="Tidak"
           onSecondaryAction={() => signOut()}
           onPrimaryAction={() => console.log("Cancel Log Out")}

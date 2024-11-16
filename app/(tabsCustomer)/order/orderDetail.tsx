@@ -82,7 +82,7 @@ const OrderDetail = () => {
 
             if (mappedOrderDetail.length > 0) {
                 const total = calculateTotalOrderPrice(mappedOrderDetail);
-                setTotalPrice(total);
+                // setTotalPrice(total);
             } else {
                 setTotalPrice(0);
             }
@@ -121,9 +121,9 @@ const OrderDetail = () => {
         }
     }
 
-    console.log("USERID", fetchUserId()); 
+    // console.log("USERID", fetchUserId()); 
     console.log("ORDER DATA", orderData);
-    console.log("BAKERY DETAIL", bakeryId)
+    // console.log("BAKERY DETAIL", bakeryId)
 
     const handleCreateOrder = async () => {
         try {

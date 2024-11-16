@@ -37,7 +37,9 @@ const Home = () => {
 
   const handleGetLatestPendingOrderApi = async () => {
     try {
-      const response = await orderSellerApi().getLatestPendingOrder();
+      const response = await orderSellerApi().getLatestPendingOrder({
+        bakeryId: userData?.bakery?.bakeryId
+      });
       if (response.status === 200) {
         setLatestPendingOrder(response.data || null);
       }
@@ -48,7 +50,9 @@ const Home = () => {
 
   const handleGetLatestOngoingOrderApi = async () => {
     try {
-      const response = await orderSellerApi().getLatestOngoingOrder();
+      const response = await orderSellerApi().getLatestOngoingOrder({
+        bakeryId: userData?.bakery?.bakeryId
+      });
       if (response.status === 200) {
         setLatestOngoingOrder(response.data || null);
       }
@@ -59,7 +63,9 @@ const Home = () => {
 
   const handleCountAllPendingOrderApi = async () => {
     try {
-      const response = await orderSellerApi().countAllPendingOrder();
+      const response = await orderSellerApi().countAllPendingOrder({
+        bakeryId: userData?.bakery?.bakeryId
+      });
       if (response.status === 200) {
         setLatestPendingOrderCount(response.data || null);
       }
@@ -70,7 +76,9 @@ const Home = () => {
 
   const handleCountAllOngoingOrderApi = async () => {
     try {
-      const response = await orderSellerApi().countAllOngoingOrder();
+      const response = await orderSellerApi().countAllOngoingOrder({
+        bakeryId: userData?.bakery?.bakeryId
+      });
       if (response.status === 200) {
         setLatestOngoingOrderCount(response.data || null);
       }
@@ -107,7 +115,8 @@ const Home = () => {
     }, 1000);
   }
 
-  useFocusEffect(useCallback(() => {
+  useFocusEffect(
+    useCallback(() => {
     handleGetLatestPendingOrderApi();
     handleGetLatestOngoingOrderApi();
     handleCountAllPendingOrderApi();
@@ -179,7 +188,7 @@ const Home = () => {
             </View>
 
             {
-              latestPendingOrder ? (
+              latestPendingOrder && Object.keys(latestPendingOrder).length > 0 ? (
                 <SellerOrderCardPending
                   order={latestPendingOrder}
                   onPress={() => {
@@ -219,7 +228,7 @@ const Home = () => {
             </View>
 
             {
-              latestOngoingOrder ? (
+              latestOngoingOrder && Object.keys(latestOngoingOrder).length > 0 ? (
                 <SellerOrderCard
                   order={latestOngoingOrder}
                   onPress={() => {

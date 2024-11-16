@@ -19,10 +19,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OrderType } from '@/types/types';
 import { getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 import LoaderKit from 'react-native-loader-kit'
+import { useAuth } from '@/app/context/AuthContext';
 
 
 const Order = () => {
 
+  const { userData } = useAuth();
   const insets = useSafeAreaInsets();
 
   const [selectedStatus, setSelectedStatus] = useState(1);
@@ -39,7 +41,8 @@ const Order = () => {
     setIsLoading(true);
     try {
       const response = await orderSellerApi().getAllOrderByStatus({
-        orderStatus: selectedStatus
+        orderStatus: selectedStatus,
+        bakeryId: userData?.bakery?.bakeryId
       });
       if (response.status === 200) {
         setOrder(response.data || null);
