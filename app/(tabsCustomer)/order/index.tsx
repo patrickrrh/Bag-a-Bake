@@ -27,7 +27,7 @@ type RatingErrorState = {
 }
 
 const Order = () => {
-  const [selectedStatus, setSelectedStatus] = useState(1);
+  const [selectedStatus, setSelectedStatus] = useState(0);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [ratingOrderId, setRatingOrderId] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -71,7 +71,7 @@ const Order = () => {
     handleGetOrderByStatusApi();
   }, [selectedStatus]);
 
-  console.log("oders", JSON.stringify(orders, null, 2))
+  console.log("Orders", JSON.stringify(orders, null, 2))
 
   const handleSubmitRatingApi = async () => {
     try {
@@ -112,7 +112,7 @@ const Order = () => {
             <TextHeader label="PESANAN" />
             <View className='mt-6'>
               <OrderStatusTab
-                selectedStatus={selectedStatus || 1}
+                selectedStatus={selectedStatus || 0}
                 onSelectStatus={handleSelectStatus}
               />
             </View>

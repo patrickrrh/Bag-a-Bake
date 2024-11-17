@@ -12,12 +12,13 @@ import TextOrangeBold from '@/components/texts/TextOrangeBold';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import CustomButton from '@/components/CustomButton';
 import StockInput from '@/components/StockInput';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
 import { BakeryType, ProductType } from '@/types/types';
 import AddOrderProductButton from '@/components/AddOrderProductButton';
 import BackButton from '@/components/BackButton';
 import CircleBackButton from '@/components/CircleBackButton';
 import { getLocalStorage, removeLocalStorage, updateLocalStorage, calculateTotalOrderPrice } from '@/utils/commonFunctions';
+import { Route } from 'expo-router/build/Route';
 
 const InputOrder = () => {
 
@@ -145,6 +146,12 @@ const InputOrder = () => {
           await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
         }
       }
+
+      router.push({
+        pathname: '/bakery/bakeryDetail' as any,
+        params: { bakeryId: bakery?.bakeryId },
+      })
+      
     } catch (error) {
       console.log('Error handling the order:', error);
     }

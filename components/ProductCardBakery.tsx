@@ -15,9 +15,6 @@ interface Props {
 }
 
 const ProductCardBakery: React.FC<Props> = ({ product, onPress }) => {
-
-    console.log("product here", product)
-
     return (
         <TouchableOpacity
             onPress={onPress}

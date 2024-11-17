@@ -30,6 +30,7 @@ import { images } from '@/constants/images'
 import TextRating from '@/components/texts/TextRating';
 
 type Bakery = {
+    bakery: Bakery;
     bakeryId: number;
     userId: number;
     bakeryName: string;
@@ -40,7 +41,6 @@ type Bakery = {
     closingTime: string;
     regionId: number;
     regionBakery: RegionBakery;
-    bakery: Bakery;
     product: Product[];
     prevRating: {
         averageRating: string;
@@ -84,7 +84,7 @@ const BakeryDetail = () => {
     const { productId, bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
-    const [totalPrice, setTotalPrice] = useState<number>(0.0);
+    const [totalPrice, setTotalPrice] = useState("");
     const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
     const [showFavorite, setShowFavorite] = useState(false);
@@ -95,11 +95,8 @@ const BakeryDetail = () => {
             const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
 
-            // Calculate Total Order Price
-            const products = bakeryDetail?.product || [];
-
             const mappedOrderDetail = data?.items.map((item: any) => {
-                const product = products.find(prod => prod.productId === item.productId);
+                const product = bakeryDetail?.bakery.product.find(prod => prod.productId === item.productId);
                 return {
                     product: product || {},
                     productQuantity: item.orderQuantity
@@ -108,36 +105,23 @@ const BakeryDetail = () => {
 
             if (mappedOrderDetail.length > 0) {
                 const total = calculateTotalOrderPrice(mappedOrderDetail);
-                // setTotalPrice(total);
-            } else {
-                setTotalPrice(0);
-            }
+                setTotalPrice(total);
 
+            } else {
+                setTotalPrice("0");
+            }
         } catch (error) {
             console.log(error);
         }
     };
-
-    const handleGetBakeryByProductApi = async () => {
-        try {
-
-            const response = await bakeryApi().getBakeryByProduct({
-                productId: parseInt(productId as string),
-            })
-            if (response.status === 200) {
-                setBakeryDetail(response.data ? response.data : {})
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
     const handleGetBakeryByIdApi = async () => {
         try {
             const response = await bakeryApi().getBakeryById({
                 bakeryId: parseInt(bakeryId as string),
             })
+
             if (response.status === 200) {
-                setBakeryDetail(response.data ? response.data : {})
+                setBakeryDetail(response.data ? response.data : {});
             }
         } catch (error) {
             console.log(error)
@@ -169,18 +153,18 @@ const BakeryDetail = () => {
             );
         }
     };
+
     useEffect(() => {
-        handleGetBakeryByIdApi();
-        handleBakeryChangeAlert();
-    }, [bakeryId]);
+        if (bakeryDetail) {
+            fetchOrderData();
+        }
+    }, [bakeryDetail]);
 
     useFocusEffect(
         useCallback(() => {
-            fetchOrderData();
-        }, [])
+            handleGetBakeryByIdApi();
+        }, [bakeryId])
     );
-
-    console.log("bakery detail", JSON.stringify(bakeryDetail, null, 2));
 
     return (
         <View className="flex-1 bg-background">
@@ -292,7 +276,7 @@ const BakeryDetail = () => {
             {orderData && (
                 <View className="p-5">
                 <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.items.length} item) - ${formatRupiah(totalPrice)}`}
+                    label={`Lihat Keranjang (${orderData.items.length} item) - ${totalPrice}`}
                     handlePress={() => {
                         router.push({
                             pathname: '/order/orderDetail',
