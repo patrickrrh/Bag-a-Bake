@@ -13,8 +13,10 @@ import { getLocalStorage } from '@/utils/commonFunctions';
 import bakeryApi from '@/api/bakeryApi';
 import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
 import orderCustomerApi from '@/api/orderCustomerApi';
+import { useAuth } from '@/app/context/AuthContext';
 
 type Bakery = {
+    bakery: Bakery;
     bakeryId: number;
     userId: number;
     bakeryName: string;
@@ -26,6 +28,10 @@ type Bakery = {
     regionId: number;
     regionBakery: RegionBakery;
     product: Product[];
+    prevRating: {
+        averageRating: string;
+        reviewCount: string;
+    }
 };
 
 type RegionBakery = {
@@ -55,38 +61,34 @@ type OrderItem = {
 const OrderDetail = () => {
     const { bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
-    const [totalPrice, setTotalPrice] = useState<number>(0.0);
+    const { userData } = useAuth();
+    const [totalPrice, setTotalPrice] = useState("");
     const [orderData, setOrderData] = useState<OrderItem | null>(null);
     const [mappedOrderDetail, setMappedOrderDetail] = useState<{ product: Product, productQuantity: number }[]>([]);
     const fetchOrderData = async () => {
         try {
-            if (!bakeryDetail) return;
-
             const jsonValue = await getLocalStorage('orderData');
             const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
-    
-            // Calculate Total Order Price
-            const products = bakeryDetail?.product || [];
-    
+
+
             const mappedOrderDetail = data?.items.map((item: any) => {
-                const product = products.find(prod => prod.productId === item.productId);
+                const product = bakeryDetail?.bakery.product.find(prod => prod.productId === item.productId);
                 return {
-                    product: product ?? { productId: 0, bakeryId: 0, categoryId: 0, productName: '', productPrice: '', productImage: '', productDescription: '', productExpirationDate: '', productStock: 0, isActive: 0 }, 
+                    product: product || { productId: 0, bakeryId: 0, categoryId: 0, productName: '', productPrice: '', productImage: '', productDescription: '', productExpirationDate: '', productStock: 0, isActive: 0 },
                     productQuantity: item.orderQuantity
                 };
             }) || [];
-    
+
             setMappedOrderDetail(mappedOrderDetail);
-            console.log("Helloooo", mappedOrderDetail); 
 
             if (mappedOrderDetail.length > 0) {
                 const total = calculateTotalOrderPrice(mappedOrderDetail);
-                // setTotalPrice(total);
+                setTotalPrice(total);
+
             } else {
-                setTotalPrice(0);
+                setTotalPrice("0");
             }
-    
         } catch (error) {
             console.log(error);
         }
@@ -99,39 +101,16 @@ const OrderDetail = () => {
             })
             if (response.status === 200) {
                 setBakeryDetail(response.data ? response.data : {})
+                fetchOrderData();
             }
         } catch (error) {
             console.log(error)
         }
     }
 
-    const fetchUserId = async () => {
-        try {
-            const userData = await getLocalStorage('userData');
-
-            if (userData) {
-                const parsedUserData = JSON.parse(userData);
-                return parsedUserData.userId;
-            } else {
-                return null;
-            }
-        } catch (error) {
-            console.log("Failed retrieving user data: ", error);
-            return null;
-        }
-    }
-
-    // console.log("USERID", fetchUserId()); 
-    console.log("ORDER DATA", orderData);
-    // console.log("BAKERY DETAIL", bakeryId)
-
     const handleCreateOrder = async () => {
         try {
-            const userId = await fetchUserId();
-            console.log("INI PENANDA APAKAH ADA")
-            if (!orderData) return;
-
-            console.log("TIDAKKKK MASUKKKK", userId)
+            if (!orderData || !userData?.userId) return;
 
             const orderDetail = {
                 create: orderData.items.map(item => ({ 
@@ -139,37 +118,38 @@ const OrderDetail = () => {
                     productQuantity: item.orderQuantity,
                 }))
             };
-            console.log("MASUK")
-            console.log("OrderDetail: ", orderDetail.create);
+
+            console.log("User ID", userData.userId);
+            console.log("Bakery ID", bakeryId);
+
+            const bakeryIdAsNumber = parseInt(bakeryId as string);
 
             const formData = {
-                userId: 1,
+                userId: userData.userId as number,
                 orderDetail: orderDetail.create,
-                bakeryId: 1,
+                bakeryId: bakeryIdAsNumber,
             };
 
-            console.log("INI FORM DATA", formData);
-
             const response = await orderCustomerApi().createOrder(formData);
-            console.log("HASILNYA APA", response);
             if (response.status === 200) {
-                console.log("Berhasilll", response)
-                await removeLocalStorage('orderData');
+                router.push('/order');
+                removeLocalStorage('orderData');
             }
         } catch (error) {
-
+            console.log(error);
         }
     }
 
     useEffect(() => {
-        handleGetBakeryByIdApi();
-        fetchOrderData()
-    }, [bakeryId]);
+        if (bakeryDetail) {
+            fetchOrderData();
+        }
+    }, [bakeryDetail]);
 
     useFocusEffect(
         useCallback(() => {
-            fetchOrderData();
-        }, [])
+            handleGetBakeryByIdApi();
+        }, [bakeryId])
     );
 
     return (
@@ -194,7 +174,7 @@ const OrderDetail = () => {
                 /> */}
 
                 <View className="ml-4 my-2">
-                    <TextTitle4 label={bakeryDetail?.bakeryName as string} />
+                    <TextTitle4 label={bakeryDetail?.bakery.bakeryName as string} />
                     <View className="flex-row mt-1">
                         <Text>Jam Pengambilan Terakhir: </Text> 
                         <TextOrangeBold label="21.00" />
@@ -223,7 +203,7 @@ const OrderDetail = () => {
                 <View className="mx-5 my-3">
                     <View className="flex-row justify-between">
                         <TextTitle4 label="Total" />
-                        <TextTitle4 label={`Rp ${totalPrice}`} />
+                        <TextTitle4 label={`${totalPrice}`} />
                     </View>
                 </View>
             </View>
@@ -231,10 +211,6 @@ const OrderDetail = () => {
             <View className="absolute bottom-0 left-0 right-0 mb-5 mx-5 ">
                 <CustomButton label="Pesan" handlePress={async () => {
                     await handleCreateOrder();
-
-                    router.push({
-                        pathname: '/bakery/inputOrder',
-                    });
                 }} buttonStyles="w-full" isLoading={false} />
             </View>
         </SafeAreaView>
