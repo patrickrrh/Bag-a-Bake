@@ -5,6 +5,7 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  Switch,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -65,7 +66,10 @@ const EditProduct = () => {
     productStock: 1,
     productImage: "",
     bakeryId: 0,
+    isActive: 1,
   });
+
+  const [isSwitchEnabled, setIsSwitchEnabled] = useState(form.isActive === 1);
 
   const productError: ErrorState = {
     productName: null,
@@ -123,16 +127,17 @@ const EditProduct = () => {
           ...disc,
           discountAmount: new Decimal(disc.discountAmount),
           discountDate: new Date(disc.discountDate),
-        })),
+        }))
       };
 
       const response = await productApi().updateProductById(formData);
+      console.log("response", response);
       if (response.error) {
         throw new Error(response.error);
       }
       setModalVisible(true);
       console.log("Response:", response);
-      console.log("Form submitted:", form);
+      console.log("Form submitted:", formData);
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -236,12 +241,22 @@ const EditProduct = () => {
           productStock: response.data.productStock,
           productImage: response.data.productImage,
           bakeryId: response.data.bakeryId,
+          isActive: response.data.isActive,
         });
+        setIsSwitchEnabled(response.data.isActive === 1);
       }
-        console.log(form);
+      console.log(form);
     } catch (error) {
       console.log("Error fetching product by ID:", error);
     }
+  };
+
+  const handleToggleSwitch = () => {
+    setIsSwitchEnabled((previousState) => !previousState);
+    setForm((prevForm) => ({
+      ...prevForm,
+      isActive: isSwitchEnabled ? 2 : 1,
+    }));
   };
 
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
@@ -448,6 +463,45 @@ const EditProduct = () => {
                   setForm({ ...form, productStock: parseInt(text) || 1 })
                 }
               />
+            </View>
+          </View>
+
+          {/* Status Switch */}
+          <View className="mt-7 space-y-1">
+            <TextFormLabel label="Status Produk" />
+            <View className="w-full h-[40px] flex-row items-center">
+              <Text
+                style={{
+                  fontFamily: "poppinsRegular",
+                  fontSize: 14,
+                  color: "black",
+                }}
+              >
+                Inactive
+              </Text>
+              <Switch
+                value={isSwitchEnabled}
+                onValueChange={handleToggleSwitch}
+                trackColor={{
+                  false: "#D3D3D3",
+                  true: "#D6B09F",
+                }}
+                thumbColor={isSwitchEnabled ? "#b0795a" : "gray"}
+                style={{
+                  marginLeft: 10,
+                  marginRight: 10,
+                }}
+              />
+
+              <Text
+                style={{
+                  fontFamily: "poppinsRegular",
+                  fontSize: 14,
+                  color:"black",
+                }}
+              >
+                Active
+              </Text>
             </View>
           </View>
 

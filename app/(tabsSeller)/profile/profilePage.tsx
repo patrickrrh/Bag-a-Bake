@@ -238,19 +238,21 @@ const EditProfile = () => {
         showToast("success", "Bakery Data updated successfully!");
       }
 
-      // const userDataToStore = {
-      //   ...form,
-      //   ...bakeryForm,
-      //   userId: userData?.userId,
-      //   bakeryId: userData?.bakery.bakeryId,
-      // };
+      const userDataToStore = {
+        ...userData,
+        ...form,
+        bakery: {
+          ...userData?.bakery,
+          ...bakeryForm
+        }
+      };
 
-      // await SecureStore.setItemAsync(
-      //   "userData",
-      //   JSON.stringify(userDataToStore)
-      // );
+      await SecureStore.setItemAsync(
+        "userData",
+        JSON.stringify(userDataToStore)
+      );
 
-      // await refreshUserData();
+      await refreshUserData();
       router.replace("/(tabsSeller)/profile");
     } catch (error) {
       console.log(error);
@@ -273,7 +275,7 @@ const EditProfile = () => {
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
-
+  console.log("user auth data bakery auth data", userData?.bakery);
   const handleSelectTime = (time: any) => {
     const timezone = toZonedTime(time, "Asia/Jakarta");
     const formattedTime = format(timezone, "HH:mm");
