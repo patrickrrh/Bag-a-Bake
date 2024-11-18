@@ -172,14 +172,7 @@ const InputOTP = () => {
                     </View>
 
                 </View>
-
-                <CustomButton
-                    label='->'
-                    handlePress={() => router.push('/(auth)/changePassword')}
-                    buttonStyles='mt-8'
-                    isLoading={isSubmitting}
-                />
-
+                
                 <View className='flex-row items-center justify-center' style={{ marginBottom: insets.bottom }}>
                     <TextLink label='Daftar Akun Baru' size={14} onPress={() => router.push('/(auth)/signUp')} />
                 </View>

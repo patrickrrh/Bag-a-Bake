@@ -16,7 +16,7 @@ interface Props {
 
 const ProductCardBakery: React.FC<Props> = ({ product, onPress }) => {
 
-    console.log("product here", product)
+    console.log("product here", JSON.stringify(product, null, 2));
 
     return (
         <TouchableOpacity
@@ -42,9 +42,9 @@ const ProductCardBakery: React.FC<Props> = ({ product, onPress }) => {
                         <View className='mr-2'>
                             <TextBeforePrice label={formatRupiah(product.productPrice)} />
                         </View>
-                        <TextDiscount label={"10"} />
+                        <TextDiscount label={product.discountPercentage} />
                     </View>
-                    <TextAfterPrice label={formatRupiah(product.productPrice)} />
+                    <TextAfterPrice label={formatRupiah(product.todayPrice)} />
                 </View>
             </View>
         </TouchableOpacity>

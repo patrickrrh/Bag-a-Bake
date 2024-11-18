@@ -23,6 +23,7 @@ import { format, toZonedTime } from 'date-fns-tz';
 import TimeField from '@/components/TimeField'
 import BackButton from '@/components/BackButton'
 import ProgressBar from '@/components/ProgressBar'
+import { RegionType } from '@/types/types'
 
 type ErrorState = {
     bakeryName: string | null;
@@ -32,11 +33,6 @@ type ErrorState = {
     openingTime: string | null;
     closingTime: string | null;
     bakeryRegionId: number | null;
-};
-
-type Region = {
-    regionName: string;
-    regionId: number;
 };
 
 const SignUpBakery = () => {
@@ -55,7 +51,7 @@ const SignUpBakery = () => {
         bakeryRegionId: 0,
     })
 
-    const [region, setRegion] = useState<Region[]>([]);
+    const [region, setRegion] = useState<RegionType[]>([]);
 
     const emptyError: ErrorState = {
         bakeryName: null,
@@ -190,120 +186,123 @@ const SignUpBakery = () => {
     const handleSelectTime = (time: Date) => {
         const timezone = toZonedTime(time, "Asia/Jakarta");
         const formattedTime = format(timezone, "HH:mm");
-      
-        setBakeryForm((prevForm) => ({
-          ...prevForm,
-          [timeFieldType]: formattedTime,
+
+        setForm((prevForm) => ({
+            ...prevForm,
+            [timeFieldType]: formattedTime,
         }));
-      
-        setBakeryError((prevError) => ({
-          ...prevError,
-          [timeFieldType]: null,
+
+        setError((prevError) => ({
+            ...prevError,
+            [timeFieldType]: null,
         }));
-      
+
         hideDatePicker();
-      };
+    };
 
     return (
         <ScrollView className='bg-background'>
-        <AuthLayout headerContent={headerContent} footerContent={footerContent}>
-            <FormField
-                label='Nama Toko'
-                value={form.bakeryName}
-                onChangeText={(text) => {
-                    setForm((prevForm) => ({ ...prevForm, bakeryName: text }));
-                    setError((prevError) => ({ ...prevError, bakeryName: null }));
-                }}
-                keyboardType='default'
-                moreStyles='mt-7'
-                error={error.bakeryName}
-            />
-            <View className="flex-row space-x-4">
-                <View className='flex-1'>
-                    <TimeField
-                        label='Jam Buka'
-                        value={form.openingTime}
-                        onPress={() => showDatePicker('openingTime')}
-                        error={error.openingTime}
-                        moreStyles='mt-7'
-                    />
-                </View>
-                <View className="flex-1">
-                    <TimeField
-                        label='Jam Tutup'
-                        value={form.closingTime}
-                        onPress={() => showDatePicker('closingTime')}
-                        error={error.closingTime}
-                        moreStyles='mt-7'
-                    />
-                </View>
-            </View>
-            <CustomDropdown
-                label='Lokasi'
-                value={form.bakeryRegionId}
-                data={region}
-                placeholder='Pilih lokasi toko Anda'
-                labelField='regionName'
-                valueField='regionId'
-                onChange={(text) => {
-                    setForm((prevForm) => ({ ...prevForm, bakeryRegionId: Number(text) }));
-                    setError((prevError) => ({ ...prevError, bakeryRegionId: null }));
-                }}
-                moreStyles='mt-7'
-                error={error.bakeryRegionId}
-            />
-            <FormField
-                label='Nomor Telepon Toko'
-                value={form.bakeryPhoneNumber}
-                onChangeText={(text) => {
-                    setForm((prevForm) => ({ ...prevForm, bakeryPhoneNumber: text }));
-                    setError((prevError) => ({ ...prevError, bakeryPhoneNumber: null }));
-                }}
-                keyboardType='phone-pad'
-                moreStyles='mt-7'
-                error={error.bakeryPhoneNumber}
-            />
-            <TextAreaField
-                label='Deskripsi Toko'
-                value={form.bakeryDescription}
-                onChangeText={(text) => {
-                    setForm((prevForm) => ({ ...prevForm, bakeryDescription: text }));
-                    setError((prevError) => ({ ...prevError, bakeryDescription: null }));
-                }}
-                keyboardType='default'
-                moreStyles='mt-7'
-                error={error.bakeryDescription}
-            />
-
-            <View className="mt-8 w-full flex-row space-x-4">
-                <UploadButton label="Unggah Foto" handlePress={pickImage} />
-                {form.bakeryImage && (
-                    <View className="w-24 h-20">
-                        <Image
-                            source={{ uri: form.bakeryImage }}
-                            className="w-full h-full rounded-md"
+            <AuthLayout headerContent={headerContent} footerContent={footerContent}>
+                <FormField
+                    label='Nama Toko'
+                    value={form.bakeryName}
+                    onChangeText={(text) => {
+                        setForm((prevForm) => ({ ...prevForm, bakeryName: text }));
+                        setError((prevError) => ({ ...prevError, bakeryName: null }));
+                    }}
+                    keyboardType='default'
+                    moreStyles='mt-7'
+                    error={error.bakeryName}
+                    placeholder='Masukkan nama toko'
+                />
+                <View className="flex-row space-x-4">
+                    <View className='flex-1'>
+                        <TimeField
+                            label='Jam Buka'
+                            value={form.openingTime}
+                            onPress={() => showDatePicker('openingTime')}
+                            error={error.openingTime}
+                            moreStyles='mt-7'
                         />
                     </View>
+                    <View className="flex-1">
+                        <TimeField
+                            label='Jam Tutup'
+                            value={form.closingTime}
+                            onPress={() => showDatePicker('closingTime')}
+                            error={error.closingTime}
+                            moreStyles='mt-7'
+                        />
+                    </View>
+                </View>
+                <CustomDropdown
+                    label='Lokasi'
+                    value={form.bakeryRegionId}
+                    data={region}
+                    placeholder='Pilih lokasi toko'
+                    labelField='regionName'
+                    valueField='regionId'
+                    onChange={(text) => {
+                        setForm((prevForm) => ({ ...prevForm, bakeryRegionId: Number(text) }));
+                        setError((prevError) => ({ ...prevError, bakeryRegionId: null }));
+                    }}
+                    moreStyles='mt-7'
+                    error={error.bakeryRegionId}
+                />
+                <FormField
+                    label='Nomor Telepon Toko'
+                    value={form.bakeryPhoneNumber}
+                    onChangeText={(text) => {
+                        setForm((prevForm) => ({ ...prevForm, bakeryPhoneNumber: text }));
+                        setError((prevError) => ({ ...prevError, bakeryPhoneNumber: null }));
+                    }}
+                    keyboardType='phone-pad'
+                    moreStyles='mt-7'
+                    error={error.bakeryPhoneNumber}
+                    placeholder='Masukkan nomor telepon toko'
+                />
+                <TextAreaField
+                    label='Deskripsi Toko'
+                    value={form.bakeryDescription}
+                    onChangeText={(text) => {
+                        setForm((prevForm) => ({ ...prevForm, bakeryDescription: text }));
+                        setError((prevError) => ({ ...prevError, bakeryDescription: null }));
+                    }}
+                    keyboardType='default'
+                    moreStyles='mt-7'
+                    error={error.bakeryDescription}
+                    placeholder='Masukkan deskripsi toko'
+                />
+
+                <View className="mt-8 w-full flex-row space-x-4">
+                    <UploadButton label="Unggah Foto" handlePress={pickImage} />
+                    {form.bakeryImage && (
+                        <View className="w-24 h-20">
+                            <Image
+                                source={{ uri: form.bakeryImage }}
+                                className="w-full h-full rounded-md"
+                            />
+                        </View>
+                    )}
+                </View>
+                {error.bakeryImage && (
+                    <ErrorMessage label={error.bakeryImage} />
                 )}
-            </View>
-            {error.bakeryImage && (
-                <ErrorMessage label={error.bakeryImage} />
-            )}
 
-            <CustomButton
-                label='Daftar'
-                handlePress={() => handleSignUpAPI()}
-                buttonStyles='mt-10 w-full'
-                isLoading={isSubmitting}
-            />
+                <CustomButton
+                    label='Daftar'
+                    handlePress={() => handleSignUpAPI()}
+                    buttonStyles='mt-10 w-full'
+                    isLoading={isSubmitting}
+                />
 
-            <DateTimePickerModal
-                isVisible={isDatePickerVisible}
-                mode="time"
-                onConfirm={handleSelectTime}
-                onCancel={hideDatePicker}
-            />
-        </AuthLayout>
+                <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="time"
+                    onConfirm={handleSelectTime}
+                    onCancel={hideDatePicker}
+                />
+            </AuthLayout>
         </ScrollView>
     )
 }

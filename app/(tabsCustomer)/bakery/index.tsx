@@ -214,7 +214,7 @@ const Bakery = () => {
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="Cari bakeri disini"
+            placeholder="Cari bakeri"
           />
         </View>
 

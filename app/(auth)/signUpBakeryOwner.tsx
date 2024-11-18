@@ -159,6 +159,7 @@ const SignUpBakeryOwner = () => {
                     keyboardType='default'
                     moreStyles='mt-7'
                     error={error.userName}
+                    placeholder='Masukkan nama'
                 />
                 <FormField
                     label='Nomor Telepon'
@@ -170,6 +171,7 @@ const SignUpBakeryOwner = () => {
                     keyboardType='phone-pad'
                     moreStyles='mt-7'
                     error={error.userPhoneNumber}
+                    placeholder='Masukkan nomor telepon'
                 />
                 <FormField
                     label='Email'
@@ -181,6 +183,7 @@ const SignUpBakeryOwner = () => {
                     keyboardType='email-address'
                     moreStyles='mt-7'
                     error={error.email}
+                    placeholder='Masukkan email'
                 />
                 <FormField
                     label='Kata Sandi'
@@ -192,6 +195,7 @@ const SignUpBakeryOwner = () => {
                     keyboardType='default'
                     moreStyles='mt-7'
                     error={error.password}
+                    placeholder='Masukkan kata sandi'
                 />
                 <FormField
                     label='Konfirmasi Kata Sandi'
@@ -203,6 +207,7 @@ const SignUpBakeryOwner = () => {
                     keyboardType='default'
                     moreStyles='mt-7'
                     error={error.confirmPassword}
+                    placeholder='Konfirmasi kata sandi'
                 />
 
                 <CustomButton

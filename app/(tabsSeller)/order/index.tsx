@@ -135,7 +135,7 @@ const Order = () => {
         </head>
         <body>
           <h1>Invoice</h1>
-          <h2>Order ID: ${orderItem.orderId}</h2>
+          <h2>ID Pesanan: ${orderItem.orderId}</h2>
           <div class="details-container">
             <div class="details-left">
               <p><strong>${userData?.bakery?.bakeryName}</strong></p>
@@ -160,7 +160,7 @@ const Order = () => {
                 <tr>
                   <td>${item.product.productName}</td>
                   <td>${item.productQuantity}</td>
-                  <td>${item.totalDetailPrice}</td>
+                  <td>${formatRupiah(item.totalDetailPrice)}</td>
                 </tr>
               `
               ).join('')}
