@@ -23,6 +23,11 @@ export type BakeryType = {
     openingTime: string;
     closingTime: string;
     favorite: FavoriteType[];
+    product: ProductType[];
+    prevRating: {
+        averageRating: string;
+        reviewCount: string;
+    }
 }
 
 export type FavoriteType = {
@@ -57,6 +62,7 @@ export type OrderDetailType = {
     productQuantity: number;
     product: ProductType;
     totalDetailPrice: number;
+    discountPercentage: string;
 };
 
 export type ProductType = {
@@ -70,6 +76,13 @@ export type ProductType = {
     productExpirationDate: string;
     productStock: number;
     isActive: number;
+    prevRating: {
+        averageRating: string;
+        reviewCount: string;
+    }
+    bakery: BakeryType;
+    todayPrice: number;
+    discountPercentage: string;
 };
 
 export type RegionType = {

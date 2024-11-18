@@ -10,7 +10,7 @@ const TextBeforePrice: React.FC<Props> = ({ label, size }) => {
   return (
     <View>
       <Text
-        style={{ fontFamily: "poppinsSemiBold", textDecorationLine: "line-through", textDecorationColor: "#FA6F33", fontSize: 12 }}
+        style={{ fontFamily: "poppinsSemiBold", textDecorationLine: "line-through", textDecorationColor: "#FA6F33", fontSize: size || 12 }}
         className='text-black'
       >
        {label}

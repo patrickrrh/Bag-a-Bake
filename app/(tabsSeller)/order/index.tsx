@@ -173,8 +173,6 @@ const Order = () => {
       </html>
     `;
   };
-  
-  
 
   const handlePrintPDF = async (orderItem: OrderType) => {
     const invoiceHtml = generateInvoice(orderItem);
@@ -203,7 +201,7 @@ const Order = () => {
             <TextHeader label="PESANAN" />
             <View className='mt-6'>
               <OrderStatusTab
-                selectedStatus={selectedStatus || 1}
+                selectedStatus={selectedStatus}
                 onSelectStatus={handleSelectStatus}
               />
             </View>

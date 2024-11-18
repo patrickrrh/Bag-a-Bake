@@ -22,14 +22,16 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
-import { formatRupiah, getLocalStorage } from '@/utils/commonFunctions';
+import { formatRupiah, getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 import { useFocusEffect } from '@react-navigation/native';
 import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 import LargeImage from '@/components/LargeImage';
 import { images } from '@/constants/images'
 import TextRating from '@/components/texts/TextRating';
+import OpenCartButton from '@/components/OpenCartButton';
 
 type Bakery = {
+    bakery: Bakery;
     bakeryId: number;
     userId: number;
     bakeryName: string;
@@ -40,7 +42,6 @@ type Bakery = {
     closingTime: string;
     regionId: number;
     regionBakery: RegionBakery;
-    bakery: Bakery;
     product: Product[];
     prevRating: {
         averageRating: string;
@@ -71,7 +72,7 @@ type OrderItem = {
     items:
     [
         {
-            orderQuantity: number;
+            productQuantity: number;
             productId: number;
         }
     ];
@@ -81,10 +82,10 @@ const BakeryDetail = () => {
 
     const insets = useSafeAreaInsets();
 
-    const { productId, bakeryId } = useLocalSearchParams();
+    const { bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
-    const [totalPrice, setTotalPrice] = useState<number>(0.0);
+    const [totalPrice, setTotalPrice] = useState("");
     const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
     const [showFavorite, setShowFavorite] = useState(false);
@@ -95,49 +96,34 @@ const BakeryDetail = () => {
             const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
 
-            // Calculate Total Order Price
-            const products = bakeryDetail?.product || [];
-
             const mappedOrderDetail = data?.items.map((item: any) => {
-                const product = products.find(prod => prod.productId === item.productId);
+                const product = bakeryDetail?.bakery.product.find(prod => prod.productId === item.productId);
                 return {
                     product: product || {},
-                    productQuantity: item.orderQuantity
+                    productQuantity: item.productQuantity
                 };
             }) || [];
 
             if (mappedOrderDetail.length > 0) {
                 const total = calculateTotalOrderPrice(mappedOrderDetail);
-                // setTotalPrice(total);
-            } else {
-                setTotalPrice(0);
-            }
+                setTotalPrice(total);
 
+            } else {
+                setTotalPrice("0");
+            }
         } catch (error) {
             console.log(error);
         }
     };
 
-    const handleGetBakeryByProductApi = async () => {
-        try {
-
-            const response = await bakeryApi().getBakeryByProduct({
-                productId: parseInt(productId as string),
-            })
-            if (response.status === 200) {
-                setBakeryDetail(response.data ? response.data : {})
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
     const handleGetBakeryByIdApi = async () => {
         try {
             const response = await bakeryApi().getBakeryById({
                 bakeryId: parseInt(bakeryId as string),
             })
+
             if (response.status === 200) {
-                setBakeryDetail(response.data ? response.data : {})
+                setBakeryDetail(response.data ? response.data : {});
             }
         } catch (error) {
             console.log(error)
@@ -169,18 +155,18 @@ const BakeryDetail = () => {
             );
         }
     };
+
     useEffect(() => {
-        handleGetBakeryByIdApi();
-        handleBakeryChangeAlert();
-    }, [bakeryId]);
+        if (bakeryDetail) {
+            fetchOrderData();
+        }
+    }, [bakeryDetail]);
 
     useFocusEffect(
         useCallback(() => {
-            fetchOrderData();
-        }, [])
+            handleGetBakeryByIdApi();
+        }, [bakeryId])
     );
-
-    console.log("bakery detail", JSON.stringify(bakeryDetail, null, 2));
 
     return (
         <View className="flex-1 bg-background">
@@ -288,23 +274,22 @@ const BakeryDetail = () => {
 
             </ScrollView>
 
-            {/* Display Cart Button if there are items in the orderData */}
             {orderData && (
-                <View className="p-5">
-                <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.items.length} item) - ${formatRupiah(totalPrice)}`}
-                    handlePress={() => {
-                        router.push({
-                            pathname: '/order/orderDetail',
-                            params: {
-                                bakeryId: bakeryId
-                            }
-                        })
-                    }}
-                    buttonStyles="bg-orange"
-                    isLoading={false} // Add this line
-                    icon="map" // Add this line
-                />
+                <View className="w-full flex items-end justify-end p-5">
+                    <OpenCartButton
+                        label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
+                        handlePress={() => {
+                            router.push({
+                                pathname: '/order/inputOrderDetail' as any,
+                                params: {
+                                    bakeryId: bakeryId
+                                }
+                            })
+                        }}
+                        isLoading={isSubmitting}
+                        icon="bag-outline"
+                        iconColor='white'
+                    />
                 </View>
             )}
         </View>

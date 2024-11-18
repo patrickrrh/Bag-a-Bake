@@ -16,8 +16,6 @@ interface Props {
 
 const ProductCard: React.FC<Props> = ({ product, onPress }) => {
 
-    console.log("first here", JSON.stringify(product, null, 2));
-
     return (
         <TouchableOpacity
             onPress={onPress}

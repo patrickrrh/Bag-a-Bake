@@ -4,14 +4,14 @@ import TextHeader from '@/components/texts/TextHeader'
 import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle5 from '@/components/texts/TextTitle5';
 import TextRating from '@/components/texts/TextRating';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, ActivityIndicator, Modal, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import OrderCard from '@/components/OrderCard';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import orderCustomerApi from '@/api/orderCustomerApi';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { OrderType } from '@/types/types';
 import OrderCardWithRating from '@/components/OrderCardWithRating';
 import { FontAwesome } from '@expo/vector-icons';
@@ -21,6 +21,7 @@ import CustomButton from '@/components/CustomButton';
 import ErrorMessage from '@/components/texts/ErrorMessage';
 import ratingApi from '@/api/ratingApi';
 import RatingInput from '@/components/RatingInput';
+import { getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 
 type RatingErrorState = {
   rating: string | null;
@@ -71,7 +72,7 @@ const Order = () => {
     handleGetOrderByStatusApi();
   }, [selectedStatus]);
 
-  console.log("oders", JSON.stringify(orders, null, 2))
+  console.log("Orders", JSON.stringify(orders, null, 2))
 
   const handleSubmitRatingApi = async () => {
     try {
@@ -96,6 +97,24 @@ const Order = () => {
       console.log(error)
     }
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        const data = await getLocalStorage('orderCustomerParams');
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setSelectedStatus(parsedData.status);
+        }
+      }
+
+      fetchData();
+
+      return () => {
+        removeLocalStorage('orderCustomerParams');
+      }
+    }, [])
+  )
 
   return (
     <View className='flex-1'>
@@ -134,8 +153,8 @@ const Order = () => {
                       item={item}
                       onPress={() => {
                         router.push({
-                          pathname: '/order/orderDetail',
-                          params: { order: JSON.stringify(item.bakeryId) }
+                          pathname: '/order/orderDetail' as any,
+                          params: { order: JSON.stringify(item) }
                         })
                       }}
                       onPressRating={() => {
@@ -148,7 +167,7 @@ const Order = () => {
                       item={item}
                       onPress={() => {
                         router.push({
-                          pathname: '/order/orderDetail',
+                          pathname: '/order/orderDetail' as any,
                           params: { order: JSON.stringify(item) }
                         })
                       }}
