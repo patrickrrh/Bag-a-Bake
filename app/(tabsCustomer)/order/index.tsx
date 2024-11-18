@@ -4,14 +4,14 @@ import TextHeader from '@/components/texts/TextHeader'
 import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle5 from '@/components/texts/TextTitle5';
 import TextRating from '@/components/texts/TextRating';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, ActivityIndicator, Modal, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import OrderCard from '@/components/OrderCard';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import orderCustomerApi from '@/api/orderCustomerApi';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { OrderType } from '@/types/types';
 import OrderCardWithRating from '@/components/OrderCardWithRating';
 import { FontAwesome } from '@expo/vector-icons';
@@ -21,13 +21,14 @@ import CustomButton from '@/components/CustomButton';
 import ErrorMessage from '@/components/texts/ErrorMessage';
 import ratingApi from '@/api/ratingApi';
 import RatingInput from '@/components/RatingInput';
+import { getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 
 type RatingErrorState = {
   rating: string | null;
 }
 
 const Order = () => {
-  const [selectedStatus, setSelectedStatus] = useState(0);
+  const [selectedStatus, setSelectedStatus] = useState(1);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [ratingOrderId, setRatingOrderId] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -97,6 +98,24 @@ const Order = () => {
     }
   }
 
+  useFocusEffect(
+    useCallback(() => {
+      const fetchData = async () => {
+        const data = await getLocalStorage('orderCustomerParams');
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setSelectedStatus(parsedData.status);
+        }
+      }
+
+      fetchData();
+
+      return () => {
+        removeLocalStorage('orderCustomerParams');
+      }
+    }, [])
+  )
+
   return (
     <View className='flex-1'>
       <View
@@ -112,7 +131,7 @@ const Order = () => {
             <TextHeader label="PESANAN" />
             <View className='mt-6'>
               <OrderStatusTab
-                selectedStatus={selectedStatus || 0}
+                selectedStatus={selectedStatus || 1}
                 onSelectStatus={handleSelectStatus}
               />
             </View>
@@ -134,8 +153,8 @@ const Order = () => {
                       item={item}
                       onPress={() => {
                         router.push({
-                          pathname: '/order/orderDetail',
-                          params: { order: JSON.stringify(item.bakeryId) }
+                          pathname: '/order/orderDetail' as any,
+                          params: { order: JSON.stringify(item) }
                         })
                       }}
                       onPressRating={() => {
@@ -148,7 +167,7 @@ const Order = () => {
                       item={item}
                       onPress={() => {
                         router.push({
-                          pathname: '/order/orderDetail',
+                          pathname: '/order/orderDetail' as any,
                           params: { order: JSON.stringify(item) }
                         })
                       }}

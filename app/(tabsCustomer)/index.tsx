@@ -17,25 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import CustomButton from '@/components/CustomButton';
 import { FontAwesome } from '@expo/vector-icons';
 import { setLocalStorage } from '@/utils/commonFunctions';
-
-type Category = {
-  categoryId: number;
-  categoryName: string;
-  categoryImage: string;
-}
-
-type Product = {
-  bakeryId: number;
-  categoryId: number;
-  productId: number;
-  productName: string;
-  productDescription: string;
-  productImage: string;
-  productPrice: string;
-  productStock: number;
-  productExpirationDate: string;
-  isActive: number;
-}
+import { CategoryType, ProductType } from '@/types/types';
 
 const Home = () => {
 
@@ -43,9 +25,9 @@ const Home = () => {
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
 
-  const [category, setCategory] = useState<Category[]>([]);
-  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
-  const [expiringProducts, setExpiringProducts] = useState<Product[]>([]);
+  const [category, setCategory] = useState<CategoryType[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState<ProductType[]>([]);
+  const [expiringProducts, setExpiringProducts] = useState<ProductType[]>([]);
   const [isSubmitting, setisSubmitting] = useState(false);
 
   const handleGetCategoryApi = async () => {
@@ -71,6 +53,8 @@ const Home = () => {
       console.log(error)
     }
   }
+
+  console.log("recommendedProducts", JSON.stringify(recommendedProducts, null, 2));
 
   const handleGetExpiringProducts = async () => {
     try {
@@ -112,7 +96,7 @@ const Home = () => {
 
         {/* Header */}
         <View
-          className='bg-brown px-5 pt-2 pb-8'
+          className='bg-brown px-5 pt-2 pb-2'
           style={{
             borderBottomLeftRadius: 15,
             borderBottomRightRadius: 15,
@@ -149,11 +133,11 @@ const Home = () => {
               </TouchableOpacity>
             </View>
           </View>
-          <SearchBar
+          {/* <SearchBar
             value='Sementara'
             placeholder='Telusuri roti, pasteri, kue dan lainnya...'
             onChange={() => { }}
-          />
+          /> */}
         </View>
 
         <View className='bg-background px-5 pb-5'>

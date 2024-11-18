@@ -71,8 +71,6 @@ const SignUpCustomer = () => {
         }
     }
 
-    console.log("form", form)
-
     const handleSignUpAPI = async () => {
         try {
             setisSubmitting(true);
@@ -168,7 +166,7 @@ const SignUpCustomer = () => {
             <FormField
                 label='Nama Pengguna'
                 value={form.userName}
-                // placeholder='Masukkan Nama Anda'
+                placeholder='Masukkan nama' 
                 onChangeText={(text) => {
                     setForm({ ...form, userName: text });
                     setError((prevError) => ({ ...prevError, userName: null }));
@@ -180,7 +178,7 @@ const SignUpCustomer = () => {
             <FormField
                 label='Nomor Telepon'
                 value={form.userPhoneNumber}
-                // placeholder='Masukkan Nomor Telepon Anda'
+                placeholder='Masukkan nomor telepon'
                 onChangeText={(text) => {
                     setForm({ ...form, userPhoneNumber: text });
                     setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
@@ -206,7 +204,6 @@ const SignUpCustomer = () => {
             <FormField
                 label='Email'
                 value={form.email}
-                // placeholder='Masukkan Email Anda'
                 onChangeText={(text) => {
                     setForm({ ...form, email: text });
                     setError((prevError) => ({ ...prevError, email: null }));
@@ -214,10 +211,10 @@ const SignUpCustomer = () => {
                 keyboardType='email-address'
                 moreStyles='mt-7'
                 error={error.email}
+                placeholder='Masukkan email'
             />
             <FormField
                 label='Kata Sandi'
-                // placeholder='Masukkan Password Anda'
                 value={form.password}
                 onChangeText={(text) => {
                     setForm({ ...form, password: text });
@@ -226,10 +223,10 @@ const SignUpCustomer = () => {
                 keyboardType='default'
                 moreStyles='mt-7'
                 error={error.password}
+                placeholder='Masukkan kata sandi'
             />
             <FormField
                 label='Konfirmasi Kata Sandi'
-                // placeholder='Konfirmasi Password Anda'
                 value={confirmPassword}
                 onChangeText={(text) => {
                     setConfirmPassword(text);
@@ -238,6 +235,7 @@ const SignUpCustomer = () => {
                 keyboardType='default'
                 moreStyles='mt-7'
                 error={error.confirmPassword}
+                placeholder='Konfirmasi kata sandi'
             />
 
             <CustomButton

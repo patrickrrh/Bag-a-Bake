@@ -5,10 +5,12 @@ import TextTitle4 from './texts/TextTitle4';
 import CustomTagOrderStatus from './CustomTagOrderStatus';
 import TextTitle5Gray from './texts/TextTitle5Gray';
 import { formatDate, formatDatewithtime, formatRupiah } from '@/utils/commonFunctions';
+import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
     order: any;
     onPress: () => void;
+    printPdf?: () => void
 }
 
 type OrderDetail = {
@@ -18,7 +20,7 @@ type OrderDetail = {
     orderStatus: any;
 }
 
-const SellerOrderCard: React.FC<Props> = ({ order, onPress }) => {
+const SellerOrderCard: React.FC<Props> = ({ order, onPress, printPdf }) => {
 
     return (
         <TouchableOpacity
@@ -28,7 +30,20 @@ const SellerOrderCard: React.FC<Props> = ({ order, onPress }) => {
             <View style={{ flexDirection: 'column', flex: 1 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
                     <TextTitle4 label={`#${order.orderId}`} />
-                    <TextTitle5Gray label={formatDatewithtime(order.orderDate)} />
+                    <View className='flex-row space-x-3'>
+                        <View className='pt-1'>
+                            <TextTitle5Gray label={formatDatewithtime(order.orderDate)} />
+                        </View>
+                        {
+                            order.orderStatus === 3 && (
+                                <TouchableOpacity
+                                    onPress={printPdf}
+                                >
+                                    <Ionicons name='share-outline' size={20} color='#B0795A' />
+                                </TouchableOpacity>
+                            )
+                        }
+                    </View>
                 </View>
 
                 <View className='h-[1px] bg-gray-100 my-4' />

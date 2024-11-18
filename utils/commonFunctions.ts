@@ -163,7 +163,7 @@ export const checkProductForm = (form: Record<string, unknown>) => {
 
 export const calculateTotalOrderPrice = (orderDetail: any): string => {
   const total = orderDetail.reduce((sum: number, detail: any) => {
-    const price = parseFloat(detail.product.productPrice);
+    const price = parseFloat(detail.product.todayPrice);
     console.log("Price: ", price);
     return sum + price * detail.productQuantity;
   }, 0);

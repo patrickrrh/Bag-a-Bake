@@ -6,14 +6,14 @@ interface OrderStatusTabProps {
   onSelectStatus: (status: number) => void;
 }
 
-const statuses: Array<0 | 1 | 2> = [0, 1, 2];
+const statuses: Array<1 | 2 | 3> = [1, 2, 3];
 
 const OrderStatusTab: React.FC<OrderStatusTabProps> = ({ selectedStatus, onSelectStatus }) => {
   
   const statusMapping = {
-    0: 'Pending',
-    1: 'Berlangsung',
-    2: 'Selesai',
+    1: 'Pending',
+    2: 'Berlangsung',
+    3: 'Selesai',
   };
 
   return (

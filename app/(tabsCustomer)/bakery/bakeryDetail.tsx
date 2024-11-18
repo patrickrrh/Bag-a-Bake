@@ -22,12 +22,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
-import { formatRupiah, getLocalStorage } from '@/utils/commonFunctions';
+import { formatRupiah, getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 import { useFocusEffect } from '@react-navigation/native';
 import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 import LargeImage from '@/components/LargeImage';
 import { images } from '@/constants/images'
 import TextRating from '@/components/texts/TextRating';
+import OpenCartButton from '@/components/OpenCartButton';
 
 type Bakery = {
     bakery: Bakery;
@@ -71,7 +72,7 @@ type OrderItem = {
     items:
     [
         {
-            orderQuantity: number;
+            productQuantity: number;
             productId: number;
         }
     ];
@@ -81,7 +82,7 @@ const BakeryDetail = () => {
 
     const insets = useSafeAreaInsets();
 
-    const { productId, bakeryId } = useLocalSearchParams();
+    const { bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
     const [totalPrice, setTotalPrice] = useState("");
@@ -99,7 +100,7 @@ const BakeryDetail = () => {
                 const product = bakeryDetail?.bakery.product.find(prod => prod.productId === item.productId);
                 return {
                     product: product || {},
-                    productQuantity: item.orderQuantity
+                    productQuantity: item.productQuantity
                 };
             }) || [];
 
@@ -114,6 +115,7 @@ const BakeryDetail = () => {
             console.log(error);
         }
     };
+
     const handleGetBakeryByIdApi = async () => {
         try {
             const response = await bakeryApi().getBakeryById({
@@ -272,23 +274,22 @@ const BakeryDetail = () => {
 
             </ScrollView>
 
-            {/* Display Cart Button if there are items in the orderData */}
             {orderData && (
-                <View className="p-5">
-                <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.items.length} item) - ${totalPrice}`}
-                    handlePress={() => {
-                        router.push({
-                            pathname: '/order/orderDetail',
-                            params: {
-                                bakeryId: bakeryId
-                            }
-                        })
-                    }}
-                    buttonStyles="bg-orange"
-                    isLoading={false} // Add this line
-                    icon="map" // Add this line
-                />
+                <View className="w-full flex items-end justify-end p-5">
+                    <OpenCartButton
+                        label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
+                        handlePress={() => {
+                            router.push({
+                                pathname: '/order/inputOrderDetail' as any,
+                                params: {
+                                    bakeryId: bakeryId
+                                }
+                            })
+                        }}
+                        isLoading={isSubmitting}
+                        icon="bag-outline"
+                        iconColor='white'
+                    />
                 </View>
             )}
         </View>

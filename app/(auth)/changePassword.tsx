@@ -116,6 +116,7 @@ const ChangePassword = () => {
           keyboardType='default'
           moreStyles='mt-7'
           error={error.password}
+          placeholder='Masukkan kata sandi baru'
         />
         <FormField
           label='Konfirmasi Password'
@@ -127,6 +128,7 @@ const ChangePassword = () => {
           keyboardType='default'
           moreStyles='mt-7'
           error={error.confirmPassword}
+          placeholder='Konfirmasi kata sandi baru'
         />
 
         <CustomButton

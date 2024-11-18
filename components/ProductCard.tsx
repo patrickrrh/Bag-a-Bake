@@ -15,6 +15,7 @@ interface Props {
 }
 
 const ProductCard: React.FC<Props> = ({ product, onPress }) => {
+
     return (
         <TouchableOpacity
             onPress={onPress}
@@ -40,9 +41,9 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
                         <View className='mr-2'>
                             <TextBeforePrice label={formatRupiah(product.productPrice)} />
                         </View>
-                        <TextDiscount label={"10"} />
+                        <TextDiscount label={product.discountPercentage} />
                     </View>
-                    <TextAfterPrice label={formatRupiah(product.productPrice)} />
+                    <TextAfterPrice label={formatRupiah(product.todayPrice)} />
                 </View>
             </View>
         </TouchableOpacity>
