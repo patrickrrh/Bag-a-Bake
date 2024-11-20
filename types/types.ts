@@ -10,6 +10,9 @@ export type UserType = {
     userPhoneNumber: string;
     regionUser: RegionType;
     bakery: BakeryType;
+    address: string;
+    latitude: number;
+    longitude: number;
 };
 
 export type BakeryType = {
@@ -28,6 +31,9 @@ export type BakeryType = {
         averageRating: string;
         reviewCount: string;
     }
+    bakeryAddress: string;
+    bakeryLatitude: number;
+    bakeryLongitude: number;
 }
 
 export type FavoriteType = {

@@ -107,7 +107,7 @@ const ChangePassword = () => {
             containerStyle={{ width: '70%', alignItems: 'center', marginTop: 12 }} textStyle={{ textAlign: 'center' }} />
         </View>
         <FormField
-          label='Password'
+          label='Kata Sandi'
           value={form.password}
           onChangeText={(text) => {
             setForm({ ...form, password: text });
@@ -119,7 +119,7 @@ const ChangePassword = () => {
           placeholder='Masukkan kata sandi baru'
         />
         <FormField
-          label='Konfirmasi Password'
+          label='Konfirmasi Kata Sandi'
           value={confirmPassword}
           onChangeText={(text) => {
             setConfirmPassword(text);

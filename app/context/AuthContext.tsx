@@ -69,7 +69,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         try {
             const response = await authenticationApi().signIn(data);
-            console.log("Bro", response)
             if (response.error) {
                 throw new Error(response.error);
             } else {
@@ -107,12 +106,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
 
     const signOut = async () => {
-        await SecureStore.deleteItemAsync("accessToken");
-        await SecureStore.deleteItemAsync("refreshToken");
-        await SecureStore.deleteItemAsync("userData");
-        setIsAuthenticated(false);
-        setUserData(null);
-        setJustSignedIn(true);
+        const res = await authenticationApi().revokeTokens({
+            userId: userData?.userId
+        });
+        if (res.status === 200) {
+            await SecureStore.deleteItemAsync("accessToken");
+            await SecureStore.deleteItemAsync("refreshToken");
+            await SecureStore.deleteItemAsync("userData");
+            setIsAuthenticated(false);
+            setUserData(null);
+            setJustSignedIn(true);
+        }
     };
 
     const refreshUserData = async () => {

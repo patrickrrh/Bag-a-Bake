@@ -8,6 +8,7 @@ import TextBeforePrice from './texts/TextBeforePrice';
 import TextAfterPrice from './texts/TextAfterPrice';
 import TextDiscount from './texts/TextDiscount';
 import { formatRupiah } from '@/utils/commonFunctions';
+import TextTitle5Gray from './texts/TextTitle5Gray';
 
 interface Props {
     product: any;
@@ -36,7 +37,10 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
                 <View className='flex-row justify-between items-center w-full'>
                     <TextTitle4 label={product.productName} />
                 </View>
+                <View className='flex-row'>
                 <TextTitle5 label={product.bakery.bakeryName} />
+                <TextTitle5Gray label={`  ${product.distanceInKm} km`} />
+                </View>
                 <View className='mt-2'>
                     <View className='flex-row'>
                         <View className='mr-2'>

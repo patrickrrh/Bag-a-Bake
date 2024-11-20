@@ -24,6 +24,10 @@ import TimeField from '@/components/TimeField'
 import BackButton from '@/components/BackButton'
 import ProgressBar from '@/components/ProgressBar'
 import { RegionType } from '@/types/types'
+import InputLocationField from '@/components/InputLocationField'
+import axios from 'axios'
+import { add } from 'date-fns'
+import Geocoder from 'react-native-geocoding';
 
 type ErrorState = {
     bakeryName: string | null;
@@ -32,12 +36,13 @@ type ErrorState = {
     bakeryPhoneNumber: string | null;
     openingTime: string | null;
     closingTime: string | null;
-    bakeryRegionId: number | null;
+    bakeryAddress: string | null;
 };
 
 const SignUpBakery = () => {
 
     const { signUp } = useAuth();
+    const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
 
     const { userName, userPhoneNumber, email, password, userImage, roleId } = useLocalSearchParams();
 
@@ -48,10 +53,13 @@ const SignUpBakery = () => {
         bakeryPhoneNumber: '',
         openingTime: '',
         closingTime: '',
-        bakeryRegionId: 0,
+        bakeryAddress: '',
+        bakeryLatitude: 0,
+        bakeryLongitude: 0,
+        pushToken: '',
     })
-
-    const [region, setRegion] = useState<RegionType[]>([]);
+    const [address, setAddress] = useState('')
+    const [suggestions, setSuggestions] = useState([]);
 
     const emptyError: ErrorState = {
         bakeryName: null,
@@ -60,24 +68,13 @@ const SignUpBakery = () => {
         bakeryPhoneNumber: null,
         openingTime: null,
         closingTime: null,
-        bakeryRegionId: null,
+        bakeryAddress: null,
     }
     const [error, setError] = useState<ErrorState>(emptyError)
 
     const [isSubmitting, setisSubmitting] = useState(false);
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [timeFieldType, setTimeFieldType] = useState<'openingTime' | 'closingTime'>('openingTime');
-
-    const handleGetRegionAPI = async () => {
-        try {
-            const response = await regionApi().getRegion();
-            if (response.status === 200) {
-                setRegion(response.data);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     useEffect(() => {
         setForm((prevForm) => ({
@@ -112,7 +109,7 @@ const SignUpBakery = () => {
     };
 
 
-    const handleSignUpAPI = () => {
+    const handleSignUpAPI = async () => {
         try {
             setisSubmitting(true);
 
@@ -154,11 +151,7 @@ const SignUpBakery = () => {
         </>
     );
 
-    useEffect(() => {
-        handleGetRegionAPI();
-    }, [])
-
-    console.log("form", form)
+    console.log("form", JSON.stringify(form, null, 2))
 
     const showDatePicker = (type: 'openingTime' | 'closingTime') => {
         setTimeFieldType(type);
@@ -169,20 +162,6 @@ const SignUpBakery = () => {
         setDatePickerVisibility(false);
     };
 
-    // const handleSelectTime = (time: any) => {
-    //     const timezone = toZonedTime(time, 'Asia/Jakarta');
-    //     const formattedTime = format(timezone, 'HH:mm');
-
-    //     if (timeFieldType === 'openingTime') {
-    //         setForm((prevForm) => ({ ...prevForm, openingTime: formattedTime }));
-    //         setError((prevError) => ({ ...prevError, openingTime: null }));
-    //     } else {
-    //         setForm((prevForm) => ({ ...prevForm, closingTime: formattedTime }));
-    //         setError((prevError) => ({ ...prevError, closingTime: null }));
-    //     }
-
-    //     hideDatePicker();
-    // };
     const handleSelectTime = (time: Date) => {
         const timezone = toZonedTime(time, "Asia/Jakarta");
         const formattedTime = format(timezone, "HH:mm");
@@ -199,6 +178,49 @@ const SignUpBakery = () => {
 
         hideDatePicker();
     };
+
+    const handleGeocoding = (address: string) => {
+        Geocoder.from(address)
+            .then(json => {
+                const location = json.results[0].geometry.location;
+                setForm({ ...form, bakeryLatitude: location.lat, bakeryLongitude: location.lng, bakeryAddress: address });
+            })
+            .catch(error => console.warn(error));
+    }
+
+    const handleGetLocationSuggestionsAPI = () => {
+
+        if (address === '') {
+            setError((prevError) => ({ ...prevError, bakeryAddress: 'Alamat Toko tidak boleh kosong' }));
+            return;
+        }
+
+        console.log("is called")
+
+        axios
+            .get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+                params: {
+                    input: address,
+                    key: GOOGLE_MAPS_API_KEY,
+                    language: 'id',
+                    location: '-6.222941492431385, 106.64889532527259',
+                    radius: 5000,
+                    types: 'establishment',
+                },
+            })
+            .then(response => {
+                setSuggestions(response.data.predictions);
+            })
+            .catch(error => console.error(error));
+    };
+
+    const handleSelectSuggestion = (item: any) => {
+        setAddress(item.description);
+        setSuggestions([]);
+        handleGeocoding(item.description);
+    };
+
+    console.log("form", form)
 
     return (
         <ScrollView className='bg-background'>
@@ -235,19 +257,19 @@ const SignUpBakery = () => {
                         />
                     </View>
                 </View>
-                <CustomDropdown
-                    label='Lokasi'
-                    value={form.bakeryRegionId}
-                    data={region}
-                    placeholder='Pilih lokasi toko'
-                    labelField='regionName'
-                    valueField='regionId'
-                    onChange={(text) => {
-                        setForm((prevForm) => ({ ...prevForm, bakeryRegionId: Number(text) }));
-                        setError((prevError) => ({ ...prevError, bakeryRegionId: null }));
+                <InputLocationField
+                    label='Alamat Toko'
+                    value={address}
+                    placeholder='Cari lokasi toko'
+                    onChangeText={(text) => {
+                        setAddress(text);
+                        setError((prevError) => ({ ...prevError, bakeryAddress: null }));
                     }}
                     moreStyles='mt-7'
-                    error={error.bakeryRegionId}
+                    suggestions={suggestions}
+                    error={error.bakeryAddress}
+                    onSearch={() => handleGetLocationSuggestionsAPI()}
+                    onSelectSuggestion={handleSelectSuggestion}
                 />
                 <FormField
                     label='Nomor Telepon Toko'

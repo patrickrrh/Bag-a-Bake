@@ -47,7 +47,7 @@ const Bakery = () => {
   const { userData } = useAuth();
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
-  const [userLocationFilter, setUserLocationFilter] = useState(0);
+  const [userLocationFilter, setUserLocationFilter] = useState(false);
   const [isExpiringFilter, setIsExpiringFilter] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -96,8 +96,10 @@ const Bakery = () => {
     setIsLoading(true);
     try {
       const response = await bakeryApi().getBakeryWithFilters({
+        latitude: userData?.latitude,
+        longitude: userData?.longitude,
         categoryId: checkedCategories,
-        regionId: userLocationFilter,
+        userLocation: userLocationFilter,
         expiringProducts: isExpiringFilter
       })
 
@@ -180,10 +182,23 @@ const Bakery = () => {
 
   useFocusEffect(
     useCallback(() => {
-        fetchOrderData();
-        return () => {
-            // Cleanup jika diperlukan
-        };
+      const fetchData = async () => {
+        const data = await getLocalStorage('filter');
+        if (data) {
+          const parsedData = JSON.parse(data);
+          setLocalStorageData(parsedData);
+        }
+      };
+
+      fetchData();
+
+      return () => {
+        removeLocalStorage('filter');
+        setLocalStorageData(null);
+        setCheckedCategories([]);
+        setUserLocationFilter(false);
+        setIsExpiringFilter(false);
+      };
     }, [])
 );
 
@@ -191,7 +206,7 @@ const Bakery = () => {
     if (!localStorageData) return;
 
     if (localStorageData.userLocationFilter) {
-      setUserLocationFilter(userData?.regionId || 0);
+      setUserLocationFilter(localStorageData.userLocationFilter);
     } else if (localStorageData.isExpiringFilter) {
       setIsExpiringFilter(localStorageData.isExpiringFilter);
     } else if (localStorageData.categoryFilter) {
@@ -247,10 +262,10 @@ const Bakery = () => {
           />
           <FilterButton
             label="Dekat saya"
-            isSelected={userLocationFilter !== 0}
+            isSelected={userLocationFilter}
             onPress={() => {
-              userLocationFilter === 0 ?
-                setUserLocationFilter(Number(userData?.regionId)) : setUserLocationFilter(0);
+              userLocationFilter ?
+                setUserLocationFilter(false) : setUserLocationFilter(true);
             }}
           />
           <FilterButton

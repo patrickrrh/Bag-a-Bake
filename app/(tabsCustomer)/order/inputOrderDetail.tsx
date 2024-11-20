@@ -20,6 +20,7 @@ import TextDiscount from '@/components/texts/TextDiscount';
 import TextBeforePrice from '@/components/texts/TextBeforePrice';
 import TextAfterPrice from '@/components/texts/TextAfterPrice';
 import { FontAwesome } from '@expo/vector-icons';
+import TextEllipsis from '@/components/TextEllipsis';
 
 type Bakery = {
     bakery: Bakery;
@@ -31,18 +32,14 @@ type Bakery = {
     bakeryPhoneNumber: string;
     openingTime: string;
     closingTime: string;
-    regionId: number;
-    regionBakery: RegionBakery;
+    bakeryAddress: string;
+    bakeryLatitude: number;
+    bakeryLongitude: number;
     product: ProductType[];
     prevRating: {
         averageRating: string;
         reviewCount: string;
     }
-};
-
-type RegionBakery = {
-    regionId: number;
-    regionName: string;
 };
 
 type OrderItem = {
@@ -146,8 +143,9 @@ const InputOrderDetail = () => {
                     <TouchableOpacity
                         onPress={() => {
                             router.replace({
-                                pathname: '/order' as any,
-                            })
+                                pathname: '/bakery/bakeryDetail',
+                                params: { bakeryId: bakeryDetail?.bakery.bakeryId },
+                            });
                         }}
                         activeOpacity={0.7}
                         style={{ width: 10, height: 24 }}
@@ -170,9 +168,9 @@ const InputOrderDetail = () => {
                     <TextTitle5 label={`Jam pengambilan terakhir: `} />
                     <TextTitle5Bold label={bakeryDetail?.bakery.closingTime as string} color='#FA6F33' />
                 </View>
-                <View className='flex-row'>
+                <View className='flex-row w-4/5'>
                     <TextTitle5 label={`Lokasi: `} />
-                    <TextTitle5Bold label={bakeryDetail?.bakery.regionBakery.regionName as string} />
+                    <TextTitle5Bold label={bakeryDetail?.bakery.bakeryAddress as string} />
                 </View>
             </View>
 

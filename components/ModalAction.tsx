@@ -56,7 +56,7 @@ const ModalAction: React.FC<ModalActionProps> = ({
           <Text
             style={{
               fontSize: 18,
-              fontFamily: "poppinsBold",
+              fontFamily: "poppinsSemiBold",
               fontWeight: "bold",
               textAlign: "center",
               marginBottom: 16,

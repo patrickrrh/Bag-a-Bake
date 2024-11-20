@@ -1,11 +1,11 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Linking } from 'react-native'
 import React, { FC, useState } from 'react'
 import { RouteProp } from '@react-navigation/native';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import BackButton from '@/components/BackButton';
 import TextTitle5 from '@/components/texts/TextTitle5';
-import { formatDate, formatDatewithtime, formatRupiah, setLocalStorage } from '@/utils/commonFunctions';
+import { convertPhoneNumberFormat, formatDate, formatDatewithtime, formatRupiah, setLocalStorage } from '@/utils/commonFunctions';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import CustomButton from '@/components/CustomButton';
 import ContactButton from '@/components/ContactButton';
@@ -45,6 +45,21 @@ const OrderDetail = () => {
     } finally {
       setisSubmitting(false)
     }
+  }
+
+  const handleContactBuyer = (phoneNumber: string) => {
+    const formattedPhoneNumber = convertPhoneNumberFormat(phoneNumber);
+    const url = `https://wa.me/${formattedPhoneNumber}`;
+
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          console.log('Can\'t handle url: ' + url);
+        }
+      })
+      .catch((err) => console.error('An error occurred', err));
   }
 
   return (
@@ -90,7 +105,7 @@ const OrderDetail = () => {
         {orderData.orderDetail.map((item: OrderDetailType) => (
           <View key={item.orderDetailId} className='flex-row justify-between'>
             <View style={{ flexDirection: 'row', columnGap: 8 }}>
-              <TextTitle5 label={item.productQuantity } />
+              <TextTitle5 label={item.productQuantity} />
               <TextTitle5 label={item.product.productName} />
             </View>
             <TextTitle5 label={formatRupiah(item.totalDetailPrice)} />
@@ -129,7 +144,7 @@ const OrderDetail = () => {
             />
             <ContactButton
               label="Hubungi Pembeli"
-              handlePress={() => { }}
+              handlePress={() => handleContactBuyer(orderData.user.userPhoneNumber)}
               buttonStyles='mt-3'
               isLoading={isSubmitting}
             />
