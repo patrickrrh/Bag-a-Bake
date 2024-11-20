@@ -19,10 +19,11 @@ export const checkEmptyForm = (
     openingTime: "Jam Buka",
     closingTime: "Jam Tutup",
     bakeryName: "Nama Toko",
-    bakeryRegionId: "Lokasi Toko",
+    bakeryAddress: "Alamat Toko",
     bakeryPhoneNumber: "Nomor HP Toko",
     bakeryDescription: "Deskripsi Toko",
     bakeryImage: "Gambar Toko",
+    address: "Alamat",
   };
 
   for (const value in form) {
@@ -289,4 +290,11 @@ export const updateLocalStorage = async <T>(
   } catch (error) {
       console.log("Failed to update local storage:", error);
   }
+};
+
+export const convertPhoneNumberFormat = (phoneNumber: string): string => {
+  if (phoneNumber.startsWith('0')) {
+      return `62${phoneNumber.slice(1)}`;
+  }
+  return phoneNumber
 };

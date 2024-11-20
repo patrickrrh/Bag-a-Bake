@@ -5,10 +5,10 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, TouchableOpacity } from 'react-native'
+import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, TouchableOpacity, Linking } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { calculateTotalOrderPrice, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, convertPhoneNumberFormat, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import bakeryApi from '@/api/bakeryApi';
 import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
@@ -22,6 +22,7 @@ import TextAfterPrice from '@/components/texts/TextAfterPrice';
 import { FontAwesome } from '@expo/vector-icons';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import ContactButton from '@/components/ContactButton';
+import TextEllipsis from '@/components/TextEllipsis';
 
 const OrderDetail = () => {
 
@@ -30,7 +31,20 @@ const OrderDetail = () => {
 
     const [isSubmitting, setisSubmitting] = useState(false);
 
-    console.log("order", JSON.stringify(orderData, null, 2))
+    const handleContactSeller = (phoneNumber: string) => {
+        const formattedPhoneNumber = convertPhoneNumberFormat(phoneNumber);
+        const url = `https://wa.me/${formattedPhoneNumber}`;
+
+        Linking.canOpenURL(url)
+            .then((supported) => {
+                if (supported) {
+                    Linking.openURL(url);
+                } else {
+                    console.log('Can\'t handle url: ' + url);
+                }
+            })
+            .catch((err) => console.error('An error occurred', err));
+    }
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
@@ -65,9 +79,9 @@ const OrderDetail = () => {
                     <TextTitle5 label={`Jam pengambilan terakhir: `} />
                     <TextTitle5Bold label={orderData.bakery.closingTime as string} color='#FA6F33' />
                 </View>
-                <View className='flex-row'>
+                <View className='flex-row w-4/5'>
                     <TextTitle5 label={`Lokasi: `} />
-                    <TextTitle5Bold label={orderData.bakery.regionBakery.regionName as string} />
+                    <TextTitle5Bold label={orderData.bakery.bakeryAddress as string} />
                 </View>
             </View>
 
@@ -103,8 +117,8 @@ const OrderDetail = () => {
                 orderData.orderStatus === 1 ? (
                     <View className='mx-5 mt-10'>
                         <CustomButton
-                            label="Kontak Penjual"
-                            handlePress={() => {}}
+                            label="Hubungi Penjual"
+                            handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
                             isLoading={isSubmitting}
                         />
                         <ContactButton
@@ -117,8 +131,8 @@ const OrderDetail = () => {
                 ) : orderData.orderStatus === 2 ? (
                     <View className='mx-5 mt-10'>
                         <CustomButton
-                            label="Kontak Penjual"
-                            handlePress={() => {}}
+                            label="Hubungi Penjual"
+                            handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
                             isLoading={isSubmitting}
                         />
                     </View>

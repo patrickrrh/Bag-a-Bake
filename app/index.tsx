@@ -1,6 +1,11 @@
 import { useFonts } from "expo-font";
+import Geocoder from 'react-native-geocoding';
 
 export default function Index() {
+
+  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
+
+  Geocoder.init(GOOGLE_MAPS_API_KEY);
 
   const [fontsLoaded] = useFonts({
     dk: require('../assets/fonts/DK-Woolwich.otf'),

@@ -6,6 +6,7 @@ import TextTitle5Gray from './texts/TextTitle5Gray';
 import { Ionicons } from '@expo/vector-icons';
 import { icons } from '@/constants/icons';
 import { images } from '@/constants/images';
+import TextEllipsis from './TextEllipsis';
 
 interface Props {
     item: any;
@@ -33,25 +34,24 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
                         style={{ width: 68, height: 68, borderRadius: 10, borderColor: '#000', borderWidth: 1 }}
                     />
                     <View className="ml-5">
-                        <TextTitle3 label={item.bakeryName} />
-                        <TextTitle5Gray label={"Jarak: " + 2 + " km"} />
-                        <View className="flex-row items-center mt-2">
-                            <Image
-                                source={icons.location}
-                                style={{ width: 12, height: 12, marginRight: 5 }}
-                            />
-                            <TextTitle5 label={item.regionBakery.regionName} />
+                        <View className='flex-row justify-between'>
+                            <TextTitle3 label={item.bakeryName} />
+                            <TouchableOpacity onPress={onFavorite}>
+                                <Ionicons
+                                    name={item.favorite.some((fav: Favorite) => fav.bakeryId === item.bakeryId) ? "heart" : "heart-outline"}
+                                    size={24}
+                                    color={item.favorite.some((fav: Favorite) => fav.bakeryId === item.bakeryId) ? "red" : "gray"}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                        <TextTitle5Gray label={`Jarak: ${item.distanceInKm} km`} />
+                        <View className="flex-row items-start mt-2">
+                            <Ionicons name="location-sharp" size={12} color="black" style={{ marginRight: 5 }} />
+                            <View style={{ width: 200 }}>
+                                <TextEllipsis label={item.bakeryAddress} />
+                            </View>
                         </View>
                     </View>
-                </View>
-                <View>
-                    <TouchableOpacity onPress={onFavorite}>
-                        <Ionicons
-                            name={item.favorite.some((fav: Favorite) => fav.bakeryId === item.bakeryId) ? "heart" : "heart-outline"}
-                            size={24}
-                            color={item.favorite.some((fav: Favorite) => fav.bakeryId === item.bakeryId) ? "red" : "gray"}
-                        />
-                    </TouchableOpacity>
                 </View>
             </View>
         </TouchableOpacity>

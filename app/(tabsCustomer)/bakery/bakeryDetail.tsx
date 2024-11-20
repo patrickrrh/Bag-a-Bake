@@ -8,6 +8,7 @@ import {
     ScrollView,
     Alert,
     Button,
+    Linking,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -22,13 +23,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
-import { formatRupiah, getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
+import { convertPhoneNumberFormat, formatRupiah, getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 import { useFocusEffect } from '@react-navigation/native';
 import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 import LargeImage from '@/components/LargeImage';
 import { images } from '@/constants/images'
 import TextRating from '@/components/texts/TextRating';
 import OpenCartButton from '@/components/OpenCartButton';
+import TextEllipsis from '@/components/TextEllipsis';
 
 type Bakery = {
     bakery: Bakery;
@@ -40,18 +42,14 @@ type Bakery = {
     bakeryPhoneNumber: string;
     openingTime: string;
     closingTime: string;
-    regionId: number;
-    regionBakery: RegionBakery;
+    bakeryAddress: string;
+    bakeryLatitude: number;
+    bakeryLongitude: number;
     product: Product[];
     prevRating: {
         averageRating: string;
         reviewCount: string;
     }
-};
-
-type RegionBakery = {
-    regionId: number;
-    regionName: string;
 };
 
 type Product = {
@@ -168,6 +166,21 @@ const BakeryDetail = () => {
         }, [bakeryId])
     );
 
+    const handleContactSeller = (phoneNumber: string) => {
+        const formattedPhoneNumber = convertPhoneNumberFormat(phoneNumber);
+        const url = `https://wa.me/${formattedPhoneNumber}`;
+
+        Linking.canOpenURL(url)
+            .then((supported) => {
+                if (supported) {
+                    Linking.openURL(url);
+                } else {
+                    console.log('Can\'t handle url: ' + url);
+                }
+            })
+            .catch((err) => console.error('An error occurred', err));
+    }
+
     return (
         <View className="flex-1 bg-background">
 
@@ -208,11 +221,13 @@ const BakeryDetail = () => {
                 </View>
 
                 <View className="mt-5">
-                    <View className='flex-row justify-between items-start'>
-                        <View>
-                            <View className='flex-row'>
-                                <FontAwesome6 name='location-dot' size={14} />
-                                <TextTitle5 label={bakeryDetail?.bakery?.regionBakery?.regionName as string} containerStyle={{ marginLeft: 5 }} />
+                    <View className='flex-row justify-between items-start w-full'>
+                        <View className='w-1/2'>
+                            <View className='flex-row mb-2'>
+                                <Ionicons name="location-sharp" size={14} style={{ marginRight: 5 }} />
+                                <View>
+                                    <TextTitle5 label={bakeryDetail?.bakery?.bakeryAddress as string} />
+                                </View>
                             </View>
                             <TextRating
                                 rating={bakeryDetail?.prevRating.averageRating || "0"}
@@ -223,7 +238,7 @@ const BakeryDetail = () => {
                         <View>
                             <CustomClickableButton
                                 label={"Hubungi Bakeri"}
-                                handlePress={() => { }}
+                                handlePress={() => handleContactSeller(bakeryDetail?.bakery.bakeryPhoneNumber as string)}
                                 isLoading={isSubmitting}
                                 icon="whatsapp"
                                 iconColor='#25D366'

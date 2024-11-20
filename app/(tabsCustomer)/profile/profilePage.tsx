@@ -26,23 +26,29 @@ import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import ModalAction from "@/components/ModalAction";
 import Toast from "react-native-toast-message";
+import InputLocationField from "@/components/InputLocationField";
+import axios from "axios";
+import Geocoder from 'react-native-geocoding';
 
 type ErrorState = {
   userName: string | null;
   userPhoneNumber: string | null;
-  regionId: number | null;
-  email: string | null;
+  address: string | null;
 };
 
 const EditProfile = () => {
   const { userData, refreshUserData, signOut } = useAuth();
+  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
 
   const [form, setForm] = useState({
     userName: userData?.userName || "",
     userPhoneNumber: userData?.userPhoneNumber || "",
     email: userData?.email || "",
     userImage: userData?.userImage || "",
-    regionId: userData?.regionId || 0,
+    address: userData?.address || "",
+    latitude: userData?.latitude || 0,
+    longitude: userData?.longitude || 0,
+    roleId: 1,
   });
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -51,8 +57,7 @@ const EditProfile = () => {
   const emptyError: ErrorState = {
     userName: null,
     userPhoneNumber: null,
-    regionId: null,
-    email: null,
+    address: null,
   };
   const [error, setError] = useState<ErrorState>(emptyError);
 
@@ -75,7 +80,7 @@ const EditProfile = () => {
       form.userPhoneNumber !== userData?.userPhoneNumber ||
       form.email !== userData?.email ||
       form.userImage !== userData?.userImage ||
-      form.regionId !== userData?.regionId
+      form.address !== userData?.address
     );
   };
 
@@ -123,7 +128,9 @@ const EditProfile = () => {
         userPhoneNumber: form.userPhoneNumber,
         email: form.email,
         userImage: form.userImage,
-        regionId: form.regionId,
+        address: form.address,
+        latitude: form.latitude,
+        longitude: form.longitude
       });
 
       const userDataToStore = {
@@ -147,31 +154,60 @@ const EditProfile = () => {
     }
   };
 
+  const [userAddress, setUserAddress] = useState(userData?.address || "");
+  const [suggestions, setSuggestions] = useState([]);
   const [isSubmitting, setisSubmitting] = useState(false);
-  const [region, setRegion] = useState([]);
 
-  const handleGetRegionAPI = async () => {
-    try {
-      const response = await regionApi().getRegion();
-      if (response.status === 200) {
-        setRegion(response.data);
-      }
-    } catch (error) {
-      console.log(error);
+  const handleGeocoding = (address: string) => {
+    Geocoder.from(address)
+      .then(json => {
+        const location = json.results[0].geometry.location;
+        setForm({ ...form, latitude: location.lat, longitude: location.lng, address: address });
+      })
+      .catch(error => console.warn(error));
+  }
+
+  const handleGetLocationSuggestionsAPI = () => {
+
+    if (userAddress === '') {
+      setError((prevError) => ({ ...prevError, address: 'Alamat tidak boleh kosong' }));
+      return;
     }
+
+    axios
+      .get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+        params: {
+          input: userAddress,
+          key: GOOGLE_MAPS_API_KEY,
+          language: 'id',
+          location: '-6.222941492431385, 106.64889532527259',
+          radius: 5000,
+          types: 'establishment',
+        },
+      })
+      .then(response => {
+        setSuggestions(response.data.predictions);
+      })
+      .catch(error => console.error(error));
   };
 
-  useEffect(() => {
-    handleGetRegionAPI();
-  }, []);
+  const handleSelectSuggestion = (item: any) => {
+    setUserAddress(item.description);
+    setSuggestions([]);
+    handleGeocoding(item.description);
+  };
+
+  console.log("Form", JSON.stringify(form, null, 2));
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
 
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
         <Toast topOffset={50} />
       </View>
+
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View
             style={{
@@ -190,7 +226,7 @@ const EditProfile = () => {
             </TouchableOpacity>
           </View>
 
-          <View className="mt-4 w-full items-center" style={{ marginTop: 48 }}>
+          <View className="mt-4 w-full items-center" style={{ marginTop: 40 }}>
             <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
               <Image
                 source={{ uri: form.userImage }}
@@ -211,7 +247,20 @@ const EditProfile = () => {
             moreStyles="mt-7"
             error={error.userName}
           />
-
+          <InputLocationField
+            label='Alamat'
+            value={userAddress}
+            placeholder='Cari lokasi Anda'
+            onChangeText={(text) => {
+              setUserAddress(text);
+              setError((prevError) => ({ ...prevError, address: null }));
+            }}
+            moreStyles='mt-7'
+            suggestions={suggestions}
+            error={error.address}
+            onSearch={() => handleGetLocationSuggestionsAPI()}
+            onSelectSuggestion={handleSelectSuggestion}
+          />
           <FormField
             label="Nomor Telepon"
             value={form.userPhoneNumber}
@@ -227,54 +276,21 @@ const EditProfile = () => {
             error={error.userPhoneNumber}
           />
 
-          <CustomDropdown
-            label="Lokasi"
-            data={region}
-            value={form.regionId}
-            placeholder="Pilih lokasi Anda"
-            labelField="regionName"
-            valueField="regionId"
-            onChange={(text) => {
-              setForm({ ...form, regionId: Number(text) });
-              setError((prevError) => ({ ...prevError, regionId: null }));
-            }}
-            moreStyles="mt-7"
-            error={error.regionId}
-          />
-
-          <FormField
-            label="Alamat Email"
-            value={form.email}
-            onChangeText={(text) => {
-              setForm({ ...form, email: text });
-              setError((prevError) => ({ ...prevError, email: null }));
-            }}
-            keyboardType="email-address"
-            moreStyles="mt-7"
-            error={error.email}
-          />
-
           <CustomButtonOutline
             label="Ganti Kata Sandi"
             handlePress={handlePasswordChange}
-            buttonStyles="mt-8 w-full"
+            buttonStyles="mt-10 w-full"
             isLoading={isSubmitting}
-            color="brown"
+            color="#b0795a"
           />
 
           <CustomButton
             label="Simpan Perubahan"
             handlePress={handleSubmitChange}
-            buttonStyles="mt-4 w-full"
+            buttonStyles="mt-5 w-full"
             isLoading={isSubmitting}
           />
 
-          {/* <CustomButton
-            label="Log Out"
-            handlePress={() => signOut()}
-            buttonStyles="mt-4"
-            isLoading={isSubmitting}
-          /> */}
         </View>
       </ScrollView>
 

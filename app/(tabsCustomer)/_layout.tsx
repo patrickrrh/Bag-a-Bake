@@ -11,7 +11,7 @@ const TabsCustomerLayout = () => {
           title: 'Beranda',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'home' : 'home-outline'} color={color} size={18} />
-          )
+          ),
         }}
       />
       <Tabs.Screen
@@ -38,7 +38,8 @@ const TabsCustomerLayout = () => {
           title: 'Profil',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={18} />
-          )
+          ),
+          unmountOnBlur: true
         }}
       />
     </Tabs>

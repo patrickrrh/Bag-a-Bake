@@ -27,6 +27,7 @@ import TextBeforePrice from '@/components/texts/TextBeforePrice';
 import TextDiscount from '@/components/texts/TextDiscount';
 import TextAfterPrice from '@/components/texts/TextAfterPrice';
 import ModalAction from '@/components/ModalAction';
+import ErrorMessage from '@/components/texts/ErrorMessage';
 
 type BakeryDetailType = {
   bakery: {
@@ -40,6 +41,10 @@ type BakeryDetailType = {
   }
 }
 
+type StockInputErrorState = {
+  productQuantity: string | null;
+}
+
 const InputOrder = () => {
 
   const { productId } = useLocalSearchParams();
@@ -50,6 +55,11 @@ const InputOrder = () => {
     productQuantity: 0,
   }
   const [form, setForm] = useState(emptyForm);
+
+  const emptyError = {
+    productQuantity: null
+  }
+  const [error, setError] = useState<StockInputErrorState>(emptyError);
   const [totalPrice, setTotalPrice] = useState(0);
   const [changeOrderModal, setChangeOrderModal] = useState(false);
 
@@ -122,6 +132,11 @@ const InputOrder = () => {
       const jsonValue = await AsyncStorage.getItem('orderData');
       const orderData = jsonValue ? JSON.parse(jsonValue) : [];
 
+      if (form.productQuantity > (product?.productStock ?? 0)) {
+        setError((prevError) => ({ ...prevError, productQuantity: 'Jumlah melebihi stok yang tersedia' }));
+        return;
+      }
+
       // Check if no order exists
       if (orderData.length === 0) {
         // Insert the bakeryId outside the array if no order data exists
@@ -172,6 +187,8 @@ const InputOrder = () => {
     const total = product?.todayPrice as number * productQuantity;
     setTotalPrice(total);
   }
+
+  console.log("Error: ", error)
 
   return (
     <View>
@@ -240,10 +257,17 @@ const InputOrder = () => {
             value={form.productQuantity}
             onChangeText={(text) => {
               setForm({ ...form, productQuantity: parseInt(text) });
+              setError((prevError) => ({ ...prevError, productQuantity: null }));
               handleCalculateTotalPrice(parseInt(text));
             }}
+            error={error.productQuantity}
           />
         </View>
+        {
+          error.productQuantity && (
+            <ErrorMessage label={error.productQuantity} />
+          )
+        }
 
         <View className='my-5'>
           <AddOrderProductButton

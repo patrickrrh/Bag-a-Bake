@@ -3,7 +3,6 @@ import {
   Text,
   TouchableWithoutFeedback,
   Keyboard,
-  SafeAreaView,
   ScrollView,
 } from "react-native";
 import React, { useState } from "react";
@@ -17,7 +16,7 @@ import TextTitle3 from "@/components/texts/TextTitle3";
 import TextTitle5Bold from "@/components/texts/TextTitle5Bold";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { checkPasswordErrors } from "@/utils/commonFunctions";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
@@ -27,6 +26,7 @@ import ProgressBar from "@/components/ProgressBar";
 import { Ionicons } from "@expo/vector-icons";
 import TextTitle5 from "@/components/texts/TextTitle5";
 import { useAuth } from "@/app/context/AuthContext";
+import * as SecureStore from "expo-secure-store";
 
 type ErrorState = {
   oldPassword: string | null;
@@ -76,11 +76,17 @@ const ChangePassword = () => {
         email: email,
         password: form.password,
       });
-      console.log("res", res);
+
       if (res.status === 200) {
-        console.log("sudah terganti passwordnya");
-        showToast("success", "Kata Sandi berhasil diubah");
-        router.back();
+        const refreshToken = await SecureStore.getItemAsync("refreshToken");
+        const res = await authenticationApi().refreshAuth({
+          refreshToken: refreshToken || "",
+        });
+
+        if (res.status === 200) {
+          showToast("success", "Kata Sandi berhasil diubah");
+          router.back();
+        }
       } else {
         showToast("error", res.error);
       }
@@ -93,54 +99,39 @@ const ChangePassword = () => {
 
   return (
     <SafeAreaView className='bg-background h-full flex-1'>
-      <View className="flex-row items-center px-4 pt-10 pb-2 relative">
-        {/* Back Button */}
-        <View className="pl-5">
-          <BackButton />
-        </View>
 
-        {/* Title */}
-        <View
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            justifyContent: "center",
-            alignItems: "center",
-            paddingTop: 40,
-          }}
-        >
+      <View className="mx-5 flex-row">
+        <BackButton />
+        <View className="flex-1 items-center">
           <TextTitle3 label="Ganti Kata Sandi" />
         </View>
       </View>
 
       <View style={{ paddingHorizontal: 20, flex: 1 }}>
         <FormField
-          label="Password Lama"
+          label="Kata Sandi Lama"
           value={form.oldPassword}
           onChangeText={(text) => {
             setForm({ ...form, oldPassword: text });
             setError((prevError) => ({ ...prevError, oldPassword: null }));
           }}
-          keyboardType="default"
           moreStyles="mt-7"
           error={error.oldPassword}
         />
 
         <FormField
-          label="Password Baru"
+          label="Kata Sandi Baru"
           value={form.password}
           onChangeText={(text) => {
             setForm({ ...form, password: text });
             setError((prevError) => ({ ...prevError, password: null }));
           }}
-          keyboardType="default"
           moreStyles="mt-7"
           error={error.password}
         />
 
         <FormField
-          label="Konfirmasi Password Baru"
+          label="Konfirmasi Kata Sandi Baru"
           value={confirmPassword}
           onChangeText={(text) => {
             setConfirmPassword(text);
@@ -149,7 +140,6 @@ const ChangePassword = () => {
               confirmPassword: null,
             }));
           }}
-          keyboardType="default"
           moreStyles="mt-7"
           error={error.confirmPassword}
         />
@@ -159,7 +149,7 @@ const ChangePassword = () => {
           handlePress={() => {
             handleChangePasswordApi();
           }}
-          buttonStyles="mt-8"
+          buttonStyles="mt-10"
           isLoading={isSubmitting}
         />
       </View>
