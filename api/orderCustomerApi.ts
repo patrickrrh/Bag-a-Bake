@@ -22,5 +22,6 @@ export default function orderCustomerApi() {
         createOrder: createApiFunction("post", "create/order"),
         getOrderByStatus: createApiFunction("post", "get/order/status"),
         getOrderDetailById: createApiFunction("post", "get/order/detail/id"),
+        cancelOrder: createApiFunction("post", "cancel/order"),
     }
 }

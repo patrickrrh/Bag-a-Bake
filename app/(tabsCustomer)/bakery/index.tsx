@@ -32,6 +32,16 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { set } from "date-fns";
 
+type OrderItem = {
+  bakeryId: number;
+  items:
+  [
+      {
+          productQuantity: number;
+          productId: number;
+      }
+  ];
+};
 const Bakery = () => {
 
   const { userData } = useAuth();
@@ -51,6 +61,21 @@ const Bakery = () => {
   const [isSubmitting, setisSubmitting] = useState(false);
   const [localStorageData, setLocalStorageData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+
+  const [orderData, setOrderData] = useState<OrderItem | null>(null);
+
+  const fetchOrderData = async () => {
+    try {
+      const jsonValue = await getLocalStorage('orderData');
+      const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+      setOrderData(data);
+
+      console.log("Order Data: ", orderData);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleGetCategoryApi = async () => {
     try {
@@ -149,6 +174,12 @@ const Bakery = () => {
     }
   }, [categoryModal]);
 
+  useEffect(() => {
+    if (!orderData) {
+      fetchOrderData();
+    }
+  }, [orderData]);
+
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
@@ -169,7 +200,7 @@ const Bakery = () => {
         setIsExpiringFilter(false);
       };
     }, [])
-  );
+);
 
   useEffect(() => {
     if (!localStorageData) return;
@@ -269,6 +300,32 @@ const Bakery = () => {
           }
         </View>
       </View>
+
+      {orderData && (
+          <TouchableOpacity
+              style={{
+                  position: 'absolute',
+                  bottom: 20,
+                  right: 20,
+                  backgroundColor: '#B0795A',
+                  padding: 15,
+                  borderRadius: 50,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
+              }}
+              onPress={() => {
+                  router.push({
+                      pathname: '/bakery/bakeryDetail',
+                      params: { bakeryId: orderData.bakeryId },
+                  });
+              }}
+          >
+              <Ionicons name="cart" size={24} color="#fff" />
+          </TouchableOpacity>
+      )}
 
       <Modal
         visible={categoryModal}

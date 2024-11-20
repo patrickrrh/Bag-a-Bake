@@ -23,6 +23,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import ContactButton from '@/components/ContactButton';
 import TextEllipsis from '@/components/TextEllipsis';
+import ModalAction from '@/components/ModalAction';
 
 const OrderDetail = () => {
 
@@ -30,6 +31,7 @@ const OrderDetail = () => {
     const orderData = order ? JSON.parse(order as string) : null;
 
     const [isSubmitting, setisSubmitting] = useState(false);
+    const [isCancelModalVisible, setCancelModalVisible] = useState(false);
 
     const handleContactSeller = (phoneNumber: string) => {
         const formattedPhoneNumber = convertPhoneNumberFormat(phoneNumber);
@@ -44,6 +46,15 @@ const OrderDetail = () => {
                 }
             })
             .catch((err) => console.error('An error occurred', err));
+    }
+
+    const handleCancelOrderApi = async () => {
+        try {
+            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId });
+            router.push("/order");
+        } catch (error) {
+            console.log("Error canceling order ", error)
+        }
     }
 
     return (
@@ -123,7 +134,7 @@ const OrderDetail = () => {
                         />
                         <ContactButton
                             label="Batalkan Pesanan"
-                            handlePress={() => {}}
+                            handlePress={() => setCancelModalVisible(true)}
                             buttonStyles='mt-3'
                             isLoading={isSubmitting}
                         />
@@ -137,6 +148,20 @@ const OrderDetail = () => {
                         />
                     </View>
                 ) : null
+            }
+
+            {
+                isCancelModalVisible && (
+                    <ModalAction
+                        setModalVisible={setCancelModalVisible}
+                        modalVisible={isCancelModalVisible}
+                        title="Apakah Anda yakin ingin membatalkan pesanan ini?"
+                        primaryButtonLabel="Kembali"
+                        secondaryButtonLabel="Batalkan Pesanan"
+                        onPrimaryAction={() => setCancelModalVisible(false)}
+                        onSecondaryAction={handleCancelOrderApi}
+                    />
+                )
             }
 
         </SafeAreaView>
