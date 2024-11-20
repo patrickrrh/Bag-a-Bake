@@ -47,7 +47,6 @@ const DiscountInputField: React.FC<Props> = ({
   };
 
   const inputStyle = {
-    backgroundColor: editable ? "white" : "#f0f0f0",
     opacity: editable ? 1 : 0.5,
   };
 

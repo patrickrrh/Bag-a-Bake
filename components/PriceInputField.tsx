@@ -1,8 +1,16 @@
-import { View, TextInput, Text } from 'react-native';
-import React, { useState, useEffect } from 'react';
-import TextFormLabel from './texts/TextFormLabel';
-import TextTitle4 from './texts/TextTitle4';
-import ErrorMessage from './texts/ErrorMessage';
+import {
+  View,
+  TextInput,
+  Text,
+  TouchableHighlight,
+  TouchableOpacity,
+} from "react-native";
+import React, { useState, useEffect } from "react";
+import TextFormLabel from "./texts/TextFormLabel";
+import TextTitle4 from "./texts/TextTitle4";
+import ErrorMessage from "./texts/ErrorMessage";
+import { Ionicons } from "@expo/vector-icons";
+import ModalInformation from "@/components/ModalInformation";
 
 interface Props {
   label: string;
@@ -14,20 +22,31 @@ interface Props {
 }
 
 const formatCurrency = (value: string) => {
-  if (!value) return '';
-  return value.replace(/\B(?=(\d{3})+(?!\d))/g, '.'); 
+  if (!value) return "";
+  return value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
-const PriceInputField: React.FC<Props> = ({ label, value, placeholder, onChangeText, moreStyles, error }) => {
-  const [internalValue, setInternalValue] = useState<string>(formatCurrency(String(value)));
+const PriceInputField: React.FC<Props> = ({
+  label,
+  value,
+  placeholder,
+  onChangeText,
+  moreStyles,
+  error,
+}) => {
+  const [internalValue, setInternalValue] = useState<string>(
+    formatCurrency(String(value))
+  );
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     setInternalValue(formatCurrency(String(value)));
   }, [value]);
 
   const handleChangeText = (text: string) => {
-    const numericValue = text.replace(/[^0-9]/g, '');
-    
+    const numericValue = text.replace(/[^0-9]/g, "");
+
     const numberValue = parseInt(numericValue, 10);
     if (numberValue > 1000000) {
       return;
@@ -35,28 +54,48 @@ const PriceInputField: React.FC<Props> = ({ label, value, placeholder, onChangeT
 
     const formattedValue = formatCurrency(numericValue);
     setInternalValue(formattedValue);
-    
+
     onChangeText(numericValue);
   };
 
   return (
     <View className={`space-y-1 ${moreStyles}`}>
-      <TextFormLabel label={label} />
-      <View className={`w-full h-[40px] px-4 bg-white rounded-[8px] items-center border ${error ? 'border-red-500' : 'border-gray-200'} flex-row`}>
+      {/* <TextFormLabel label={label} /> */}
+      <View className="flex-row items-center">
+        <TextFormLabel label={label} />
+        <Ionicons
+          name="information-circle-outline"
+          size={18}
+          color="black"
+          style={{ marginLeft: 2 }}
+          onPress={() => setIsModalVisible(true)}
+        />
+      </View>
+
+      <ModalInformation
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        title="Harga Awal"
+        content="Harga Awal merujuk pada harga produk sebelum dikenakan diskon."
+      />
+
+      <View
+        className={`w-full h-[40px] px-4 bg-white rounded-[8px] items-center border ${
+          error ? "border-red-500" : "border-gray-200"
+        } flex-row`}
+      >
         <TextTitle4 label="Rp   " />
         <TextInput
-          className='flex-1 text-black text-base'
+          className="flex-1 text-black text-base"
           style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
           value={internalValue}
           placeholder={placeholder}
           placeholderTextColor={"#828282"}
           onChangeText={handleChangeText}
-          keyboardType="numeric" 
+          keyboardType="numeric"
         />
       </View>
-      {error && (
-        <ErrorMessage label={error} />
-      )}
+      {error && <ErrorMessage label={error} />}
     </View>
   );
 };
