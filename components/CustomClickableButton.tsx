@@ -20,7 +20,6 @@ const CustomClickableButton: React.FC<Props> = ({ label, handlePress, buttonStyl
             onPress={handlePress}
             activeOpacity={0.7}
             className={`bg-brown justify-center items-center px-2 py-1 rounded ${buttonStyles} ${isLoading ? "opacity-50" : ""}`}
-            style={{ alignSelf: 'flex-start' }}
             disabled={isLoading}>
                 <View className="flex-row items-center">
                     <View className="mr-2" style={{ paddingVertical: 2 }}>

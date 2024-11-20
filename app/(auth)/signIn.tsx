@@ -121,6 +121,7 @@ const SignIn = () => {
         keyboardType='email-address'
         moreStyles='mt-7'
         error={error.email}
+        placeholder='Masukkan email'
       />
       <FormField
         label='Kata Sandi'
@@ -131,6 +132,7 @@ const SignIn = () => {
         }}
         moreStyles='mt-7'
         error={error.password}
+        placeholder='Masukkan kata sandi'
       />
 
       <View className="mt-6 flex-row justify-end">

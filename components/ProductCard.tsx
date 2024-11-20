@@ -8,6 +8,7 @@ import TextBeforePrice from './texts/TextBeforePrice';
 import TextAfterPrice from './texts/TextAfterPrice';
 import TextDiscount from './texts/TextDiscount';
 import { formatRupiah } from '@/utils/commonFunctions';
+import TextTitle5Gray from './texts/TextTitle5Gray';
 
 interface Props {
     product: any;
@@ -15,9 +16,11 @@ interface Props {
 }
 
 const ProductCard: React.FC<Props> = ({ product, onPress }) => {
+
     return (
         <TouchableOpacity
             onPress={onPress}
+            style={{ width: 162 }}
             className='bg-white rounded-lg shadow-sm mr-4 mb-1'
         >
             <View className='p-4'>
@@ -34,15 +37,18 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
                 <View className='flex-row justify-between items-center w-full'>
                     <TextTitle4 label={product.productName} />
                 </View>
+                <View className='flex-row'>
                 <TextTitle5 label={product.bakery.bakeryName} />
+                <TextTitle5Gray label={`  ${product.distanceInKm} km`} />
+                </View>
                 <View className='mt-2'>
                     <View className='flex-row'>
                         <View className='mr-2'>
                             <TextBeforePrice label={formatRupiah(product.productPrice)} />
                         </View>
-                        <TextDiscount label={"10"} />
+                        <TextDiscount label={product.discountPercentage} />
                     </View>
-                    <TextAfterPrice label={formatRupiah(product.productPrice)} />
+                    <TextAfterPrice label={formatRupiah(product.todayPrice)} />
                 </View>
             </View>
         </TouchableOpacity>

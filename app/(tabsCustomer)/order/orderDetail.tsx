@@ -5,238 +5,165 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacityBase, Animated } from 'react-native'
+import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, TouchableOpacity, Linking } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { calculateTotalOrderPrice, removeLocalStorage } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, convertPhoneNumberFormat, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import bakeryApi from '@/api/bakeryApi';
 import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
 import orderCustomerApi from '@/api/orderCustomerApi';
+import { useAuth } from '@/app/context/AuthContext';
+import TextTitle5 from '@/components/texts/TextTitle5';
+import { OrderDetailType, ProductType } from '@/types/types';
+import TextDiscount from '@/components/texts/TextDiscount';
+import TextBeforePrice from '@/components/texts/TextBeforePrice';
+import TextAfterPrice from '@/components/texts/TextAfterPrice';
+import { FontAwesome } from '@expo/vector-icons';
+import TextTitle5Date from '@/components/texts/TextTitle5Date';
+import ContactButton from '@/components/ContactButton';
+import TextEllipsis from '@/components/TextEllipsis';
+import ModalAction from '@/components/ModalAction';
 
-type Bakery = {
-    bakeryId: number;
-    userId: number;
-    bakeryName: string;
-    bakeryImage: string;
-    bakeryDescription: string;
-    bakeryPhoneNumber: string;
-    openingTime: string;
-    closingTime: string;
-    regionId: number;
-    regionBakery: RegionBakery;
-    product: Product[];
-};
-
-type RegionBakery = {
-    regionId: number;
-    regionName: string;
-};
-
-type Product = {
-    productId: number;
-    bakeryId: number;
-    categoryId: number;
-    productName: string;
-    productPrice: string;
-    productImage: string;
-    productDescription: string;
-    productExpirationDate: string;
-    productStock: number;
-    isActive: number;
-}
-type OrderItem = {
-    bakeryId: number;
-    items: {
-        orderQuantity: number;
-        productId: number;
-    }[];
-};
 const OrderDetail = () => {
-    const { bakeryId } = useLocalSearchParams();
-    const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
-    const [totalPrice, setTotalPrice] = useState<number>(0.0);
-    const [orderData, setOrderData] = useState<OrderItem | null>(null);
-    const [mappedOrderDetail, setMappedOrderDetail] = useState<{ product: Product, productQuantity: number }[]>([]);
-    const fetchOrderData = async () => {
-        try {
-            if (!bakeryDetail) return;
 
-            const jsonValue = await getLocalStorage('orderData');
-            const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
-            setOrderData(data);
-    
-            // Calculate Total Order Price
-            const products = bakeryDetail?.product || [];
-    
-            const mappedOrderDetail = data?.items.map((item: any) => {
-                const product = products.find(prod => prod.productId === item.productId);
-                return {
-                    product: product ?? { productId: 0, bakeryId: 0, categoryId: 0, productName: '', productPrice: '', productImage: '', productDescription: '', productExpirationDate: '', productStock: 0, isActive: 0 }, 
-                    productQuantity: item.orderQuantity
-                };
-            }) || [];
-    
-            setMappedOrderDetail(mappedOrderDetail);
-            console.log("Helloooo", mappedOrderDetail); 
+    const { order } = useLocalSearchParams();
+    const orderData = order ? JSON.parse(order as string) : null;
 
-            if (mappedOrderDetail.length > 0) {
-                const total = calculateTotalOrderPrice(mappedOrderDetail);
-                // setTotalPrice(total);
-            } else {
-                setTotalPrice(0);
-            }
-    
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    const [isSubmitting, setisSubmitting] = useState(false);
+    const [isCancelModalVisible, setCancelModalVisible] = useState(false);
 
-    const handleGetBakeryByIdApi = async () => {
-        try {
-            const response = await bakeryApi().getBakeryById({
-                bakeryId: parseInt(bakeryId as string),
+    const handleContactSeller = (phoneNumber: string) => {
+        const formattedPhoneNumber = convertPhoneNumberFormat(phoneNumber);
+        const url = `https://wa.me/${formattedPhoneNumber}`;
+
+        Linking.canOpenURL(url)
+            .then((supported) => {
+                if (supported) {
+                    Linking.openURL(url);
+                } else {
+                    console.log('Can\'t handle url: ' + url);
+                }
             })
-            if (response.status === 200) {
-                setBakeryDetail(response.data ? response.data : {})
-            }
-        } catch (error) {
-            console.log(error)
-        }
+            .catch((err) => console.error('An error occurred', err));
     }
 
-    const fetchUserId = async () => {
+    const handleCancelOrderApi = async () => {
         try {
-            const userData = await getLocalStorage('userData');
-
-            if (userData) {
-                const parsedUserData = JSON.parse(userData);
-                return parsedUserData.userId;
-            } else {
-                return null;
-            }
+            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId });
+            router.push("/order");
         } catch (error) {
-            console.log("Failed retrieving user data: ", error);
-            return null;
+            console.log("Error canceling order ", error)
         }
     }
-
-    // console.log("USERID", fetchUserId()); 
-    console.log("ORDER DATA", orderData);
-    // console.log("BAKERY DETAIL", bakeryId)
-
-    const handleCreateOrder = async () => {
-        try {
-            const userId = await fetchUserId();
-            console.log("INI PENANDA APAKAH ADA")
-            if (!orderData) return;
-
-            console.log("TIDAKKKK MASUKKKK", userId)
-
-            const orderDetail = {
-                create: orderData.items.map(item => ({ 
-                    productId: item.productId,
-                    productQuantity: item.orderQuantity,
-                }))
-            };
-            console.log("MASUK")
-            console.log("OrderDetail: ", orderDetail.create);
-
-            const formData = {
-                userId: 1,
-                orderDetail: orderDetail.create,
-                bakeryId: 1,
-            };
-
-            console.log("INI FORM DATA", formData);
-
-            const response = await orderCustomerApi().createOrder(formData);
-            console.log("HASILNYA APA", response);
-            if (response.status === 200) {
-                console.log("Berhasilll", response)
-                await removeLocalStorage('orderData');
-            }
-        } catch (error) {
-
-        }
-    }
-
-    useEffect(() => {
-        handleGetBakeryByIdApi();
-        fetchOrderData()
-    }, [bakeryId]);
-
-    useFocusEffect(
-        useCallback(() => {
-            fetchOrderData();
-        }, [])
-    );
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
             <View className="mx-5">
                 <View className="flex-row">
-                    <BackButton />
+                    <TouchableOpacity
+                        onPress={() => {
+                            router.replace({
+                                pathname: '/order' as any,
+                            })
+                            setLocalStorage('orderCustomerParams', JSON.stringify({ status: orderData.orderStatus }))
+                        }}
+                        activeOpacity={0.7}
+                        style={{ width: 10, height: 24 }}
+                    >
+                        <FontAwesome
+                            name="angle-left"
+                            size={24}
+                            color="#000"
+                        />
+                    </TouchableOpacity>
                     <View className="flex-1 items-center pr-3">
-                        <TextTitle3 label="10 Juni 2024 15:39" />
-                    </View>
-                </View>
-
-                {/* <Image 
-                    source={require('../../assets/images/map.png')}
-                    style={{ width: 353, height: 177, marginTop: 40 }}
-                /> */}
-            </View>
-            <View className="flex-row mt-10 bg-white">
-                {/* <Image 
-                    source={require('../../assets/images/profile.jpg')}
-                style={{ width: 40, height: 40, borderRadius: 48, marginTop: 8, marginBottom: 8, marginLeft: 20 }}
-                /> */}
-
-                <View className="ml-4 my-2">
-                    <TextTitle4 label={bakeryDetail?.bakeryName as string} />
-                    <View className="flex-row mt-1">
-                        <Text>Jam Pengambilan Terakhir: </Text> 
-                        <TextOrangeBold label="21.00" />
+                        <TextTitle3 label={orderData.bakery.bakeryName as string} />
+                        <TextTitle5Date label={formatDatewithtime(orderData.orderDate)} />
                     </View>
                 </View>
             </View>
 
-            <View className="mt-4 bg-white">
-                <View className="mx-5 my-3">
-                    <TextTitle4 label="Ringkasan Pesanan" />
-                    {mappedOrderDetail.map((item, index) => (
-                        <View key={index} className="flex-row justify-between mt-4">
-                            <View className="flex-row">
-                                <View className="mr-4">
-                                    <TextTitle5Bold label={`${item.productQuantity}x`} />
-                                </View>
-                                <Text>{item.product.productName}</Text>
-                            </View>
-                            <Text>Rp {(parseFloat(item.product.productPrice) * item.productQuantity)}</Text>
+            <View className='p-5 gap-y-3 mt-5 bg-white'>
+                <TextTitle3 label="Detail Toko" />
+                <View className='flex-row'>
+                    <TextTitle5 label={`Jam pengambilan terakhir: `} />
+                    <TextTitle5Bold label={orderData.bakery.closingTime as string} color='#FA6F33' />
+                </View>
+                <View className='flex-row w-4/5'>
+                    <TextTitle5 label={`Lokasi: `} />
+                    <TextTitle5Bold label={orderData.bakery.bakeryAddress as string} />
+                </View>
+            </View>
+
+            <View className='p-5 gap-y-3 mt-5 bg-white'>
+                <TextTitle3 label="Ringkasan Pesanan" />
+                {orderData.orderDetail.map((item: OrderDetailType) => (
+                    <View key={item.orderDetailId} className='flex-row justify-between'>
+                        <View style={{ flexDirection: 'row', columnGap: 8 }}>
+                            <TextTitle5 label={item.productQuantity} />
+                            <TextTitle5 label={item.product.productName} />
                         </View>
-                    ))}
-                </View>
-            </View>
-
-            <View className="mt-4 bg-white">
-                <View className="mx-5 my-3">
-                    <View className="flex-row justify-between">
-                        <TextTitle4 label="Total" />
-                        <TextTitle4 label={`Rp ${totalPrice}`} />
+                        <View className='flex-col items-end'>
+                            <View className='flex-row'>
+                                <View className='mr-1'>
+                                    <TextTitle5 label={formatRupiah(Number(item.product.productPrice) * item.productQuantity)} textStyle={{ textDecorationLine: 'line-through' }} />
+                                </View>
+                                <TextDiscount label={item.discountPercentage} />
+                            </View>
+                            <TextTitle5 label={formatRupiah(item.totalDetailPrice)} />
+                        </View>
                     </View>
+                ))}
+            </View>
+
+            <View className='p-5 mt-5 bg-white'>
+                <View className='flex-row justify-between'>
+                    <TextTitle4 label="Total" />
+                    <TextTitle5 label={calculateTotalOrderPrice(orderData.orderDetail)} />
                 </View>
             </View>
 
-            <View className="absolute bottom-0 left-0 right-0 mb-5 mx-5 ">
-                <CustomButton label="Pesan" handlePress={async () => {
-                    await handleCreateOrder();
+            {
+                orderData.orderStatus === 1 ? (
+                    <View className='mx-5 mt-10'>
+                        <CustomButton
+                            label="Hubungi Penjual"
+                            handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
+                            isLoading={isSubmitting}
+                        />
+                        <ContactButton
+                            label="Batalkan Pesanan"
+                            handlePress={() => setCancelModalVisible(true)}
+                            buttonStyles='mt-3'
+                            isLoading={isSubmitting}
+                        />
+                    </View>
+                ) : orderData.orderStatus === 2 ? (
+                    <View className='mx-5 mt-10'>
+                        <CustomButton
+                            label="Hubungi Penjual"
+                            handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
+                            isLoading={isSubmitting}
+                        />
+                    </View>
+                ) : null
+            }
 
-                    router.push({
-                        pathname: '/bakery/inputOrder',
-                    });
-                }} buttonStyles="w-full" isLoading={false} />
-            </View>
+            {
+                isCancelModalVisible && (
+                    <ModalAction
+                        setModalVisible={setCancelModalVisible}
+                        modalVisible={isCancelModalVisible}
+                        title="Apakah Anda yakin ingin membatalkan pesanan ini?"
+                        primaryButtonLabel="Kembali"
+                        secondaryButtonLabel="Batalkan Pesanan"
+                        onPrimaryAction={() => setCancelModalVisible(false)}
+                        onSecondaryAction={handleCancelOrderApi}
+                    />
+                )
+            }
+
         </SafeAreaView>
 
     )

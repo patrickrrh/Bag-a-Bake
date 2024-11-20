@@ -91,7 +91,7 @@ const ForgotPassword = () => {
                         </View>
                     </View>
                     <TextHeader label="Lupa Kata Sandi" />
-                    <TextTitle5 label='Silakan masukkan email Anda untuk menerima kode verifikasi' color='#828282' 
+                    <TextTitle5 label='Silakan masukkan email Anda untuk menerima kode verifikasi' color='#828282'
                         containerStyle={{ width: '70%', alignItems: 'center', marginTop: 12 }} textStyle={{ textAlign: 'center' }} />
                 </View>
                 <FormField
@@ -104,16 +104,11 @@ const ForgotPassword = () => {
                     keyboardType='email-address'
                     moreStyles='mt-7'
                     error={error.email}
+                    placeholder='Masukkan email'
                 />
                 <CustomButton
                     label='Kirim'
                     handlePress={() => handleSendOTPApi()}
-                    buttonStyles='mt-8'
-                    isLoading={isSubmitting}
-                />
-                <CustomButton
-                    label='->'
-                    handlePress={() => router.push('/(auth)/inputOTP')}
                     buttonStyles='mt-8'
                     isLoading={isSubmitting}
                 />

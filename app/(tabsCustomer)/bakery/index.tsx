@@ -32,12 +32,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { set } from "date-fns";
 
+type OrderItem = {
+  bakeryId: number;
+  items:
+  [
+      {
+          productQuantity: number;
+          productId: number;
+      }
+  ];
+};
 const Bakery = () => {
 
   const { userData } = useAuth();
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
-  const [userLocationFilter, setUserLocationFilter] = useState(0);
+  const [userLocationFilter, setUserLocationFilter] = useState(false);
   const [isExpiringFilter, setIsExpiringFilter] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -51,6 +61,21 @@ const Bakery = () => {
   const [isSubmitting, setisSubmitting] = useState(false);
   const [localStorageData, setLocalStorageData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+
+  const [orderData, setOrderData] = useState<OrderItem | null>(null);
+
+  const fetchOrderData = async () => {
+    try {
+      const jsonValue = await getLocalStorage('orderData');
+      const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+      setOrderData(data);
+
+      console.log("Order Data: ", orderData);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleGetCategoryApi = async () => {
     try {
@@ -71,14 +96,18 @@ const Bakery = () => {
     setIsLoading(true);
     try {
       const response = await bakeryApi().getBakeryWithFilters({
+        latitude: userData?.latitude,
+        longitude: userData?.longitude,
         categoryId: checkedCategories,
-        regionId: userLocationFilter,
+        userLocation: userLocationFilter,
         expiringProducts: isExpiringFilter
       })
 
       if (response.status === 200) {
         setBakery(response.data ? response.data : []);
       }
+
+      console.log("response", JSON.stringify(response.data, null, 2));
     } catch (error) {
       console.log(error);
     }
@@ -145,6 +174,12 @@ const Bakery = () => {
     }
   }, [categoryModal]);
 
+  useEffect(() => {
+    if (!orderData) {
+      fetchOrderData();
+    }
+  }, [orderData]);
+
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
@@ -161,17 +196,17 @@ const Bakery = () => {
         removeLocalStorage('filter');
         setLocalStorageData(null);
         setCheckedCategories([]);
-        setUserLocationFilter(0);
+        setUserLocationFilter(false);
         setIsExpiringFilter(false);
       };
     }, [])
-  );
+);
 
   useEffect(() => {
     if (!localStorageData) return;
 
     if (localStorageData.userLocationFilter) {
-      setUserLocationFilter(userData?.regionId || 0);
+      setUserLocationFilter(localStorageData.userLocationFilter);
     } else if (localStorageData.isExpiringFilter) {
       setIsExpiringFilter(localStorageData.isExpiringFilter);
     } else if (localStorageData.categoryFilter) {
@@ -212,7 +247,7 @@ const Bakery = () => {
           <SearchBar
             value={searchQuery}
             onChange={setSearchQuery}
-            placeholder="Cari bakeri disini"
+            placeholder="Cari bakeri"
           />
         </View>
 
@@ -227,10 +262,10 @@ const Bakery = () => {
           />
           <FilterButton
             label="Dekat saya"
-            isSelected={userLocationFilter !== 0}
+            isSelected={userLocationFilter}
             onPress={() => {
-              userLocationFilter === 0 ?
-                setUserLocationFilter(Number(userData?.regionId)) : setUserLocationFilter(0);
+              userLocationFilter ?
+                setUserLocationFilter(false) : setUserLocationFilter(true);
             }}
           />
           <FilterButton
@@ -265,6 +300,32 @@ const Bakery = () => {
           }
         </View>
       </View>
+
+      {orderData && (
+          <TouchableOpacity
+              style={{
+                  position: 'absolute',
+                  bottom: 20,
+                  right: 20,
+                  backgroundColor: '#B0795A',
+                  padding: 15,
+                  borderRadius: 50,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.25,
+                  shadowRadius: 3.84,
+                  elevation: 5,
+              }}
+              onPress={() => {
+                  router.push({
+                      pathname: '/bakery/bakeryDetail',
+                      params: { bakeryId: orderData.bakeryId },
+                  });
+              }}
+          >
+              <Ionicons name="cart" size={24} color="#fff" />
+          </TouchableOpacity>
+      )}
 
       <Modal
         visible={categoryModal}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, Image, StatusBar, FlatList, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { images } from '@/constants/images';
@@ -10,32 +10,15 @@ import categoryApi from '@/api/categoryApi';
 import productApi from '@/api/productApi';
 import CategoryCard from '@/components/CategoryCard';
 import TextLink from '@/components/texts/TextLink';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import ProductCard from '@/components/ProductCard';
 import { icons } from '@/constants/icons';
 import { useAuth } from '../context/AuthContext';
 import CustomButton from '@/components/CustomButton';
-import { FontAwesome } from '@expo/vector-icons';
-import { setLocalStorage } from '@/utils/commonFunctions';
-
-type Category = {
-  categoryId: number;
-  categoryName: string;
-  categoryImage: string;
-}
-
-type Product = {
-  bakeryId: number;
-  categoryId: number;
-  productId: number;
-  productName: string;
-  productDescription: string;
-  productImage: string;
-  productPrice: string;
-  productStock: number;
-  productExpirationDate: string;
-  isActive: number;
-}
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { getLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
+import { CategoryType, ProductType } from '@/types/types';
+import getDistance from 'geolib/es/getDistance';
 
 const Home = () => {
 
@@ -43,9 +26,9 @@ const Home = () => {
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
 
-  const [category, setCategory] = useState<Category[]>([]);
-  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
-  const [expiringProducts, setExpiringProducts] = useState<Product[]>([]);
+  const [category, setCategory] = useState<CategoryType[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState<ProductType[]>([]);
+  const [expiringProducts, setExpiringProducts] = useState<ProductType[]>([]);
   const [isSubmitting, setisSubmitting] = useState(false);
 
   const handleGetCategoryApi = async () => {
@@ -62,7 +45,8 @@ const Home = () => {
   const handleGetRecommendedProducts = async () => {
     try {
       const response = await productApi().getRecommendedProducts({
-        regionId: userData?.regionId,
+        latitude: userData?.latitude,
+        longitude: userData?.longitude
       });
       if (response.status === 200) {
         setRecommendedProducts(response.data);
@@ -72,9 +56,14 @@ const Home = () => {
     }
   }
 
+  console.log("expiring products", JSON.stringify(expiringProducts, null, 2));
+
   const handleGetExpiringProducts = async () => {
     try {
-      const response = await productApi().getExpiringProducts();
+      const response = await productApi().getExpiringProducts({
+        latitude: userData?.latitude,
+        longitude: userData?.longitude
+      });
       if (response.status === 200) {
         setExpiringProducts(response.data);
       }
@@ -83,11 +72,13 @@ const Home = () => {
     }
   }
 
-  useEffect(() => {
-    handleGetCategoryApi();
-    handleGetRecommendedProducts();
-    handleGetExpiringProducts();
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      handleGetCategoryApi();
+      handleGetRecommendedProducts();
+      handleGetExpiringProducts();
+    }, [])
+  )
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -112,7 +103,7 @@ const Home = () => {
 
         {/* Header */}
         <View
-          className='bg-brown px-5 pt-2 pb-8'
+          className='bg-brown px-5 pt-2 pb-2'
           style={{
             borderBottomLeftRadius: 15,
             borderBottomRightRadius: 15,
@@ -121,18 +112,21 @@ const Home = () => {
           <View className='flex-row justify-between items-center w-full mb-7'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">
               <Image
-                source={images.profile}
+                source={userData?.userImage ? { uri: userData?.userImage } : images.profile}
                 className="w-full h-full rounded-full"
               />
             </View>
-            <View className='flex-col items-center gap-y-1'>
-              <Text style={{ fontFamily: "poppinsLight", fontSize: 12, color: "white" }}>Lokasi Anda</Text>
-              <View className='flex-row'>
-                <Image
-                  source={icons.location}
-                  style={{ width: 12, height: 12, marginRight: 5, tintColor: "white" }}
-                />
-                <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white" }}>{userData?.regionUser?.regionName}</Text>
+            <View className="flex-col items-center gap-y-1">
+              <Text style={{ fontFamily: "poppinsLight", fontSize: 12, color: "white" }}>Alamat Anda</Text>
+              <View className="flex-row">
+                <Ionicons name="location-sharp" size={12} color="white" style={{ marginRight: 5 }} />
+                <Text
+                  style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white", maxWidth: 200 }}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {userData?.address}
+                </Text>
               </View>
             </View>
             <View>
@@ -149,11 +143,6 @@ const Home = () => {
               </TouchableOpacity>
             </View>
           </View>
-          <SearchBar
-            value='Sementara'
-            placeholder='Telusuri roti, pasteri, kue dan lainnya...'
-            onChange={() => { }}
-          />
         </View>
 
         <View className='bg-background px-5 pb-5'>
@@ -199,7 +188,7 @@ const Home = () => {
                   onPress={() => {
                     router.push({
                       pathname: '/bakery/bakeryDetail' as any,
-                      params: { productId: item.productId },
+                      params: { bakeryId: item.bakery.bakeryId },
                     })
                   }}
                 />
@@ -226,7 +215,12 @@ const Home = () => {
               renderItem={({ item }) => (
                 <ProductCard
                   product={item}
-                  onPress={() => { }}
+                  onPress={() => {
+                    router.push({
+                      pathname: '/bakery/bakeryDetail' as any,
+                      params: { bakeryId: item.bakery.bakeryId },
+                    })
+                  }}
                 />
               )}
               keyExtractor={(item) => item.productId.toString()}

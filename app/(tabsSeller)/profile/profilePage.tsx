@@ -7,7 +7,7 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
@@ -15,7 +15,7 @@ import UploadButton from "@/components/UploadButton";
 import CustomButton from "@/components/CustomButton";
 import CustomButtonOutline from "@/components/CustomButtonOutline";
 import * as ImagePicker from "expo-image-picker";
-import { router, Href } from "expo-router";
+import { router, Href, useFocusEffect } from "expo-router";
 import TextHeader from "@/components/texts/TextHeader";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
@@ -33,12 +33,13 @@ import TextAreaField from "@/components/TextAreaField";
 import TimeField from "@/components/TimeField";
 import { format, toZonedTime } from "date-fns-tz";
 import Toast from "react-native-toast-message";
+import InputLocationField from "@/components/InputLocationField";
+import axios from "axios";
+import Geocoder from 'react-native-geocoding';
 
 type ErrorState = {
   userName: string | null;
   userPhoneNumber: string | null;
-  regionId: number | null;
-  email: string | null;
 };
 
 type BakeryErrorState = {
@@ -48,18 +49,20 @@ type BakeryErrorState = {
   bakeryPhoneNumber: string | null;
   openingTime: string | null;
   closingTime: string | null;
-  bakeryRegionId: number | null;
+  bakeryAddress: string | null;
+  bakeryLatitude: number | null;
+  bakeryLongitude: number | null;
 };
 
 const EditProfile = () => {
   const { userData, refreshUserData, signOut } = useAuth();
-  console.log("userdata", userData);
+  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
+
   const [form, setForm] = useState({
     userName: userData?.userName || "",
     userPhoneNumber: userData?.userPhoneNumber || "",
-    email: userData?.email || "",
     userImage: userData?.userImage || "",
-    regionId: userData?.regionId || 0,
+    roleId: 2,
   });
 
   const [bakeryForm, setBakeryForm] = useState({
@@ -69,7 +72,9 @@ const EditProfile = () => {
     bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
     openingTime: userData?.bakery.openingTime || "",
     closingTime: userData?.bakery.closingTime || "",
-    bakeryRegionId: userData?.bakery.regionId || "",
+    bakeryAddress: userData?.bakery.bakeryAddress || "",
+    bakeryLatitude: userData?.bakery.bakeryLatitude || 0,
+    bakeryLongitude: userData?.bakery.bakeryLongitude || 0,
   });
 
   const [selectedStatus, setSelectedStatus] = useState<number>(1);
@@ -79,10 +84,7 @@ const EditProfile = () => {
   const emptyError: ErrorState = {
     userName: null,
     userPhoneNumber: null,
-    regionId: null,
-    email: null,
   };
-
   const emptyBakeryError: BakeryErrorState = {
     bakeryName: null,
     bakeryImage: null,
@@ -90,12 +92,12 @@ const EditProfile = () => {
     bakeryPhoneNumber: null,
     openingTime: null,
     closingTime: null,
-    bakeryRegionId: null,
+    bakeryAddress: null,
+    bakeryLatitude: null,
+    bakeryLongitude: null,
   };
-
   const [error, setError] = useState<ErrorState>(emptyError);
-  const [bakeryError, setBakeryError] =
-    useState<BakeryErrorState>(emptyBakeryError);
+  const [bakeryError, setBakeryError] = useState<BakeryErrorState>(emptyBakeryError);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -105,8 +107,14 @@ const EditProfile = () => {
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setForm({ ...form, userImage: result.assets[0].uri });
+    if (selectedStatus === 1) {
+      if (!result.canceled) {
+        setForm({ ...form, userImage: result.assets[0].uri });
+      }
+    } else {
+      if (!result.canceled) {
+        setBakeryForm({ ...bakeryForm, bakeryImage: result.assets[0].uri });
+      }
     }
   };
 
@@ -114,9 +122,7 @@ const EditProfile = () => {
     return (
       form.userName !== userData?.userName ||
       form.userPhoneNumber !== userData?.userPhoneNumber ||
-      form.email !== userData?.email ||
-      form.userImage !== userData?.userImage ||
-      form.regionId !== userData?.regionUser?.regionId
+      form.userImage !== userData?.userImage
     );
   };
 
@@ -128,7 +134,9 @@ const EditProfile = () => {
       bakeryForm.bakeryPhoneNumber !== userData?.bakery.bakeryPhoneNumber ||
       bakeryForm.openingTime !== userData?.bakery.openingTime ||
       bakeryForm.closingTime !== userData?.bakery.closingTime ||
-      bakeryForm.bakeryRegionId !== userData?.bakery.regionId
+      bakeryForm.bakeryAddress !== userData?.bakery.bakeryAddress ||
+      bakeryForm.bakeryLatitude !== userData?.bakery.bakeryLatitude ||
+      bakeryForm.bakeryLongitude !== userData?.bakery.bakeryLongitude
     );
   };
 
@@ -216,9 +224,7 @@ const EditProfile = () => {
           userId: userData?.userId,
           userName: form.userName,
           userPhoneNumber: form.userPhoneNumber,
-          email: form.email,
           userImage: form.userImage,
-          regionId: form.regionId,
         });
 
         showToast("success", "User data updated successfully!");
@@ -231,19 +237,21 @@ const EditProfile = () => {
           bakeryDescription: bakeryForm.bakeryDescription,
           bakeryPhoneNumber: bakeryForm.bakeryPhoneNumber,
           openingTime: bakeryForm.openingTime,
-          closingTime: bakeryForm.closingTime, 
-          regionId: bakeryForm.bakeryRegionId,
+          closingTime: bakeryForm.closingTime,
+          bakeryAddress: bakeryForm.bakeryAddress,
+          bakeryLatitude: bakeryForm.bakeryLatitude,
+          bakeryLongitude: bakeryForm.bakeryLongitude
         });
 
         showToast("success", "Bakery Data updated successfully!");
       }
 
       const userDataToStore = {
-        ...userData,
         ...form,
+        userId: userData?.userId,
         bakery: {
-          ...userData?.bakery,
-          ...bakeryForm
+          ...bakeryForm,
+          bakeryId: userData?.bakery.bakeryId
         }
       };
 
@@ -304,37 +312,58 @@ const EditProfile = () => {
   };
 
   const [isSubmitting, setisSubmitting] = useState(false);
-  const [region, setRegion] = useState([]);
-  console.log("user data from bakery", userData);
-  const handleGetRegionAPI = async () => {
-    try {
-      const response = await regionApi().getRegion();
-      if (response.status === 200) {
-        setRegion(response.data);
-      }
-    } catch (error) {
-      console.log(error);
+  const [address, setAddress] = useState(userData?.bakery.bakeryAddress || '');
+  const [suggestions, setSuggestions] = useState([]);
+
+  const handleGeocoding = (address: string) => {
+    Geocoder.from(address)
+      .then(json => {
+        const location = json.results[0].geometry.location;
+        setBakeryForm({ ...bakeryForm, bakeryLatitude: location.lat, bakeryLongitude: location.lng, bakeryAddress: address });
+      })
+      .catch(error => console.warn(error));
+  }
+
+  const handleGetLocationSuggestionsAPI = () => {
+
+    if (address === '') {
+      setError((prevError) => ({ ...prevError, address: 'Alamat toko tidak boleh kosong' }));
+      return;
     }
+
+    axios
+      .get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+        params: {
+          input: address,
+          key: GOOGLE_MAPS_API_KEY,
+          language: 'id',
+          location: '-6.222941492431385, 106.64889532527259',
+          radius: 5000,
+          types: 'establishment',
+        },
+      })
+      .then(response => {
+        setSuggestions(response.data.predictions);
+      })
+      .catch(error => console.error(error));
   };
 
-  useEffect(() => {
-    handleGetRegionAPI();
-  }, []);
+  const handleSelectSuggestion = (item: any) => {
+    setAddress(item.description);
+    setSuggestions([]);
+    handleGeocoding(item.description);
+  };
+
+  console.log("bakery form", JSON.stringify(bakeryForm, null, 2));
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
+
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+        <Toast topOffset={50} />
+      </View>
+
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 100,
-          }}
-        >
-          <Toast topOffset={50} />
-        </View>
 
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View
@@ -344,7 +373,7 @@ const EditProfile = () => {
               justifyContent: "center",
             }}
           >
-            <TextTitle3 label="Profil Saya" />
+            <TextHeader label="Profil Saya" />
 
             <TouchableOpacity
               onPress={() => setLogoutModalVisible(true)}
@@ -363,7 +392,7 @@ const EditProfile = () => {
             />
           </View>
 
-          <View className="mt-4 w-full items-center" style={{ marginTop: 30 }}>
+          <View className="mt-4 w-full items-center" style={{ marginTop: 40 }}>
             {selectedStatus === 1 ? (
               <>
                 <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
@@ -401,37 +430,10 @@ const EditProfile = () => {
                   error={error.userPhoneNumber}
                 />
 
-                <CustomDropdown
-                  label="Lokasi"
-                  data={region}
-                  value={form.regionId}
-                  placeholder="Pilih lokasi Anda"
-                  labelField="regionName"
-                  valueField="regionId"
-                  onChange={(text) => {
-                    setForm({ ...form, regionId: Number(text) });
-                    setError((prevError) => ({ ...prevError, regionId: null }));
-                  }}
-                  moreStyles="mt-7 w-full"
-                  error={error.regionId}
-                />
-
-                <FormField
-                  label="Alamat Email"
-                  value={form.email}
-                  onChangeText={(text) => {
-                    setForm({ ...form, email: text });
-                    setError((prevError) => ({ ...prevError, email: null }));
-                  }}
-                  keyboardType="email-address"
-                  moreStyles="mt-7"
-                  error={error.email}
-                />
-
                 <CustomButtonOutline
                   label="Ganti Kata Sandi"
                   handlePress={handlePasswordChange}
-                  buttonStyles="mt-8 w-full"
+                  buttonStyles="mt-10 w-full"
                   isLoading={isSubmitting}
                   color="#b0795a"
                 />
@@ -439,7 +441,7 @@ const EditProfile = () => {
                 <CustomButton
                   label="Simpan Perubahan"
                   handlePress={handleSubmitChange}
-                  buttonStyles="mt-4 w-full"
+                  buttonStyles="mt-5 w-full"
                   isLoading={isSubmitting}
                 />
               </>
@@ -459,9 +461,23 @@ const EditProfile = () => {
                   onChangeText={(text) =>
                     setBakeryForm({ ...bakeryForm, bakeryName: text })
                   }
+                  moreStyles="mt-7"
                   error={bakeryError.bakeryName}
                 />
-
+                <InputLocationField
+                  label='Alamat Toko'
+                  value={address}
+                  placeholder='Cari lokasi toko Anda'
+                  onChangeText={(text) => {
+                    setAddress(text);
+                    setError((prevError) => ({ ...prevError, bakeryAddress: null }));
+                  }}
+                  moreStyles='mt-7'
+                  suggestions={suggestions}
+                  error={bakeryError.bakeryAddress}
+                  onSearch={() => handleGetLocationSuggestionsAPI()}
+                  onSelectSuggestion={handleSelectSuggestion}
+                />
                 <View className="flex-row space-x-4">
                   <View className="flex-1">
                     <TimeField
@@ -482,26 +498,7 @@ const EditProfile = () => {
                     />
                   </View>
                 </View>
-                <CustomDropdown
-                  label="Lokasi"
-                  value={bakeryForm.bakeryRegionId}
-                  data={region}
-                  placeholder="Pilih lokasi toko Anda"
-                  labelField="regionName"
-                  valueField="regionId"
-                  onChange={(text) => {
-                    setBakeryForm((prevBakeryForm) => ({
-                      ...prevBakeryForm,
-                      bakeryRegionId: Number(text),
-                    }));
-                    setBakeryError((prevBakeryError) => ({
-                      ...prevBakeryError,
-                      bakeryRegionId: null,
-                    }));
-                  }}
-                  moreStyles="mt-7 w-full"
-                  error={bakeryError.bakeryRegionId}
-                />
+
                 <FormField
                   label="Nomor Telepon Toko"
                   value={bakeryForm.bakeryPhoneNumber}
@@ -540,7 +537,7 @@ const EditProfile = () => {
                 <CustomButton
                   label="Simpan Perubahan"
                   handlePress={handleSubmitChange}
-                  buttonStyles="mt-4 w-full"
+                  buttonStyles="mt-10 w-full"
                   isLoading={isSubmitting}
                 />
 

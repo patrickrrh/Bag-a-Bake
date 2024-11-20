@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { View, Text, Image, FlatList, TouchableOpacityBase, Animated } from 'react-native'
+import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, TouchableOpacity } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import productApi from '@/api/productApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,23 +12,61 @@ import TextOrangeBold from '@/components/texts/TextOrangeBold';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import CustomButton from '@/components/CustomButton';
 import StockInput from '@/components/StockInput';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
 import { BakeryType, ProductType } from '@/types/types';
 import AddOrderProductButton from '@/components/AddOrderProductButton';
 import BackButton from '@/components/BackButton';
 import CircleBackButton from '@/components/CircleBackButton';
-import { getLocalStorage, removeLocalStorage, updateLocalStorage, calculateTotalOrderPrice } from '@/utils/commonFunctions';
+import { getLocalStorage, removeLocalStorage, updateLocalStorage, calculateTotalOrderPrice, formatRupiah } from '@/utils/commonFunctions';
+import { Route } from 'expo-router/build/Route';
+import { images } from '@/constants/images';
+import { FontAwesome } from '@expo/vector-icons';
+import TextTitle4 from '@/components/texts/TextTitle4';
+import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
+import TextBeforePrice from '@/components/texts/TextBeforePrice';
+import TextDiscount from '@/components/texts/TextDiscount';
+import TextAfterPrice from '@/components/texts/TextAfterPrice';
+import ModalAction from '@/components/ModalAction';
+import ErrorMessage from '@/components/texts/ErrorMessage';
+
+type BakeryDetailType = {
+  bakery: {
+    bakeryId: number;
+    bakeryName: string;
+    closingTime: string;
+  },
+  prevRating: {
+    averageRating: string;
+    reviewCount: string;
+  }
+}
+
+type StockInputErrorState = {
+  productQuantity: string | null;
+}
 
 const InputOrder = () => {
 
   const { productId } = useLocalSearchParams();
   const [product, setProduct] = useState<ProductType | null>(null);
-  const [bakery, setBakery] = useState<BakeryType | null>(null);
+  const [bakery, setBakery] = useState<BakeryDetailType | null>(null);
   const emptyForm = {
     productId: parseInt(productId as string),
-    orderQuantity: 0,
+    productQuantity: 0,
   }
   const [form, setForm] = useState(emptyForm);
+
+  const emptyError = {
+    productQuantity: null
+  }
+  const [error, setError] = useState<StockInputErrorState>(emptyError);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [changeOrderModal, setChangeOrderModal] = useState(false);
+  const [isProduct, setIsProduct] = useState(false);
+
+
+  // New
+  const [hasExistingOrder, setHasExistingOrder] = useState(false);
 
   const handleGetProductByIdApi = async () => {
     try {
@@ -49,34 +87,17 @@ const InputOrder = () => {
       const response = await productApi().getBakeryByProduct({
         productId: parseInt(productId as string),
       })
-
-      // console.log("Hello", response)
       if (response.status === 200) {
-        setBakery(response.data ? response.data?.bakery : {})
+        setBakery(response.data ? response.data : {})
       }
     } catch (error) {
       console.log(error)
     }
   }
 
-  // const handleGetProductByIdApi = async () => {
-  //   try {
-  //     const response = await productApi().getBakeryByProduct({
-  //       productId: parseInt(productId as string),
-  //     })
-
-  //     if (response.status === 200) {
-  //       setProduct(response.data ? response.data : {})
-  //     }
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
-
   const loadProductQuantity = async () => {
     try {
       const jsonValue = await getLocalStorage('orderData');
-      console.log("son value", jsonValue)
       if (jsonValue !== null && jsonValue !== undefined) {
         const existingOrders = JSON.parse(jsonValue);
         const existingProduct = existingOrders.items.find(
@@ -84,12 +105,13 @@ const InputOrder = () => {
         );
 
         if (existingProduct) {
-          console.log("masuk sini gak")
-          setForm({ ...form, orderQuantity: existingProduct.orderQuantity });
+          setIsProduct(true);
+          setForm({ ...form, productQuantity: existingProduct.productQuantity });
+          handleCalculateTotalPrice(existingProduct.productQuantity);
         }
       } else {
-        // Handle the case where jsonValue is null or undefined
         console.log('No order data found');
+        setHasExistingOrder(false);
       }
     } catch (error) {
       console.log(error);
@@ -97,162 +119,227 @@ const InputOrder = () => {
   };
 
   const updateOrderData = (
-    currentOrder: { productId: number; orderQuantity: number }[], 
-    newOrder: { productId: number; orderQuantity: number }
+    currentOrder: { productId: number; productQuantity: number }[],
+    newOrder: { productId: number; productQuantity: number }
   ) => {
     const index = currentOrder.findIndex(item => item.productId === newOrder.productId);
-  
+
     if (index !== -1) {
-      currentOrder[index].orderQuantity = newOrder.orderQuantity; // Update quantity
+      currentOrder[index].productQuantity = newOrder.productQuantity; // Update quantity
     } else {
       currentOrder.push(newOrder); // Add new product
     }
-  
+
     return currentOrder;
   };
+
+  const handleCreateNewOrder = async () => {
+    try {
+      removeLocalStorage('orderData');
+
+      const newOrder = {
+        bakeryId: bakery?.bakery.bakeryId, // Assuming bakeryId comes from bakery object
+        items: [form]
+      };
+
+      // Save the new order with bakeryId
+      await AsyncStorage.setItem('orderData', JSON.stringify(newOrder));
+
+      router.push({
+        pathname: '/bakery/bakeryDetail' as any,
+        params: { bakeryId: bakery?.bakery.bakeryId },
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleAddOrder = async () => {
     try {
       // Retrieve the current order data from AsyncStorage
       const jsonValue = await AsyncStorage.getItem('orderData');
       const orderData = jsonValue ? JSON.parse(jsonValue) : [];
-  
+
+      if (form.productQuantity > (product?.productStock ?? 0)) {
+        setError((prevError) => ({ ...prevError, productQuantity: 'Jumlah melebihi stok yang tersedia' }));
+        return;
+      }
+
       // Check if no order exists
       if (orderData.length === 0) {
         // Insert the bakeryId outside the array if no order data exists
         const newOrder = {
-          bakeryId: bakery?.bakeryId, // Assuming bakeryId comes from bakery object
+          bakeryId: bakery?.bakery.bakeryId, // Assuming bakeryId comes from bakery object
           items: [form]
         };
-  
+
         // Save the new order with bakeryId
         await AsyncStorage.setItem('orderData', JSON.stringify(newOrder));
-        console.log('New order created with bakeryId:', bakery?.bakeryId);
       } else {
         // If an order exists, check if bakeryId matches
         const currentBakeryId = orderData.bakeryId;
-  
-        if (currentBakeryId !== bakery?.bakeryId) {
-          console.log('Bakery ID does not match! Handle error or switch bakery');
+
+        if (currentBakeryId !== bakery?.bakery.bakeryId) {
+          setChangeOrderModal(true);
+          return;
         } else {
           // If bakeryId matches, update the order items
           const updatedItems = updateOrderData(orderData.items, {
             productId: parseInt(productId as string),
-            orderQuantity: form.orderQuantity
-          });
-  
-          // Save the updated data with the same bakeryId
-          await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
+            productQuantity: form.productQuantity
+          }).filter(item => item.productQuantity > 0);
+
+          if (
+              updatedItems.length === 0 || 
+              (updatedItems.length === 1 && updatedItems[0].productId === parseInt(productId as string) && updatedItems[0].productQuantity === 0)
+          ) {
+              await removeLocalStorage('orderData');
+          } else {
+              await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
+          }
         }
       }
+
+      router.push({
+        pathname: '/bakery/bakeryDetail' as any,
+        params: { bakeryId: bakery?.bakery.bakeryId },
+      })
     } catch (error) {
       console.log('Error handling the order:', error);
     }
   };
 
+  useEffect(() => {
+    if (product) {
+        loadProductQuantity();
+    }
+}, [product]);
+
   useFocusEffect(
     useCallback(() => {
-      // removeLocalStorage('orderData')
       handleGetProductByIdApi()
       handleGetBakeryByProductApi()
       loadProductQuantity()
     }, [])
   )
 
-  const totalAmount = product?.productPrice ? product.productPrice * form.orderQuantity : 0;
+  const handleCalculateTotalPrice = (productQuantity: number) => {
+    const total = product?.todayPrice as number * productQuantity;
+    console.log("Product Quantity: ", product?.todayPrice);
+    // console.log("Total: ", total);
+    setTotalPrice(total);
+    // console.log("Total Price: ", totalPrice);
+  }
+
+  console.log("Error: ", error)
 
   return (
     <View>
-        <View>
-          <Image
-            source={product?.productImage}
-            style={{ width: '100%', height: 330 }}
+      <View>
+        <Image
+          source={images.logo}
+          style={{ width: '100%', height: 280 }}
+        />
+        <View style={{ position: 'absolute', top: 60, left: 30 }}>
+          <TouchableOpacity
+            onPress={() => {
+              router.back();
+            }}
+            style={{
+              backgroundColor: "white",
+              borderRadius: 25,
+              padding: 8,
+            }}
+            className='w-9 h-9 justify-center items-center'
+          >
+            <FontAwesome name="angle-left" size={20} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View className="mx-5 mt-3">
+        <View className="flex-row items-center">
+          <View className='mr-3'>
+            <TextTitle1 label={product?.productName as string} />
+          </View>
+          <CustomTag count={product?.productStock as number} />
+        </View>
+
+        <TextTitle4 label={bakery?.bakery.bakeryName as string} />
+
+        <TextRating
+          rating={bakery?.prevRating.averageRating as string}
+          reviewCount={bakery?.prevRating.reviewCount as string}
+        />
+
+        <View className='flex-row items-center'>
+          <TextTitle5 label={"Jam Pengambilan Terakhir: "}></TextTitle5>
+          <TextTitle5Bold label={bakery?.bakery.closingTime as string} color='#FA6F33' />
+        </View>
+
+        <View className="h-px bg-gray-200 my-4" />
+
+        <View className='h-14'>
+          <TextTitle5 label={product?.productDescription as string} />
+        </View>
+
+        <View className="mt-5">
+          <View className='flex-row'>
+            <View className='mr-2'>
+              <TextBeforePrice label={formatRupiah(Number(product?.productPrice))} />
+            </View>
+            <TextDiscount label={product?.discountPercentage as string} />
+          </View>
+          <TextAfterPrice label={formatRupiah(Number(product?.todayPrice))} size={20} />
+        </View>
+
+        <View className="flex-row items-center justify-between mt-5">
+          <TextTitle3 label="Jumlah Pembelian" />
+          <StockInput
+            value={form.productQuantity}
+            onChangeText={(text) => {
+              setForm({ ...form, productQuantity: parseInt(text) });
+              setError((prevError) => ({ ...prevError, productQuantity: null }));
+              handleCalculateTotalPrice(parseInt(text));
+            }}
+            error={error.productQuantity}
           />
-          <View style={{ position: 'absolute', top: 70, left: 28 }}>
-            <CircleBackButton />
-          </View>
         </View>
+        {
+          error.productQuantity && (
+            <ErrorMessage label={error.productQuantity} />
+          )
+        }
 
-        <View className="mx-5">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center">
-              <View className="pr-3 pb-1">
-                <TextTitle1 label={product?.productName} />
-              </View>
-              <CustomTag count={product?.productStock} />
-            </View>
-          </View>
-
-          <View className="pb-1">
-            <TextFormLabel label={bakery?.bakeryName || 'loading'} />
-          </View>
-
-          <View className="flex-row items-center">
-            <View className='pr-1'>
-              {/* <Image 
-                  source={require('../../assets/images/starFillIcon.png')}
-                  style={{ width: 12, height: 12 }}
-              /> */}
-            </View>
-            {/* <View className='pr-1 pt-1'>
-              <TextRating label={"4.2"} />
-            </View>
-            <View className='pt-1'>
-              <TextTitle5 label={"(20 ulasan)"} />
-            </View> */}
-          </View>
-          
-          <View className='flex-row items-center'>
-            <TextTitle5 label={"Jam Pengambilan Terakhir: "}></TextTitle5>
-            <TextOrangeBold label={bakery?.closingTime} />
-          </View>
-
-          <View style={{ borderBottomColor: '#ccc', borderBottomWidth: 1, marginVertical: 16 }} />
-
-          <View className='h-14'>
-            <TextTitle5 label={product?.productDescription} />
-          </View>
-
-          <View className="flex-row items-center mt-8">
-            <View className="pr-2">
-              <Text style={{ fontFamily: 'poppins', textDecorationLine: 'line-through', fontSize: 16 }}>
-                {"Rp. " + product?.productPrice + "/pcs"}
-              </Text>
-            </View>
-            <View className='flex-row items-center'>
-              <View className='pr-[5px]'>
-                {/* <Image 
-                    source={require('../../assets/images/discountIcon.png')}
-                    style={{ width: 12, height: 12 }}
-                /> */}
-              </View>
-              <TextOrangeBold label={"50% off"} />
-            </View>
-          </View>
-
-          <View className="pt-2">
-            <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 20 }}
-              className='text-black'>Rp. 10.000/pcs</Text>
-          </View>
-
-
-          <View className="flex-row items-center justify-between mt-5 mb-5">
-            <TextTitle3 label={"Jumlah Pembelian"} />
-
-            <StockInput 
-              value={form.orderQuantity}
-              onChangeText={(text) => 
-                setForm({ ...form, orderQuantity: parseInt(text) || 1})
-              }
-            />
-          </View>
-
-          <AddOrderProductButton 
-            label={`Rp. ${totalAmount.toLocaleString('id-ID')}`}         
-            handlePress={handleAddOrder}
-            isLoading={false} />
+        <View className='my-5'>
+        <AddOrderProductButton
+          label={
+            form.productQuantity === 0 && isProduct
+              ? "Back to Menu"
+              : `Tambahkan Pesanan  •  ${formatRupiah(totalPrice)}`
+          }
+          handlePress={
+            form.productQuantity === 0 && !isProduct
+              ? () => {} // Disable jika tidak ada produk & jumlah 0
+              : handleAddOrder
+          }
+          isLoading={false}
+          disabled={form.productQuantity === 0 && !isProduct && !hasExistingOrder} // Disable jika kondisi terpenuhi
+        />
         </View>
-    </View>
+      </View>
+
+      <ModalAction
+        setModalVisible={setChangeOrderModal}
+        modalVisible={changeOrderModal}
+        title='Ingin membeli dari bakeri ini?'
+        primaryButtonLabel='Iya'
+        secondaryButtonLabel='Tidak'
+        onPrimaryAction={() => handleCreateNewOrder()}
+        onSecondaryAction={() => setChangeOrderModal(false)}
+      />
+    </View >
+
   )
 }
 

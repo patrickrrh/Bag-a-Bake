@@ -8,6 +8,7 @@ import {
     ScrollView,
     Alert,
     Button,
+    Linking,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -22,14 +23,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
-import { formatRupiah, getLocalStorage } from '@/utils/commonFunctions';
+import { convertPhoneNumberFormat, formatRupiah, getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
 import { useFocusEffect } from '@react-navigation/native';
 import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 import LargeImage from '@/components/LargeImage';
 import { images } from '@/constants/images'
 import TextRating from '@/components/texts/TextRating';
+import OpenCartButton from '@/components/OpenCartButton';
+import TextEllipsis from '@/components/TextEllipsis';
 
 type Bakery = {
+    bakery: Bakery;
     bakeryId: number;
     userId: number;
     bakeryName: string;
@@ -38,19 +42,14 @@ type Bakery = {
     bakeryPhoneNumber: string;
     openingTime: string;
     closingTime: string;
-    regionId: number;
-    regionBakery: RegionBakery;
-    bakery: Bakery;
+    bakeryAddress: string;
+    bakeryLatitude: number;
+    bakeryLongitude: number;
     product: Product[];
     prevRating: {
         averageRating: string;
         reviewCount: string;
     }
-};
-
-type RegionBakery = {
-    regionId: number;
-    regionName: string;
 };
 
 type Product = {
@@ -71,7 +70,7 @@ type OrderItem = {
     items:
     [
         {
-            orderQuantity: number;
+            productQuantity: number;
             productId: number;
         }
     ];
@@ -81,10 +80,10 @@ const BakeryDetail = () => {
 
     const insets = useSafeAreaInsets();
 
-    const { productId, bakeryId } = useLocalSearchParams();
+    const { bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
-    const [totalPrice, setTotalPrice] = useState<number>(0.0);
+    const [totalPrice, setTotalPrice] = useState("");
     const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
     const [showFavorite, setShowFavorite] = useState(false);
@@ -95,92 +94,68 @@ const BakeryDetail = () => {
             const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
 
-            // Calculate Total Order Price
-            const products = bakeryDetail?.product || [];
+            console.log("Data: ", orderData);
 
             const mappedOrderDetail = data?.items.map((item: any) => {
-                const product = products.find(prod => prod.productId === item.productId);
+                const product = bakeryDetail?.bakery.product.find(prod => prod.productId === item.productId);
                 return {
                     product: product || {},
-                    productQuantity: item.orderQuantity
+                    productQuantity: item.productQuantity
                 };
             }) || [];
 
             if (mappedOrderDetail.length > 0) {
                 const total = calculateTotalOrderPrice(mappedOrderDetail);
-                // setTotalPrice(total);
-            } else {
-                setTotalPrice(0);
-            }
+                setTotalPrice(total);
 
+            } else {
+                setTotalPrice("0");
+            }
         } catch (error) {
             console.log(error);
         }
     };
 
-    const handleGetBakeryByProductApi = async () => {
-        try {
-
-            const response = await bakeryApi().getBakeryByProduct({
-                productId: parseInt(productId as string),
-            })
-            if (response.status === 200) {
-                setBakeryDetail(response.data ? response.data : {})
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
     const handleGetBakeryByIdApi = async () => {
         try {
             const response = await bakeryApi().getBakeryById({
                 bakeryId: parseInt(bakeryId as string),
             })
+
             if (response.status === 200) {
-                setBakeryDetail(response.data ? response.data : {})
+                setBakeryDetail(response.data ? response.data : {});
             }
         } catch (error) {
             console.log(error)
         }
     }
 
-    const handleBakeryChangeAlert = async () => {
-        const jsonValue = await AsyncStorage.getItem('orderData');
-        const data = jsonValue ? JSON.parse(jsonValue) : [];
-
-        // If there are items from a different bakery, show the alert
-        if (data.length > 0 && !bakeryDetail?.product.some(product => data.some((order: { productId: number; }) => order.productId === product.productId))) {
-            Alert.alert(
-                "Switch Bakery",
-                "Adding products from this bakery will clear items from the previous bakery. Proceed?",
-                [
-                    {
-                        text: "Cancel",
-                        style: "cancel",
-                    },
-                    {
-                        text: "Proceed",
-                        onPress: async () => {
-                            await AsyncStorage.removeItem('orderData');
-                            fetchOrderData();
-                        },
-                    },
-                ]
-            );
-        }
-    };
     useEffect(() => {
-        handleGetBakeryByIdApi();
-        handleBakeryChangeAlert();
-    }, [bakeryId]);
+        if (bakeryDetail) {
+            fetchOrderData();
+        }
+    }, [bakeryDetail]);
 
     useFocusEffect(
         useCallback(() => {
-            fetchOrderData();
-        }, [])
+            handleGetBakeryByIdApi();
+        }, [bakeryId])
     );
 
-    console.log("bakery detail", JSON.stringify(bakeryDetail, null, 2));
+    const handleContactSeller = (phoneNumber: string) => {
+        const formattedPhoneNumber = convertPhoneNumberFormat(phoneNumber);
+        const url = `https://wa.me/${formattedPhoneNumber}`;
+
+        Linking.canOpenURL(url)
+            .then((supported) => {
+                if (supported) {
+                    Linking.openURL(url);
+                } else {
+                    console.log('Can\'t handle url: ' + url);
+                }
+            })
+            .catch((err) => console.error('An error occurred', err));
+    }
 
     return (
         <View className="flex-1 bg-background">
@@ -222,11 +197,13 @@ const BakeryDetail = () => {
                 </View>
 
                 <View className="mt-5">
-                    <View className='flex-row justify-between items-start'>
-                        <View>
-                            <View className='flex-row'>
-                                <FontAwesome6 name='location-dot' size={14} />
-                                <TextTitle5 label={bakeryDetail?.bakery?.regionBakery?.regionName as string} containerStyle={{ marginLeft: 5 }} />
+                    <View className='flex-row justify-between items-start w-full'>
+                        <View className='w-1/2'>
+                            <View className='flex-row mb-2'>
+                                <Ionicons name="location-sharp" size={14} style={{ marginRight: 5 }} />
+                                <View>
+                                    <TextTitle5 label={bakeryDetail?.bakery?.bakeryAddress as string} />
+                                </View>
                             </View>
                             <TextRating
                                 rating={bakeryDetail?.prevRating.averageRating || "0"}
@@ -237,7 +214,7 @@ const BakeryDetail = () => {
                         <View>
                             <CustomClickableButton
                                 label={"Hubungi Bakeri"}
-                                handlePress={() => { }}
+                                handlePress={() => handleContactSeller(bakeryDetail?.bakery.bakeryPhoneNumber as string)}
                                 isLoading={isSubmitting}
                                 icon="whatsapp"
                                 iconColor='#25D366'
@@ -288,23 +265,22 @@ const BakeryDetail = () => {
 
             </ScrollView>
 
-            {/* Display Cart Button if there are items in the orderData */}
-            {orderData && (
-                <View className="p-5">
-                <CustomClickableButton
-                    label={`Lihat Keranjang (${orderData.items.length} item) - ${formatRupiah(totalPrice)}`}
-                    handlePress={() => {
-                        router.push({
-                            pathname: '/order/orderDetail',
-                            params: {
-                                bakeryId: bakeryId
-                            }
-                        })
-                    }}
-                    buttonStyles="bg-orange"
-                    isLoading={false} // Add this line
-                    icon="map" // Add this line
-                />
+            {(orderData && orderData.bakeryId == bakeryDetail?.bakery.bakeryId) && (
+                <View className="w-full flex justify-end p-5">
+                    <OpenCartButton
+                        label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
+                        handlePress={() => {
+                            router.push({
+                                pathname: '/order/inputOrderDetail' as any,
+                                params: {
+                                    bakeryId: bakeryId
+                                }
+                            })
+                        }}
+                        isLoading={isSubmitting}
+                        icon="bag-outline"
+                        iconColor='white'
+                    />
                 </View>
             )}
         </View>
