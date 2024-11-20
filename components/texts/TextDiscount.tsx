@@ -8,6 +8,8 @@ interface Props {
 }
 
 const TextDiscount: React.FC<Props> = ({ label, size }) => {
+  const roundedLabel = Math.round(parseFloat(label)).toString();
+
   return (
     <View className='flex-row items-center gap-x-1'>
       <Ionicons name='pricetag' size={size || 12} color='#FA6F33' />
@@ -15,7 +17,7 @@ const TextDiscount: React.FC<Props> = ({ label, size }) => {
         style={{ fontFamily: "poppinsSemiBold", fontSize: 12 }}
         className='text-orange'
       >
-       {`${label}% OFF`}
+       {`${roundedLabel}% OFF`}
       </Text>
     </View>
   )

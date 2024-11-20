@@ -22,6 +22,7 @@ import TextAfterPrice from '@/components/texts/TextAfterPrice';
 import { FontAwesome } from '@expo/vector-icons';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import ContactButton from '@/components/ContactButton';
+import ModalAction from '@/components/ModalAction';
 
 const OrderDetail = () => {
 
@@ -29,8 +30,18 @@ const OrderDetail = () => {
     const orderData = order ? JSON.parse(order as string) : null;
 
     const [isSubmitting, setisSubmitting] = useState(false);
+    const [isCancelModalVisible, setCancelModalVisible] = useState(false);
 
     console.log("order", JSON.stringify(orderData, null, 2))
+
+    const handleCancelOrderApi = async () => {
+        try {
+            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId });
+            router.push("/order");
+        } catch (error) {
+            console.log("Error canceling order ", error)
+        }
+    }
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
@@ -109,7 +120,7 @@ const OrderDetail = () => {
                         />
                         <ContactButton
                             label="Batalkan Pesanan"
-                            handlePress={() => {}}
+                            handlePress={() => setCancelModalVisible(true)}
                             buttonStyles='mt-3'
                             isLoading={isSubmitting}
                         />
@@ -123,6 +134,20 @@ const OrderDetail = () => {
                         />
                     </View>
                 ) : null
+            }
+
+            {
+                isCancelModalVisible && (
+                    <ModalAction
+                        setModalVisible={setCancelModalVisible}
+                        modalVisible={isCancelModalVisible}
+                        title="Apakah Anda yakin ingin membatalkan pesanan ini?"
+                        primaryButtonLabel="Kembali"
+                        secondaryButtonLabel="Batalkan Pesanan"
+                        onPrimaryAction={() => setCancelModalVisible(false)}
+                        onSecondaryAction={handleCancelOrderApi}
+                    />
+                )
             }
 
         </SafeAreaView>
