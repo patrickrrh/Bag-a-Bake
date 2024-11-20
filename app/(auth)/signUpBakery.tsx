@@ -99,7 +99,7 @@ const SignUpBakery = () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
-            aspect: [4, 3],
+            aspect: [1, 1],
             quality: 1,
         })
 
@@ -191,12 +191,12 @@ const SignUpBakery = () => {
         const timezone = toZonedTime(time, "Asia/Jakarta");
         const formattedTime = format(timezone, "HH:mm");
       
-        setBakeryForm((prevForm) => ({
+        setForm((prevForm) => ({
           ...prevForm,
           [timeFieldType]: formattedTime,
         }));
       
-        setBakeryError((prevError) => ({
+        setError((prevError) => ({
           ...prevError,
           [timeFieldType]: null,
         }));

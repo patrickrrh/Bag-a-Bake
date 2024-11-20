@@ -10,7 +10,7 @@ import TextFormLabel from "./texts/TextFormLabel";
 import TextTitle4 from "./texts/TextTitle4";
 import ErrorMessage from "./texts/ErrorMessage";
 import { Ionicons } from "@expo/vector-icons";
-import Tooltip from "react-native-walkthrough-tooltip";
+import ModalInformation from "@/components/ModalInformation";
 
 interface Props {
   label: string;
@@ -37,7 +37,8 @@ const PriceInputField: React.FC<Props> = ({
   const [internalValue, setInternalValue] = useState<string>(
     formatCurrency(String(value))
   );
-  const [toolTipVisible, setToolTipVisible] = useState(false);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     setInternalValue(formatCurrency(String(value)));
@@ -57,30 +58,27 @@ const PriceInputField: React.FC<Props> = ({
     onChangeText(numericValue);
   };
 
-  const [isVisible, setIsVisible] = useState(false);
-
   return (
     <View className={`space-y-1 ${moreStyles}`}>
       {/* <TextFormLabel label={label} /> */}
-      <View className="flex-row items-center space-x-2">
+      <View className="flex-row items-center">
         <TextFormLabel label={label} />
-        <Tooltip
-          isVisible={isVisible}
-          content={
-            <Text>Harga Awal merupakan harga produk sebelum diskon</Text>
-          }
-          placement="right"
-          onClose={() => setIsVisible(false)}
-          backgroundColor="rgba(0, 0, 0, 0.1)"
-        >
-          <Ionicons
-            name="information-circle-outline"
-            size={20}
-            color="black"
-            onPress={() => setIsVisible(!isVisible)}
-          />
-        </Tooltip>
+        <Ionicons
+          name="information-circle-outline"
+          size={18}
+          color="black"
+          style={{ marginLeft: 2 }}
+          onPress={() => setIsModalVisible(true)}
+        />
       </View>
+
+      <ModalInformation
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        title="Harga Awal"
+        content="Harga Awal merujuk pada harga produk sebelum dikenakan diskon."
+      />
+
       <View
         className={`w-full h-[40px] px-4 bg-white rounded-[8px] items-center border ${
           error ? "border-red-500" : "border-gray-200"
