@@ -10,8 +10,8 @@ interface Props {
 const StockInput: React.FC<Props> = ({ value, onChangeText, placeholder }) => {
   
   const handleDecrement = () => {
-    if (value > 1) {
-      onChangeText((Math.max(1, value - 1)).toString());
+    if (value > 0) {
+      onChangeText((Math.max(0, value - 1)).toString());
     }
   };
 

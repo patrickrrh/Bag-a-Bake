@@ -4,6 +4,8 @@ import TextButton from './texts/TextButton'
 import { icons } from "@/constants/icons";
 import TextSmallCustomButton from './texts/TextSmallCustomButton';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import TextTitle3 from './texts/TextTitle3';
+import TextTitle4 from './texts/TextTitle4';
 
 interface Props {
     label: string;
@@ -19,13 +21,15 @@ const OpenCartButton: React.FC<Props> = ({ label, handlePress, buttonStyles, isL
         <TouchableOpacity
             onPress={handlePress}
             activeOpacity={0.7}
-            className={`bg-[#FA6F33] justify-center items-center px-2 py-1 rounded ${buttonStyles} ${isLoading ? "opacity-50" : ""}`}
+            className={`bg-brown justify-center items-center px-2 py-1 h-10 rounded ${buttonStyles} ${isLoading ? "opacity-50" : ""}`}
             disabled={isLoading}>
                 <View className="flex-row items-center">
-                    <View className="mr-2" style={{ paddingVertical: 2 }}>
-                        <Ionicons name={icon} size={14} color={iconColor} />
+                    <View className="mr-2">
+                        <Ionicons name={icon} size={16} color={iconColor} />
                     </View>
-                    <TextSmallCustomButton label={label} />
+                    <View className="mt-1">
+                        <TextTitle4 label={label} color='white'/>
+                    </View>
                 </View>
 
         </TouchableOpacity>

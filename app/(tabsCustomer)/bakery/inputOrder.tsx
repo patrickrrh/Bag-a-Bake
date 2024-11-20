@@ -52,6 +52,11 @@ const InputOrder = () => {
   const [form, setForm] = useState(emptyForm);
   const [totalPrice, setTotalPrice] = useState(0);
   const [changeOrderModal, setChangeOrderModal] = useState(false);
+  const [isProduct, setIsProduct] = useState(false);
+
+
+  // New
+  const [hasExistingOrder, setHasExistingOrder] = useState(false);
 
   const handleGetProductByIdApi = async () => {
     try {
@@ -90,11 +95,13 @@ const InputOrder = () => {
         );
 
         if (existingProduct) {
+          setIsProduct(true);
           setForm({ ...form, productQuantity: existingProduct.productQuantity });
           handleCalculateTotalPrice(existingProduct.productQuantity);
         }
       } else {
         console.log('No order data found');
+        setHasExistingOrder(false);
       }
     } catch (error) {
       console.log(error);
@@ -115,6 +122,27 @@ const InputOrder = () => {
 
     return currentOrder;
   };
+
+  const handleCreateNewOrder = async () => {
+    try {
+      removeLocalStorage('orderData');
+
+      const newOrder = {
+        bakeryId: bakery?.bakery.bakeryId, // Assuming bakeryId comes from bakery object
+        items: [form]
+      };
+
+      // Save the new order with bakeryId
+      await AsyncStorage.setItem('orderData', JSON.stringify(newOrder));
+
+      router.push({
+        pathname: '/bakery/bakeryDetail' as any,
+        params: { bakeryId: bakery?.bakery.bakeryId },
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleAddOrder = async () => {
     try {
@@ -144,10 +172,16 @@ const InputOrder = () => {
           const updatedItems = updateOrderData(orderData.items, {
             productId: parseInt(productId as string),
             productQuantity: form.productQuantity
-          });
+          }).filter(item => item.productQuantity > 0);
 
-          // Save the updated data with the same bakeryId
-          await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
+          if (
+              updatedItems.length === 0 || 
+              (updatedItems.length === 1 && updatedItems[0].productId === parseInt(productId as string) && updatedItems[0].productQuantity === 0)
+          ) {
+              await removeLocalStorage('orderData');
+          } else {
+              await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
+          }
         }
       }
 
@@ -160,6 +194,12 @@ const InputOrder = () => {
     }
   };
 
+  useEffect(() => {
+    if (product) {
+        loadProductQuantity();
+    }
+}, [product]);
+
   useFocusEffect(
     useCallback(() => {
       handleGetProductByIdApi()
@@ -170,7 +210,10 @@ const InputOrder = () => {
 
   const handleCalculateTotalPrice = (productQuantity: number) => {
     const total = product?.todayPrice as number * productQuantity;
+    console.log("Product Quantity: ", product?.todayPrice);
+    // console.log("Total: ", total);
     setTotalPrice(total);
+    // console.log("Total Price: ", totalPrice);
   }
 
   return (
@@ -233,7 +276,6 @@ const InputOrder = () => {
           <TextAfterPrice label={formatRupiah(Number(product?.todayPrice))} size={20} />
         </View>
 
-
         <View className="flex-row items-center justify-between mt-5">
           <TextTitle3 label="Jumlah Pembelian" />
           <StockInput
@@ -246,21 +288,30 @@ const InputOrder = () => {
         </View>
 
         <View className='my-5'>
-          <AddOrderProductButton
-            label={formatRupiah(totalPrice)}
-            handlePress={handleAddOrder}
-            isLoading={false}
-          />
+        <AddOrderProductButton
+          label={
+            form.productQuantity === 0 && isProduct
+              ? "Back to Menu"
+              : `Tambahkan Pesanan  •  ${formatRupiah(totalPrice)}`
+          }
+          handlePress={
+            form.productQuantity === 0 && !isProduct
+              ? () => {} // Disable jika tidak ada produk & jumlah 0
+              : handleAddOrder
+          }
+          isLoading={false}
+          disabled={form.productQuantity === 0 && !isProduct && !hasExistingOrder} // Disable jika kondisi terpenuhi
+        />
         </View>
       </View>
 
       <ModalAction
         setModalVisible={setChangeOrderModal}
         modalVisible={changeOrderModal}
-        title='Ingin membeli dari bakeri lain?'
+        title='Ingin membeli dari bakeri ini?'
         primaryButtonLabel='Iya'
         secondaryButtonLabel='Tidak'
-        onPrimaryAction={() => {}}
+        onPrimaryAction={() => handleCreateNewOrder()}
         onSecondaryAction={() => setChangeOrderModal(false)}
       />
     </View >

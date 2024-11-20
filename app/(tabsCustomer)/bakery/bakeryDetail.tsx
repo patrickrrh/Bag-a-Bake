@@ -96,6 +96,8 @@ const BakeryDetail = () => {
             const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
 
+            console.log("Data: ", orderData);
+
             const mappedOrderDetail = data?.items.map((item: any) => {
                 const product = bakeryDetail?.bakery.product.find(prod => prod.productId === item.productId);
                 return {
@@ -130,32 +132,6 @@ const BakeryDetail = () => {
         }
     }
 
-    const handleBakeryChangeAlert = async () => {
-        const jsonValue = await AsyncStorage.getItem('orderData');
-        const data = jsonValue ? JSON.parse(jsonValue) : [];
-
-        // If there are items from a different bakery, show the alert
-        if (data.length > 0 && !bakeryDetail?.product.some(product => data.some((order: { productId: number; }) => order.productId === product.productId))) {
-            Alert.alert(
-                "Switch Bakery",
-                "Adding products from this bakery will clear items from the previous bakery. Proceed?",
-                [
-                    {
-                        text: "Cancel",
-                        style: "cancel",
-                    },
-                    {
-                        text: "Proceed",
-                        onPress: async () => {
-                            await AsyncStorage.removeItem('orderData');
-                            fetchOrderData();
-                        },
-                    },
-                ]
-            );
-        }
-    };
-
     useEffect(() => {
         if (bakeryDetail) {
             fetchOrderData();
@@ -167,6 +143,8 @@ const BakeryDetail = () => {
             handleGetBakeryByIdApi();
         }, [bakeryId])
     );
+
+    console.log("Order Data: ", orderData);
 
     return (
         <View className="flex-1 bg-background">
@@ -274,8 +252,8 @@ const BakeryDetail = () => {
 
             </ScrollView>
 
-            {orderData && (
-                <View className="w-full flex items-end justify-end p-5">
+            {(orderData && orderData.bakeryId == bakeryDetail?.bakery.bakeryId) && (
+                <View className="w-full flex justify-end p-5">
                     <OpenCartButton
                         label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
                         handlePress={() => {
