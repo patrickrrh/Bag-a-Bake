@@ -283,7 +283,7 @@ const EditProfile = () => {
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
-
+  console.log("user auth data bakery auth data", userData?.bakery);
   const handleSelectTime = (time: any) => {
     const timezone = toZonedTime(time, "Asia/Jakarta");
     const formattedTime = format(timezone, "HH:mm");

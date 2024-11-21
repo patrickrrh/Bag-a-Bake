@@ -140,12 +140,8 @@ export const checkProductForm = (form: Record<string, unknown>) => {
     }
 
     discountAmounts.forEach((amount, index) => {
-      if (isNaN(amount) || amount < 0) {
-        errors.discount = `Diskon ${index + 1} tidak boleh kurang dari 0`;
-      } else if (index > 0 && amount >= discountAmounts[index - 1]) {
-        errors.discount = `Diskon ${
-          index + 1
-        } harus kurang dari Diskon ${index}`;
+      if (index > 0 && amount > discountAmounts[index - 1]) {
+        errors.discount = `Diskon ${index + 1} harus lebih kecil atau sama dengan Diskon ${index}`;
       }
     });
   } else {

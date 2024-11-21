@@ -5,8 +5,9 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
+  Switch,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
@@ -26,12 +27,12 @@ import { checkProductForm } from "@/utils/commonFunctions";
 import ErrorMessage from "@/components/texts/ErrorMessage";
 import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
-import SquareButton from "@/components/SquareButton";
 import { useAuth } from "@/app/context/AuthContext";
 import Decimal from "decimal.js";
 import ModalAction from "@/components/ModalAction";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import ModalInformation from "@/components/ModalInformation";
 
 type ErrorState = {
   productName: string | null;
@@ -46,6 +47,11 @@ type ErrorState = {
 
 type RouteParams = {
   productId: number;
+};
+
+type DiscountItem = {
+  discountAmount: string;
+  discountDate: string;
 };
 
 const EditProduct = () => {
@@ -63,7 +69,10 @@ const EditProduct = () => {
     productStock: 1,
     productImage: "",
     bakeryId: 0,
+    isActive: 1,
   });
+
+  const [isSwitchEnabled, setIsSwitchEnabled] = useState(form.isActive === 1);
 
   const productError: ErrorState = {
     productName: null,
@@ -79,6 +88,10 @@ const EditProduct = () => {
   const [error, setError] = useState<ErrorState>(productError);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
+  const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
+    useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -99,6 +112,7 @@ const EditProduct = () => {
       ...form,
       productExpirationDate: date,
     });
+    setIsExpirationDateUpdated(true);
     setError((prevError) => ({ ...prevError, productExpirationDate: null }));
   };
 
@@ -111,7 +125,28 @@ const EditProduct = () => {
         setError(errors as ErrorState);
         return;
       }
-      console.log(form);
+
+      const hasMissingDiscounts = form.discount.some(
+        (disc) => !disc.discountAmount
+      );
+      if (hasMissingDiscounts) {
+        setIsDiscountModalVisible(true);
+        return;
+      } else {
+        console.log("masuk else");
+        setIsConfirmationModalVisible(true);
+        return;
+      }
+      
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const saveProduct = async () => {
+    try {
       const formData = {
         ...form,
         productId: new Number(form.productId),
@@ -125,55 +160,18 @@ const EditProduct = () => {
       };
 
       const response = await productApi().updateProductById(formData);
+      console.log("response", response);
       if (response.error) {
         throw new Error(response.error);
       }
       setModalVisible(true);
       console.log("Response:", response);
-      console.log("Form submitted:", form);
+      console.log("Form submitted:", formData);
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
-      setIsSubmitting(false);
+      setIsConfirmationModalVisible(false);
     }
-  };
-
-  const handleAddDiscount = () => {
-    setForm((prevForm) => {
-      const newDiscountDate = new Date();
-      newDiscountDate.setDate(
-        newDiscountDate.getDate() + prevForm.discount.length
-      );
-
-      return {
-        ...prevForm,
-        discount: [
-          ...prevForm.discount,
-          { discountAmount: "", discountDate: newDiscountDate.toISOString() },
-        ],
-      };
-    });
-  };
-
-  const handleRemoveDiscount = () => {
-    setForm((prevForm) => {
-      const updatedDiscounts = prevForm.discount.slice(0, -1);
-
-      if (updatedDiscounts.length < 1) {
-        const newDiscountDate = new Date();
-        newDiscountDate.setDate(newDiscountDate.getDate());
-
-        updatedDiscounts.push({
-          discountAmount: "",
-          discountDate: newDiscountDate.toISOString(),
-        });
-      }
-
-      return {
-        ...prevForm,
-        discount: updatedDiscounts,
-      };
-    });
   };
 
   const handleDiscountChange = (index: number, text: string) => {
@@ -234,15 +232,80 @@ const EditProduct = () => {
           productStock: response.data.productStock,
           productImage: response.data.productImage,
           bakeryId: response.data.bakeryId,
+          isActive: response.data.isActive,
         });
+        setIsSwitchEnabled(response.data.isActive === 1);
       }
-        console.log(form);
+      console.log(form);
     } catch (error) {
       console.log("Error fetching product by ID:", error);
     }
   };
 
+  const handleFillMissingDiscounts = () => {
+    setForm((prevForm) => {
+      if (!prevForm.discount || prevForm.discount.length === 0) {
+        console.log("No discounts available to update.");
+        return prevForm;
+      }
+
+      const filledDiscounts = prevForm.discount.map((discount, index) => {
+        if (
+          discount.discountAmount === "" ||
+          discount.discountAmount === null
+        ) {
+          const lastFilledDiscount = prevForm.discount
+            .slice(0, index)
+            .reverse()
+            .find((d) => d.discountAmount !== "" && d.discountAmount !== null);
+
+          const lastDiscountAmount = lastFilledDiscount
+            ? lastFilledDiscount.discountAmount
+            : "";
+
+          return {
+            ...discount,
+            discountAmount: lastDiscountAmount,
+          };
+        }
+
+        return discount;
+      });
+
+      return { ...prevForm, discount: filledDiscounts };
+    });
+  };
+
+  useEffect(() => {
+    const today = dayjs().startOf("day");
+    const expirationDate = dayjs(form.productExpirationDate).startOf("day");
+
+    if (expirationDate.isBefore(today)) {
+      setIsSwitchEnabled(false);
+      setForm((prevForm) => ({
+        ...prevForm,
+        isActive: 2,
+      }));
+    }
+  }, [form.productExpirationDate]);
+
+  const handleToggleSwitch = () => {
+    const today = dayjs().startOf("day");
+    const expirationDate = dayjs(form.productExpirationDate).startOf("day");
+
+    if (expirationDate.isBefore(today)) {
+      return;
+    }
+
+    setIsSwitchEnabled((previousState) => !previousState);
+    setForm((prevForm) => ({
+      ...prevForm,
+      isActive: isSwitchEnabled ? 2 : 1,
+    }));
+  };
+
   const [isDeleteModalVisible, setDeleteModalVisible] = useState(false);
+
   const handleDeleteProduct = async () => {
     try {
       await productApi().deleteProductById({ productId });
@@ -260,6 +323,50 @@ const EditProduct = () => {
     handleGetCategoriesAPI();
     handleGetProductById();
   }, [productId]);
+
+  const [isExpirationDateUpdated, setIsExpirationDateUpdated] = useState(false);
+
+  useEffect(() => {
+    if (isExpirationDateUpdated) {
+      const fillDiscountFields = () => {
+        const today = dayjs().startOf("day");
+        const expirationDate = dayjs(form.productExpirationDate).startOf("day");
+        const daysToExpiration = expirationDate.diff(today, "day");
+
+        const existingDiscounts = form.discount || [];
+
+        const newDiscounts: DiscountItem[] = [];
+
+        for (let i = 0; i <= daysToExpiration; i++) {
+          const discountDate = today.add(i, "day").toDate();
+          const discountDateString = discountDate.toISOString();
+
+          const existingDiscount = existingDiscounts.find(
+            (discount) => discount.discountDate === discountDateString
+          );
+
+          if (existingDiscount) {
+            newDiscounts.push(existingDiscount);
+          } else {
+            newDiscounts.push({
+              discountAmount: "",
+              discountDate: discountDateString,
+            });
+          }
+        }
+
+        const updatedDiscounts = newDiscounts;
+
+        setForm((prevForm) => ({
+          ...prevForm,
+          discount: updatedDiscounts,
+        }));
+      };
+
+      fillDiscountFields();
+      setIsExpirationDateUpdated(false);
+    }
+  }, [form.productExpirationDate, isExpirationDateUpdated]);
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -389,12 +496,19 @@ const EditProduct = () => {
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
                 marginBottom: 10,
               }}
             >
               <TextFormLabel label="Harga Jual" />
-              <View
+              <Ionicons
+                name="information-circle-outline"
+                size={18}
+                color="black"
+                style={{ marginLeft: 2 }}
+                onPress={() => setIsInfoModalVisible(true)}
+              />
+              {/* <View
                 style={{
                   flexDirection: "row",
                   marginLeft: 10,
@@ -402,8 +516,15 @@ const EditProduct = () => {
               >
                 <SquareButton label="-" handlePress={handleRemoveDiscount} />
                 <SquareButton label="+" handlePress={handleAddDiscount} />
-              </View>
+              </View> */}
             </View>
+
+            <ModalInformation
+              visible={isInfoModalVisible}
+              onClose={() => setIsInfoModalVisible(false)}
+              title="Harga Jual"
+              content="Harga Jual adalah harga produk setelah dikurangi diskon per hari, dengan hari pertama dihitung mulai dari hari ini."
+            />
             <View className="flex-col">
               {form.discount.map((discount, index) => {
                 const discountDate = dayjs(discount.discountDate);
@@ -449,6 +570,45 @@ const EditProduct = () => {
             </View>
           </View>
 
+          {/* Status Switch */}
+          <View className="mt-7 space-y-1">
+            <TextFormLabel label="Status Produk" />
+            <View className="w-full h-[40px] flex-row items-center">
+              <Text
+                style={{
+                  fontFamily: "poppinsRegular",
+                  fontSize: 14,
+                  color: "black",
+                }}
+              >
+                Inactive
+              </Text>
+              <Switch
+                value={isSwitchEnabled}
+                onValueChange={handleToggleSwitch}
+                trackColor={{
+                  false: "#D3D3D3",
+                  true: "#D6B09F",
+                }}
+                thumbColor={isSwitchEnabled ? "#b0795a" : "gray"}
+                style={{
+                  marginLeft: 10,
+                  marginRight: 10,
+                }}
+              />
+
+              <Text
+                style={{
+                  fontFamily: "poppinsRegular",
+                  fontSize: 14,
+                  color: "black",
+                }}
+              >
+                Active
+              </Text>
+            </View>
+          </View>
+
           {/* Add Product Button */}
           <CustomButton
             label="Perbarui"
@@ -459,12 +619,39 @@ const EditProduct = () => {
         </View>
       </ScrollView>
 
-      {/* {modalVisible && (
-        <ModalEditSubmission
-          setModalVisible={setModalVisible}
-          modalVisible={modalVisible}
+      {isDiscountModalVisible && (
+        <ModalAction
+          modalVisible={isDiscountModalVisible}
+          setModalVisible={setIsDiscountModalVisible}
+          title="Apakah Anda ingin mengisi diskon otomatis?"
+          primaryButtonLabel="Iya"
+          secondaryButtonLabel="Tidak"
+          onPrimaryAction={() => {
+            handleFillMissingDiscounts();
+            setIsDiscountModalVisible(false);
+          }}
+          onSecondaryAction={() => {
+            setIsDiscountModalVisible(false);
+          }}
         />
-      )} */}
+      )}
+
+      {isConfirmationModalVisible && (
+        <ModalAction
+          modalVisible={isConfirmationModalVisible}
+          setModalVisible={setIsConfirmationModalVisible}
+          title="Apakah Anda yakin ingin mengubah produk?"
+          primaryButtonLabel="Iya"
+          secondaryButtonLabel="Tidak"
+          onPrimaryAction={() => {
+            saveProduct();
+            setIsConfirmationModalVisible(false);
+          }}
+          onSecondaryAction={() => {
+            setIsConfirmationModalVisible(false);
+          }}
+        />
+      )}
 
       {modalVisible && (
         <ModalAction
