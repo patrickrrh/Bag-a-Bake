@@ -56,7 +56,6 @@ const SignUpBakery = () => {
         bakeryAddress: '',
         bakeryLatitude: 0,
         bakeryLongitude: 0,
-        pushToken: '',
     })
     const [address, setAddress] = useState('')
     const [suggestions, setSuggestions] = useState([]);
@@ -113,12 +112,16 @@ const SignUpBakery = () => {
         try {
             setisSubmitting(true);
 
+            console.log("masuk sini?")
+
             const errors = checkEmptyForm(form);
             if (Object.values(errors).some(error => error !== null)) {
                 setError(errors as ErrorState);
                 setisSubmitting(false);
                 return;
             }
+
+            console.log("masuk gak")
 
             signUp(form);
         } catch (error) {
@@ -150,8 +153,6 @@ const SignUpBakery = () => {
             <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
         </>
     );
-
-    console.log("form", JSON.stringify(form, null, 2))
 
     const showDatePicker = (type: 'openingTime' | 'closingTime') => {
         setTimeFieldType(type);
@@ -195,8 +196,6 @@ const SignUpBakery = () => {
             return;
         }
 
-        console.log("is called")
-
         axios
             .get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
                 params: {
@@ -220,7 +219,7 @@ const SignUpBakery = () => {
         handleGeocoding(item.description);
     };
 
-    console.log("form", form)
+    console.log("errors", error)
 
     return (
         <ScrollView className='bg-background'>

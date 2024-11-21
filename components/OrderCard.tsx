@@ -4,7 +4,6 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import TextTitle5 from '@/components/texts/TextTitle5';
 import TextRating from '@/components/texts/TextRating';
-import { useNavigation } from '@react-navigation/native';
 import { images } from '@/constants/images';
 import TextTitle5Gray from './texts/TextTitle5Gray';
 import { icons } from '@/constants/icons';

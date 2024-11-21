@@ -14,19 +14,15 @@ import {
   Text,
   Image,
   FlatList,
-  TouchableOpacityBase,
   Animated,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import TextTitle4 from "@/components/texts/TextTitle4";
 import TextTitle5Date from "@/components/texts/TextTitle5Date";
-import CustomButton from "@/components/CustomButton";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import ListProductCard from "@/components/ListProductCard";
-import { G } from "react-native-svg";
 
 interface ListDiscount {
   discountId: number;

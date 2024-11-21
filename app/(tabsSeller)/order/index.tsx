@@ -1,7 +1,6 @@
 import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView, FlatList, ActivityIndicator } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';

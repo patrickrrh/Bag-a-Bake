@@ -5,7 +5,7 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle5 from '@/components/texts/TextTitle5';
 import TextRating from '@/components/texts/TextRating';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, ActivityIndicator, Modal, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { View, Text, Image, FlatList, Animated, ActivityIndicator, Modal, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import OrderCard from '@/components/OrderCard';

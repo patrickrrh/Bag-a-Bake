@@ -1,13 +1,12 @@
 import { TouchableOpacity, Image, StyleSheet } from 'react-native';
 import React from 'react';
-import { useNavigation } from '@react-navigation/native'; 
 import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 const BackButton: React.FC = () => {
-    const navigation = useNavigation(); 
 
     const handlePress = () => {
-        navigation.goBack();
+        router.back();
     };
 
     return (
