@@ -25,6 +25,8 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import "react-native-get-random-values";
 import axios from 'axios'
 import InputLocationField from '@/components/InputLocationField'
+import { requestNotificationPermission } from '@/utils/notificationUtils'
+import { ExpoPushToken } from 'expo-notifications'
 
 type ErrorState = {
     userName: string | null;
@@ -50,6 +52,7 @@ const SignUpCustomer = () => {
         email: '',
         password: '',
         userImage: '',
+        pushToken: '-',
     }
     const [form, setForm] = useState(emptyForm)
     const [userAddress, setUserAddress] = useState('')
@@ -94,6 +97,13 @@ const SignUpCustomer = () => {
                 showToast('error', res.error);
                 return
             } else {
+                const token = await requestNotificationPermission();
+                console.log("push token", token)
+                if (token) {
+                    console.log("masuk gak oi")
+                    form.pushToken = token.data
+                }
+                console.log("form with token", form)
                 signUp(form);
             }
         } catch {

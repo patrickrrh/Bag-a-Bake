@@ -26,7 +26,7 @@ const ProductCard: React.FC<Props> = ({ product, onPress }) => {
             <View className='p-4'>
                 <View style={{ position: 'relative' }}>
                     <Image
-                        source={require('../assets/images/bakery.png')}
+                        source={{ uri: product.productImage }}
                         style={{ width: '100%', height: 134, borderRadius: 8, marginBottom: 10 }}
                         resizeMode="cover"
                     />

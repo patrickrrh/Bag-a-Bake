@@ -1,4 +1,6 @@
+import { setupNotificationListeners } from "@/utils/notificationUtils";
 import { useFonts } from "expo-font";
+import { useEffect } from "react";
 import Geocoder from 'react-native-geocoding';
 
 export default function Index() {
@@ -14,6 +16,10 @@ export default function Index() {
     poppinsSemiBold: require('../assets/fonts/Poppins-SemiBold.ttf'),
     poppinsMedium: require('../assets/fonts/Poppins-Medium.ttf'),
   });
+
+  useEffect(() => {
+    setupNotificationListeners();
+  })
 
   if (!fontsLoaded) {
     return null;

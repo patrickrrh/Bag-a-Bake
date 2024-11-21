@@ -252,20 +252,20 @@ const Bakery = () => {
         </View>
 
         <View className="mt-5 flex-row">
+        <FilterButton
+            label="Dekat saya"
+            isSelected={userLocationFilter}
+            onPress={() => {
+              userLocationFilter ?
+                setUserLocationFilter(false) : setUserLocationFilter(true);
+            }}
+          />
           <FilterButton
             label="Jangan lewatkan"
             isSelected={isExpiringFilter}
             onPress={() => {
               isExpiringFilter ?
                 setIsExpiringFilter(false) : setIsExpiringFilter(true);
-            }}
-          />
-          <FilterButton
-            label="Dekat saya"
-            isSelected={userLocationFilter}
-            onPress={() => {
-              userLocationFilter ?
-                setUserLocationFilter(false) : setUserLocationFilter(true);
             }}
           />
           <FilterButton
