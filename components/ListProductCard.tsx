@@ -22,7 +22,7 @@ const ListProductCard: React.FC<Props> = ({ item, onPress }) => {
       <View className="flex-row items-start justify-between">
         <View className="flex-row p-1">
           <Image
-            source={images.logo}
+            source={{ uri: item.productImage }}
             style={{
               width: 68,
               height: 68,

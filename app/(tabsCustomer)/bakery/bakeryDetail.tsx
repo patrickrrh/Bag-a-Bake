@@ -191,7 +191,7 @@ const BakeryDetail = () => {
 
                 <View className='mt-5 rounded-lg'>
                     <LargeImage
-                        image={images.logo}
+                        image={{ uri: bakeryDetail?.bakery.bakeryImage as string }}
                     />
                 </View>
 
