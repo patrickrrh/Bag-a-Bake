@@ -23,7 +23,7 @@ import regionApi from "@/api/regionApi";
 import bakeryApi from "@/api/bakeryApi";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
-import { checkEmptyForm } from "@/utils/commonFunctions";
+import { checkEmptyForm, validateBakeryForm } from "@/utils/commonFunctions";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import ModalAction from "@/components/ModalAction";
@@ -35,7 +35,7 @@ import { format, toZonedTime } from "date-fns-tz";
 import Toast from "react-native-toast-message";
 import InputLocationField from "@/components/InputLocationField";
 import axios from "axios";
-import Geocoder from 'react-native-geocoding';
+import Geocoder from "react-native-geocoding";
 
 type ErrorState = {
   userName: string | null;
@@ -56,7 +56,8 @@ type BakeryErrorState = {
 
 const EditProfile = () => {
   const { userData, refreshUserData, signOut } = useAuth();
-  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
+  const GOOGLE_MAPS_API_KEY = process.env
+    .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
   const [form, setForm] = useState({
     userName: userData?.userName || "",
@@ -97,7 +98,8 @@ const EditProfile = () => {
     bakeryLongitude: null,
   };
   const [error, setError] = useState<ErrorState>(emptyError);
-  const [bakeryError, setBakeryError] = useState<BakeryErrorState>(emptyBakeryError);
+  const [bakeryError, setBakeryError] =
+    useState<BakeryErrorState>(emptyBakeryError);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -229,6 +231,19 @@ const EditProfile = () => {
 
         showToast("success", "User data updated successfully!");
       } else if (selectedStatus === 2) {
+        const errors = checkEmptyForm(form);
+        if (Object.values(errors).some((error) => error !== null)) {
+          setError(errors as ErrorState);
+          setisSubmitting(false);
+          return;
+        }
+
+        const validationErrors = validateBakeryForm(form);
+        if (Object.values(validationErrors).some((error) => error !== null)) {
+          setError(validationErrors as ErrorState);
+          setisSubmitting(false);
+          return;
+        }
 
         await bakeryApi().updateBakery({
           bakeryId: userData?.bakery.bakeryId,
@@ -240,7 +255,7 @@ const EditProfile = () => {
           closingTime: bakeryForm.closingTime,
           bakeryAddress: bakeryForm.bakeryAddress,
           bakeryLatitude: bakeryForm.bakeryLatitude,
-          bakeryLongitude: bakeryForm.bakeryLongitude
+          bakeryLongitude: bakeryForm.bakeryLongitude,
         });
 
         showToast("success", "Bakery Data updated successfully!");
@@ -251,8 +266,8 @@ const EditProfile = () => {
         userId: userData?.userId,
         bakery: {
           ...bakeryForm,
-          bakeryId: userData?.bakery.bakeryId
-        }
+          bakeryId: userData?.bakery.bakeryId,
+        },
       };
 
       await SecureStore.setItemAsync(
@@ -312,40 +327,47 @@ const EditProfile = () => {
   };
 
   const [isSubmitting, setisSubmitting] = useState(false);
-  const [address, setAddress] = useState(userData?.bakery.bakeryAddress || '');
+  const [address, setAddress] = useState(userData?.bakery.bakeryAddress || "");
   const [suggestions, setSuggestions] = useState([]);
 
   const handleGeocoding = (address: string) => {
     Geocoder.from(address)
-      .then(json => {
+      .then((json) => {
         const location = json.results[0].geometry.location;
-        setBakeryForm({ ...bakeryForm, bakeryLatitude: location.lat, bakeryLongitude: location.lng, bakeryAddress: address });
+        setBakeryForm({
+          ...bakeryForm,
+          bakeryLatitude: location.lat,
+          bakeryLongitude: location.lng,
+          bakeryAddress: address,
+        });
       })
-      .catch(error => console.warn(error));
-  }
+      .catch((error) => console.warn(error));
+  };
 
   const handleGetLocationSuggestionsAPI = () => {
-
-    if (address === '') {
-      setError((prevError) => ({ ...prevError, address: 'Alamat toko tidak boleh kosong' }));
+    if (address === "") {
+      setError((prevError) => ({
+        ...prevError,
+        address: "Alamat toko tidak boleh kosong",
+      }));
       return;
     }
 
     axios
-      .get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+      .get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
         params: {
           input: address,
           key: GOOGLE_MAPS_API_KEY,
-          language: 'id',
-          location: '-6.222941492431385, 106.64889532527259',
+          language: "id",
+          location: "-6.222941492431385, 106.64889532527259",
           radius: 5000,
-          types: 'establishment',
+          types: "establishment",
         },
       })
-      .then(response => {
+      .then((response) => {
         setSuggestions(response.data.predictions);
       })
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   };
 
   const handleSelectSuggestion = (item: any) => {
@@ -358,13 +380,13 @@ const EditProfile = () => {
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
-
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+      <View
+        style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 100 }}
+      >
         <Toast topOffset={50} />
       </View>
 
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
-
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View
             style={{
@@ -465,14 +487,17 @@ const EditProfile = () => {
                   error={bakeryError.bakeryName}
                 />
                 <InputLocationField
-                  label='Alamat Toko'
+                  label="Alamat Toko"
                   value={address}
-                  placeholder='Cari lokasi toko Anda'
+                  placeholder="Cari lokasi toko Anda"
                   onChangeText={(text) => {
                     setAddress(text);
-                    setError((prevError) => ({ ...prevError, bakeryAddress: null }));
+                    setError((prevError) => ({
+                      ...prevError,
+                      bakeryAddress: null,
+                    }));
                   }}
-                  moreStyles='mt-7'
+                  moreStyles="mt-7"
                   suggestions={suggestions}
                   error={bakeryError.bakeryAddress}
                   onSearch={() => handleGetLocationSuggestionsAPI()}

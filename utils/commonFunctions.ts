@@ -71,6 +71,71 @@ export const checkEmptyForm = (
   return errors;
 };
 
+export const validateBakeryForm = (
+  form: Record<string, string | number | null>
+) => {
+  const errors: Record<string, string | null> = {};
+
+  const phoneRegex = /^(?:\+62|62|0)8[1-9][0-9]{6,10}$/;
+
+  if (form.bakeryName) {
+    if ((form.bakeryName as string).length < 3) {
+      errors.bakeryName = "Nama Toko Roti tidak boleh kurang dari 3 huruf";
+    } else {
+      errors.bakeryName = null;
+    }
+  } else {
+    errors.bakeryName = "Nama Toko Roti tidak boleh kosong";
+  }
+
+  if (form.photo && (form.photo as string).trim() !== "") {
+    errors.photo = null;
+  } else {
+    errors.photo = "Foto Toko Roti tidak boleh kosong";
+  }
+
+  if (form.bakeryDescription) {
+    const wordCount = (form.bakeryDescription as string)
+      .trim()
+      .split(/\s+/).length;
+    if (wordCount < 5) {
+      errors.bakeryDescription = "Deskripsi Toko Roti harus minimal 5 kata";
+    } else {
+      errors.bakeryDescription = null;
+    }
+  } else {
+    errors.bakeryDescription = "Deskripsi Toko Roti tidak boleh kosong";
+  }
+
+  if (form.openingTime && form.closingTime) {
+    const openingTime = new Date(`1970-01-01T${form.openingTime}:00`);
+    const closingTime = new Date(`1970-01-01T${form.closingTime}:00`);
+
+    if (openingTime >= closingTime) {
+      errors.openingTime = "Jam Buka harus lebih awal dari Jam Tutup";
+      errors.closingTime = "Jam Tutup harus lebih lambat dari Jam Buka";
+    } else {
+      errors.openingTime = null;
+      errors.closingTime = null;
+    }
+  } else {
+    if (!form.openingTime) errors.openingTime = "Jam Buka tidak boleh kosong";
+    if (!form.closingTime) errors.closingTime = "Jam Tutup tidak boleh kosong";
+  }
+
+  if (form.bakeryPhoneNumber) {
+    if (phoneRegex.test(form.bakeryPhoneNumber as string)) {
+      errors.bakeryPhoneNumber = null;
+    } else {
+      errors.bakeryPhoneNumber = "Nomor HP Toko tidak valid";
+    }
+  } else {
+    errors.bakeryPhoneNumber = "Nomor HP Toko tidak boleh kosong";
+  }
+
+  return errors;
+};
+
 export const checkProductForm = (form: Record<string, unknown>) => {
   const errors: Record<string, string | null> = {};
 
@@ -141,7 +206,9 @@ export const checkProductForm = (form: Record<string, unknown>) => {
 
     discountAmounts.forEach((amount, index) => {
       if (index > 0 && amount > discountAmounts[index - 1]) {
-        errors.discount = `Diskon ${index + 1} harus lebih kecil atau sama dengan Diskon ${index}`;
+        errors.discount = `Diskon ${
+          index + 1
+        } harus lebih kecil atau sama dengan Diskon ${index}`;
       }
     });
   } else {
@@ -172,12 +239,12 @@ export const calculateTotalOrderPrice = (orderDetail: any): string => {
 };
 
 export const calculateTotalOrderItem = (orderDetail: any): number => {
-    const total = orderDetail.reduce((sum: number, detail: any) => {
-        return sum + detail.productQuantity;
-    }, 0);
+  const total = orderDetail.reduce((sum: number, detail: any) => {
+    return sum + detail.productQuantity;
+  }, 0);
 
-    return total
-}
+  return total;
+};
 
 export const formatRupiah = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -189,26 +256,26 @@ export const formatRupiah = (amount: number) => {
 export const formatDate = (date: string) => {
   const dateObj = new Date(date);
   const options: any = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour12: false,
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour12: false,
   };
-  return dateObj.toLocaleString('id-ID', options);
+  return dateObj.toLocaleString("id-ID", options);
 };
 
 export const formatDatewithtime = (date: string) => {
   const dateObj = new Date(date);
   const options: any = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: false,
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
   };
-  return dateObj.toLocaleString('id-ID', options);
-}
+  return dateObj.toLocaleString("id-ID", options);
+};
 
 export const setLocalStorage = async (key: string, value: string) => {
   try {
@@ -274,23 +341,24 @@ export const updateLocalStorage = async <T>(
   key: string,
   value: T,
   updateFunction: (data: T[], value: T) => T[]
-) => {  try {
-      const jsonValue = await AsyncStorage.getItem(key);
-      const data = jsonValue ? JSON.parse(jsonValue) : [];
+) => {
+  try {
+    const jsonValue = await AsyncStorage.getItem(key);
+    const data = jsonValue ? JSON.parse(jsonValue) : [];
 
-      // Apply the custom update logic provided by the updateFunction
-      const updatedData = updateFunction(data, value);
+    // Apply the custom update logic provided by the updateFunction
+    const updatedData = updateFunction(data, value);
 
-      // Store the updated data back in AsyncStorage
-      await AsyncStorage.setItem(key, JSON.stringify(updatedData));
+    // Store the updated data back in AsyncStorage
+    await AsyncStorage.setItem(key, JSON.stringify(updatedData));
   } catch (error) {
-      console.log("Failed to update local storage:", error);
+    console.log("Failed to update local storage:", error);
   }
 };
 
 export const convertPhoneNumberFormat = (phoneNumber: string): string => {
-  if (phoneNumber.startsWith('0')) {
-      return `62${phoneNumber.slice(1)}`;
+  if (phoneNumber.startsWith("0")) {
+    return `62${phoneNumber.slice(1)}`;
   }
-  return phoneNumber
+  return phoneNumber;
 };
