@@ -89,7 +89,7 @@ const EditProfile = () => {
     if (nextRoute) {
       router.push(nextRoute);
     } else {
-      router.replace("/(tabsCustomer)/profile");
+      router.replace("/(tabsCustomer)/profile/profilePage" as Href);
     }
   };
 
@@ -105,10 +105,10 @@ const EditProfile = () => {
 
   const handleSubmitChange = () => {
     if (hasUnsavedChanges()) {
-      setNextRoute("/(tabsCustomer)/profile");
+      setNextRoute("/(tabsCustomer)/profile/profilePage" as Href);
       setModalVisible(true);
     } else {
-      router.push("/(tabsCustomer)/profile");
+      router.push("/(tabsCustomer)/profile/profilePage" as Href);
     }
   };
 
@@ -145,7 +145,7 @@ const EditProfile = () => {
 
       await refreshUserData();
 
-      router.replace("/(tabsCustomer)/profile");
+      router.replace("/(tabsCustomer)/profile/profilePage");
     } catch (error) {
       console.log(error);
       showToast("error", "An unexpected error occurred");

@@ -68,11 +68,11 @@ const SignUpBakeryOwner = () => {
                 setisSubmitting(false);
                 return;
             }
-
+            console.log("Errors:", error);
             const res = await authenticationApi().isEmailRegistered({
                 email: form.email,
             })
-            console.log(res);
+            console.log("resolution to email", res);
 
             if (res.error) {
                 showToast('error', res.error);

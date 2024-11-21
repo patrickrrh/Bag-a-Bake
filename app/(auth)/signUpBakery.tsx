@@ -47,20 +47,19 @@ const SignUpBakery = () => {
   const { userName, userPhoneNumber, email, password, userImage, roleId } =
     useLocalSearchParams();
 
-  const [form, setForm] = useState({
-    bakeryName: "",
-    bakeryImage: "",
-    bakeryDescription: "",
-    bakeryPhoneNumber: "",
-    openingTime: "",
-    closingTime: "",
-    bakeryAddress: "",
-    bakeryLatitude: 0,
-    bakeryLongitude: 0,
-    pushToken: "",
-  });
-  const [address, setAddress] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
+    const [form, setForm] = useState({
+        bakeryName: '',
+        bakeryImage: '',
+        bakeryDescription: '',
+        bakeryPhoneNumber: '',
+        openingTime: '',
+        closingTime: '',
+        bakeryAddress: '',
+        bakeryLatitude: 0,
+        bakeryLongitude: 0,
+    })
+    const [address, setAddress] = useState('')
+    const [suggestions, setSuggestions] = useState([]);
 
   const emptyError: ErrorState = {
     bakeryName: null,
@@ -114,21 +113,21 @@ const SignUpBakery = () => {
   const handleSignUpAPI = async () => {
     try {
       setisSubmitting(true);
-      console.log("signupbutton");
+
       const errors = checkEmptyForm(form);
       if (Object.values(errors).some((error) => error !== null)) {
         setError(errors as ErrorState);
         setisSubmitting(false);
         return;
       }
-      console.log("signupbutton2");
+
       const validationErrors = validateBakeryForm(form);
       if (Object.values(validationErrors).some((error) => error !== null)) {
         setError(validationErrors as ErrorState);
         setisSubmitting(false);
         return;
       }
-      console.log("signupbutton3");
+
       signUp(form);
     } catch (error) {
       console.log(error);
@@ -151,20 +150,14 @@ const SignUpBakery = () => {
     </>
   );
 
-  const footerContent = (
-    <>
-      <View className="mr-1">
-        <TextHeadline label="Sudah memiliki akun?" />
-      </View>
-      <TextLink
-        label="Masuk disini"
-        size={14}
-        onPress={() => router.push("/(auth)/signIn")}
-      />
-    </>
-  );
-
-  console.log("form", JSON.stringify(form, null, 2));
+    const footerContent = (
+        <>
+            <View className='mr-1'>
+                <TextHeadline label='Sudah memiliki akun?' />
+            </View>
+            <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
+        </>
+    );
 
   const showDatePicker = (type: "openingTime" | "closingTime") => {
     setTimeFieldType(type);
@@ -206,16 +199,12 @@ const SignUpBakery = () => {
       .catch((error) => console.warn(error));
   };
 
-  const handleGetLocationSuggestionsAPI = () => {
-    if (address === "") {
-      setError((prevError) => ({
-        ...prevError,
-        bakeryAddress: "Alamat Toko tidak boleh kosong",
-      }));
-      return;
-    }
+    const handleGetLocationSuggestionsAPI = () => {
 
-    console.log("is called");
+        if (address === '') {
+            setError((prevError) => ({ ...prevError, bakeryAddress: 'Alamat Toko tidak boleh kosong' }));
+            return;
+        }
 
     axios
       .get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
@@ -241,7 +230,7 @@ const SignUpBakery = () => {
     handleGeocoding(item.description);
   };
 
-  console.log("form", form);
+    console.log("errors", error)
 
   return (
     <ScrollView className="bg-background">

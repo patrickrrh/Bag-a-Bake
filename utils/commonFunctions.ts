@@ -88,10 +88,10 @@ export const validateBakeryForm = (
     errors.bakeryName = "Nama Toko Roti tidak boleh kosong";
   }
 
-  if (form.photo && (form.photo as string).trim() !== "") {
-    errors.photo = null;
+  if (!form.bakeryImage) {
+    errors.bakeryImage = `Foto Toko Roti harus diunggah`;
   } else {
-    errors.photo = "Foto Toko Roti tidak boleh kosong";
+    errors.bakeryImage = null;
   }
 
   if (form.bakeryDescription) {

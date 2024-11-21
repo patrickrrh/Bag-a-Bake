@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "bag-a-bake-frontend",
-    "slug": "bag-a-bake-frontend",
+    "slug": "bag-a-bake",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/logoBagABake.png",
@@ -29,13 +29,21 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "baseURL": "http://10.0.2.2:3000/api"
-    }
+      "baseURL": "http://10.0.2.2:3000/api",
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "72d58b53-4510-4d53-84df-a915eb3f0bde"
+      }
+    },
+    "owner": "patrick_roberto"
   }
 }

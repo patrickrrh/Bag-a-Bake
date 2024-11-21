@@ -5,7 +5,7 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, TouchableOpacity } from 'react-native'
+import { View, Text, Image, FlatList, Animated, TouchableOpacity } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { calculateTotalOrderPrice, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';

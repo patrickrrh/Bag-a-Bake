@@ -15,7 +15,7 @@ import RejectOrderButton from '@/components/rejectOrderButton';
 import AcceptOrderButton from '@/components/AcceptOrderButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import orderSellerApi from '@/api/orderSellerApi';
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome } from '@expo/vector-icons';
 import { OrderDetailType } from '@/types/types';
