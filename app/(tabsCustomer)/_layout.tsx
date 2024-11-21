@@ -39,7 +39,6 @@ const TabsCustomerLayout = () => {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={18} />
           ),
-          unmountOnBlur: true
         }}
       />
     </Tabs>

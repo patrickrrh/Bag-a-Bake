@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { View, Text, Image, FlatList, TouchableOpacityBase, Animated, TouchableOpacity } from 'react-native'
+import { View, Text, Image, FlatList, Animated, TouchableOpacity } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import productApi from '@/api/productApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';

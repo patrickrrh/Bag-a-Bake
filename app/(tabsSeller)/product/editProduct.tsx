@@ -29,9 +29,8 @@ import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
 import { useAuth } from "@/app/context/AuthContext";
 import Decimal from "decimal.js";
-import { RouteProp, useRoute } from "@react-navigation/native";
 import ModalAction from "@/components/ModalAction";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ModalInformation from "@/components/ModalInformation";
 
@@ -57,8 +56,7 @@ type DiscountItem = {
 
 const EditProduct = () => {
   const { userData } = useAuth();
-  const route = useRoute<RouteProp<{ params: RouteParams }, "params">>();
-  const { productId } = route.params;
+  const { productId } = useLocalSearchParams();
 
   const [form, setForm] = useState({
     productId: 0,
