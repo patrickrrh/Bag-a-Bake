@@ -11,7 +11,7 @@ import {
     Linking,
 } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
 import ProductCardBakery from '@/components/ProductCardBakery';
 import CustomClickableButton from '@/components/CustomClickableButton';
 import TextTitle3 from '@/components/texts/TextTitle3';
@@ -24,7 +24,6 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { FontAwesome } from '@expo/vector-icons';
 import { convertPhoneNumberFormat, formatRupiah, getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
-import { useFocusEffect } from '@react-navigation/native';
 import { calculateTotalOrderPrice } from '@/utils/commonFunctions';
 import LargeImage from '@/components/LargeImage';
 import { images } from '@/constants/images'

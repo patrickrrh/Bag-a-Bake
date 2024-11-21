@@ -28,6 +28,7 @@ import InputLocationField from '@/components/InputLocationField'
 import axios from 'axios'
 import { add } from 'date-fns'
 import Geocoder from 'react-native-geocoding';
+import { requestNotificationPermission } from '@/utils/notificationUtils'
 
 type ErrorState = {
     bakeryName: string | null;
@@ -44,7 +45,7 @@ const SignUpBakery = () => {
     const { signUp } = useAuth();
     const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
 
-    const { userName, userPhoneNumber, email, password, userImage, roleId } = useLocalSearchParams();
+    const { userName, userPhoneNumber, email, password, userImage, roleId, pushToken } = useLocalSearchParams();
 
     const [form, setForm] = useState({
         bakeryName: '',
@@ -84,8 +85,11 @@ const SignUpBakery = () => {
             password: password,
             userImage: userImage,
             roleId: parseInt(roleId as string),
+            pushToken: pushToken
         }));
-    }, [userName, userPhoneNumber, email, password, userImage, roleId]);
+    }, [userName, userPhoneNumber, email, password, userImage, roleId, pushToken]);
+
+    console.log("form seller", form)
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -120,8 +124,6 @@ const SignUpBakery = () => {
                 setisSubmitting(false);
                 return;
             }
-
-            console.log("masuk gak")
 
             signUp(form);
         } catch (error) {

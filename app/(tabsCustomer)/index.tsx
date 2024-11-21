@@ -56,8 +56,6 @@ const Home = () => {
     }
   }
 
-  console.log("expiring products", JSON.stringify(expiringProducts, null, 2));
-
   const handleGetExpiringProducts = async () => {
     try {
       const response = await productApi().getExpiringProducts({

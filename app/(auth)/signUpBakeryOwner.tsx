@@ -18,6 +18,7 @@ import ProgressBar from '@/components/ProgressBar'
 import authenticationApi from '@/api/authenticationApi';
 import { showToast } from '@/utils/toastUtils'
 import BackButton from '@/components/BackButton'
+import { requestNotificationPermission } from '@/utils/notificationUtils'
 
 type ErrorState = {
     userName: string | null;
@@ -36,6 +37,7 @@ const SignUpBakeryOwner = () => {
         email: '',
         password: '',
         userImage: '',
+        pushToken: '-',
     })
     const [confirmPassword, setConfirmPassword] = useState('')
 
@@ -72,12 +74,17 @@ const SignUpBakeryOwner = () => {
             const res = await authenticationApi().isEmailRegistered({
                 email: form.email,
             })
-            console.log(res);
 
             if (res.error) {
                 showToast('error', res.error);
                 return
             } else {
+                const token = await requestNotificationPermission();
+                console.log("push token", token)
+                if (token) {
+                    console.log("masuk gak oi")
+                    form.pushToken = token.data
+                }
                 router.push({
                     pathname: '/(auth)/signUpBakery' as any,
                     params: { ...form },
