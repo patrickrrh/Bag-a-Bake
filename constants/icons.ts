@@ -10,4 +10,7 @@ export const icons = {
     cake: require('../assets/icons/Cake.png'),
     others: require('../assets/icons/Others.png'),
     location: require('../assets/icons/location.png'),
+    bakeBread: require('../assets/images/bakingbread.png'),
+    noFile: require('../assets/images/nofile.png'),
+    brokenSearch: require('../assets/images/brokensearch.png'),
 }

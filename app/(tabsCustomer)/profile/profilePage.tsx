@@ -36,7 +36,7 @@ type ErrorState = {
   address: string | null;
 };
 
-const EditProfile = () => {
+const ProfilePage = () => {
   const { userData, refreshUserData, signOut } = useAuth();
   const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
 
@@ -94,7 +94,6 @@ const EditProfile = () => {
   };
 
   const handlePasswordChange = () => {
-    console.log("UNSAVED CHANGES?", hasUnsavedChanges());
     if (hasUnsavedChanges()) {
       setNextRoute("/(tabsCustomer)/profile/changePassword");
       setModalVisible(true);
@@ -143,9 +142,10 @@ const EditProfile = () => {
         JSON.stringify(userDataToStore)
       );
 
+      console.log(JSON.stringify(userDataToStore));
+
       await refreshUserData();
 
-      router.replace("/(tabsCustomer)/profile/profilePage");
     } catch (error) {
       console.log(error);
       showToast("error", "An unexpected error occurred");
@@ -326,4 +326,4 @@ const EditProfile = () => {
   );
 };
 
-export default EditProfile;
+export default ProfilePage;

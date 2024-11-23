@@ -17,12 +17,8 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
     }
 }
 
-export default function orderCustomerApi() {
+export default function bakeryApi() {
     return {
-        createOrder: createApiFunction("post", "create/order"),
-        getOrderByStatus: createApiFunction("post", "get/order/status"),
-        getOrderDetailById: createApiFunction("post", "get/order/detail/id"),
-        cancelOrder: createApiFunction("post", "cancel/order"),
-        submitProofOfPayment: createApiFunction("post", "submit/proof-of-payment"),
+        getPaymentByBakery: createApiFunction("post", "get/bakery/payment-info"),
     }
 }

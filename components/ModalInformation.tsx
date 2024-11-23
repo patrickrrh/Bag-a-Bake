@@ -35,7 +35,7 @@ const ModalInformation: React.FC<ModalInformationProps> = ({
             paddingVertical: 30,
             paddingHorizontal: 20,
             backgroundColor: "#FFFFFF",
-            borderRadius: 10,
+            borderRadius: 12,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.25,
@@ -74,7 +74,9 @@ const ModalInformation: React.FC<ModalInformationProps> = ({
             <TouchableOpacity
               onPress={onClose}
               style={{
-                backgroundColor: "#4CAF50",
+                borderWidth: 1,
+                borderColor: "#b0795a",
+                backgroundColor: "transparent",
                 paddingVertical: 10,
                 paddingHorizontal: 20,
                 borderRadius: 5,
@@ -84,7 +86,7 @@ const ModalInformation: React.FC<ModalInformationProps> = ({
             >
               <Text
                 style={{
-                  color: "#FFFFFF",
+                  color: "#b0795a",
                   fontFamily: "poppinsBold",
                   fontSize: 14,
                 }}

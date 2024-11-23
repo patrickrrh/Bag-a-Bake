@@ -1,29 +1,44 @@
-import { View, Text, Image, Button, TextInput, TouchableOpacity, ScrollView, FlatList, ActivityIndicator } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import * as ImagePicker from 'expo-image-picker';
-import CustomButton from '@/components/CustomButton';
-import FormField from '@/components/FormField';
-import UploadButton from '@/components/UploadButton';
-import { Picker } from '@react-native-picker/picker';
-import TextHeader from '@/components/texts/TextHeader';
-import OrderStatusTab from '@/components/OrderStatusTab';
-import orderSellerApi from '@/api/orderSellerApi';
-import SellerOrderCardPending from '@/components/SellerOrderCardPending';
-import SellerOrderCard from '@/components/SellerOrderCard';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { OrderType } from '@/types/types';
-import { formatDatewithtime, formatRupiah, getLocalStorage, removeLocalStorage } from '@/utils/commonFunctions';
-import LoaderKit from 'react-native-loader-kit'
-import { useAuth } from '@/app/context/AuthContext';
-import { printPDF } from '@/utils/printUtils';
-
+import {
+  View,
+  Text,
+  Image,
+  Button,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as ImagePicker from "expo-image-picker";
+import CustomButton from "@/components/CustomButton";
+import FormField from "@/components/FormField";
+import UploadButton from "@/components/UploadButton";
+import { Picker } from "@react-native-picker/picker";
+import TextHeader from "@/components/texts/TextHeader";
+import OrderStatusTab from "@/components/OrderStatusTab";
+import orderSellerApi from "@/api/orderSellerApi";
+import SellerOrderCardPending from "@/components/SellerOrderCardPending";
+import SellerOrderCard from "@/components/SellerOrderCard";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RouteProp } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { OrderType } from "@/types/types";
+import {
+  formatDatewithtime,
+  formatRupiah,
+  getLocalStorage,
+  removeLocalStorage,
+} from "@/utils/commonFunctions";
+import LoaderKit from "react-native-loader-kit";
+import { useAuth } from "@/app/context/AuthContext";
+import { printPDF } from "@/utils/printUtils";
+import TextTitle3 from "@/components/texts/TextTitle3";
+import { icons } from "@/constants/icons";
 
 const Order = () => {
-
   const { userData } = useAuth();
   const insets = useSafeAreaInsets();
 
@@ -42,7 +57,7 @@ const Order = () => {
     try {
       const response = await orderSellerApi().getAllOrderByStatus({
         orderStatus: selectedStatus,
-        bakeryId: userData?.bakery?.bakeryId
+        bakeryId: userData?.bakery?.bakeryId,
       });
       if (response.status === 200) {
         setOrder(response.data || null);
@@ -59,12 +74,12 @@ const Order = () => {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        const data = await getLocalStorage('orderSellerParams');
+        const data = await getLocalStorage("orderSellerParams");
         if (data) {
           const parsedData = JSON.parse(data);
           setSelectedStatus(parsedData.status);
         }
-      }
+      };
 
       fetchData();
       if (!hasManualSelection.current) {
@@ -72,10 +87,10 @@ const Order = () => {
       }
 
       return () => {
-        removeLocalStorage('orderSellerParams');
-      }
+        removeLocalStorage("orderSellerParams");
+      };
     }, [])
-  )
+  );
 
   useEffect(() => {
     handleGetAllOrderByStatusApi();
@@ -85,15 +100,15 @@ const Order = () => {
     try {
       const response = await orderSellerApi().actionOrder({
         orderId: orderId,
-        orderStatus: orderStatus
-      })
+        orderStatus: orderStatus,
+      });
       if (response.status === 200) {
         handleGetAllOrderByStatusApi();
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const generateInvoice = (orderItem: OrderType) => {
     return `
@@ -154,15 +169,17 @@ const Order = () => {
               </tr>
             </thead>
             <tbody>
-              ${orderItem.orderDetail.map(
-                (item) => `
+              ${orderItem.orderDetail
+                .map(
+                  (item) => `
                 <tr>
                   <td>${item.product.productName}</td>
                   <td>${item.productQuantity}</td>
                   <td>${formatRupiah(item.totalDetailPrice)}</td>
                 </tr>
               `
-              ).join('')}
+                )
+                .join("")}
             </tbody>
           </table>
           <div class="total-container">
@@ -179,26 +196,26 @@ const Order = () => {
     try {
       await printPDF(invoiceHtml);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
-  console.log("order", JSON.stringify(order, null, 2))
+  console.log("order", JSON.stringify(order, null, 2));
 
   return (
-    <View className='flex-1'>
+    <View className="flex-1">
       <View
         style={{
-          backgroundColor: 'white',
-          height: insets.top
+          backgroundColor: "white",
+          height: insets.top,
         }}
       />
 
-      <View className='bg-background h-full flex-1'>
-        <View className='bg-white'>
-          <View className='mx-5'>
+      <View className="bg-background h-full flex-1">
+        <View className="bg-white">
+          <View className="mx-5">
             <TextHeader label="PESANAN" />
-            <View className='mt-6'>
+            <View className="mt-6">
               <OrderStatusTab
                 selectedStatus={selectedStatus}
                 onSelectStatus={handleSelectStatus}
@@ -207,47 +224,72 @@ const Order = () => {
           </View>
         </View>
 
-        <View className='flex-1 mx-5'>
-          {
-            isLoading ? (
-              <View className='flex-1 items-center justify-center'>
-                <ActivityIndicator size="small" color="#828282" />
-              </View>
-            ) : (
-              <FlatList
-                data={order}
-                renderItem={({ item }) => (
-                  item.orderStatus === 1 ? (
-                    <SellerOrderCardPending
-                      order={item}
-                      onPress={() => {
-                        router.push({
-                          pathname: '/order/orderDetail',
-                          params: { order: JSON.stringify(item) }
-                        })
-                      }}
-                      onAccept={() => handleActionOrder(item.orderId, 2)}
-                      onReject={() => handleActionOrder(item.orderId, 4)}
-                    />
-                  ) : (
-                    <SellerOrderCard
-                      order={item}
-                      onPress={() => {
-                        router.push({
-                          pathname: '/order/orderDetail',
-                          params: { order: JSON.stringify(item) }
-                        })
-                      }}
-                      printPdf={() => handlePrintPDF(item)}
-                    />
-                  )
-                )}
-                keyExtractor={(item) => item.orderId.toString()}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 20 }}
+        <View className="flex-1 mx-5">
+          {isLoading ? (
+            <View className="flex-1 items-center justify-center">
+              <ActivityIndicator size="small" color="#828282" />
+            </View>
+          ) : order.length === 0 ? (
+            <View className="flex-1 items-center justify-center">
+              <Image
+                source={icons.noFile}
+                style={{
+                  width: 80,
+                  height: 80,
+                  marginBottom: 20,
+                  tintColor: "#828282",
+                }}
+                resizeMode="contain"
               />
-            )
-          }
+              <Text
+                style={{
+                  color: "#828282",
+                  fontFamily: "poppinsRegular",
+                  fontSize: 14,
+                  textAlign: "center",
+                }}
+              >
+                {selectedStatus === 1
+                  ? "Anda tidak memiliki pesanan baru"
+                  : selectedStatus === 2
+                  ? "Anda tidak memiliki pesanan berlangsung"
+                  : "Anda belum memiliki riwayat pesanan"}
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={order}
+              renderItem={({ item }) =>
+                item.orderStatus === 1 ? (
+                  <SellerOrderCardPending
+                    order={item}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/order/orderDetail",
+                        params: { order: JSON.stringify(item) },
+                      });
+                    }}
+                    onAccept={() => handleActionOrder(item.orderId, 2)}
+                    onReject={() => handleActionOrder(item.orderId, 4)}
+                  />
+                ) : (
+                  <SellerOrderCard
+                    order={item}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/order/orderDetail",
+                        params: { order: JSON.stringify(item) },
+                      });
+                    }}
+                    printPdf={() => handlePrintPDF(item)}
+                  />
+                )
+              }
+              keyExtractor={(item) => item.orderId.toString()}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 20 }}
+            />
+          )}
         </View>
       </View>
     </View>
