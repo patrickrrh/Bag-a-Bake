@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Switch,
+  Keyboard
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -142,6 +143,7 @@ const EditProduct = () => {
       console.error("Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
+      Keyboard.dismiss();
     }
   };
 

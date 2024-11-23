@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
+  Keyboard
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -91,6 +92,7 @@ const ProfilePage = () => {
     } else {
       router.replace("/(tabsCustomer)/profile/profilePage" as Href);
     }
+    Keyboard.dismiss();
   };
 
   const handlePasswordChange = () => {

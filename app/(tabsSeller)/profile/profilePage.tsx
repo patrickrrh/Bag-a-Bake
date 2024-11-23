@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
+  Keyboard
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -35,6 +36,7 @@ import { format, toZonedTime } from "date-fns-tz";
 import Toast from "react-native-toast-message";
 import InputLocationField from "@/components/InputLocationField";
 import axios from "axios";
+import { getLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import Geocoder from "react-native-geocoding";
 
 type ErrorState = {
@@ -143,12 +145,30 @@ const ProfilePage = () => {
   };
 
   const [nextRoute, setNextRoute] = useState<Href | null>(null);
-  const handleRouteChange = () => {
-    if (nextRoute) {
-      router.push(nextRoute);
-    } else {
-      router.replace("/(tabsSeller)/profile/profilePage" as Href);
+
+  useEffect(() => {
+    const loadStoredStatus = async () => {
+      const storedStatus = await getLocalStorage("selectedStatusProfile");
+      if (storedStatus) {
+        setSelectedStatus(Number(storedStatus)); // Convert to integer if available
+      }
+    };
+    loadStoredStatus();
+  }, []);
+  
+
+  const handleRouteChange = async () => {
+    // if (nextRoute) {
+    //   router.replace(nextRoute);
+    // } else {
+    //   router.replace("/(tabsSeller)/profile/profilePage" as Href);
+    // }
+
+    if (selectedStatus !== null) {
+      await setLocalStorage("selectedStatusProfile", String(selectedStatus));
     }
+    Keyboard.dismiss();
+
   };
 
   const handlePasswordChange = () => {
@@ -197,7 +217,7 @@ const ProfilePage = () => {
           userImage: form.userImage,
         });
 
-        showToast("success", "User data updated successfully!");
+        showToast("success", "Data pengguna berhasil diperbarui");
       } else if (selectedStatus === 2) {
         await bakeryApi().updateBakery({
           bakeryId: userData?.bakery.bakeryId,
@@ -212,7 +232,7 @@ const ProfilePage = () => {
           bakeryLongitude: bakeryForm.bakeryLongitude,
         });
 
-        showToast("success", "Bakery Data updated successfully!");
+        showToast("success", "Data bakeri berhasil diperbarui");
       }
 
       const userDataToStore = {
@@ -233,7 +253,6 @@ const ProfilePage = () => {
 
       await refreshUserData();
       handleRouteChange();
-      
     } catch (error) {
       console.log(error);
       showToast("error", "An unexpected error occurred");
