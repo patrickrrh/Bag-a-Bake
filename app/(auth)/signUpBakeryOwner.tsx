@@ -70,7 +70,7 @@ const SignUpBakeryOwner = () => {
                 setisSubmitting(false);
                 return;
             }
-
+            console.log("Errors:", error);
             const res = await authenticationApi().isEmailRegistered({
                 email: form.email,
             })

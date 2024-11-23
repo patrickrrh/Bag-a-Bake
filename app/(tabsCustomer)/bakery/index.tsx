@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   Button,
   Modal,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
@@ -25,27 +25,28 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/app/context/AuthContext";
 import TextTitle1 from "@/components/texts/TextTitle1";
 import categoryApi from "@/api/categoryApi";
-import CheckBox from 'react-native-check-box'
+import CheckBox from "react-native-check-box";
 import CustomButton from "@/components/CustomButton";
 import { BakeryType, CategoryType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { set } from "date-fns";
+import { icons } from "@/constants/icons";
 
 type OrderItem = {
   bakeryId: number;
-  items:
-  [
-      {
-          productQuantity: number;
-          productId: number;
-      }
+  items: [
+    {
+      productQuantity: number;
+      productId: number;
+    }
   ];
 };
 const Bakery = () => {
-
   const { userData } = useAuth();
-  const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
+  const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>(
+    []
+  );
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
   const [userLocationFilter, setUserLocationFilter] = useState(false);
   const [isExpiringFilter, setIsExpiringFilter] = useState(false);
@@ -62,12 +63,11 @@ const Bakery = () => {
   const [localStorageData, setLocalStorageData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-
   const [orderData, setOrderData] = useState<OrderItem | null>(null);
 
   const fetchOrderData = async () => {
     try {
-      const jsonValue = await getLocalStorage('orderData');
+      const jsonValue = await getLocalStorage("orderData");
       const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
       setOrderData(data);
 
@@ -75,7 +75,7 @@ const Bakery = () => {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const handleGetCategoryApi = async () => {
     try {
@@ -86,7 +86,7 @@ const Bakery = () => {
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
     handleGetCategoryApi();
@@ -100,8 +100,8 @@ const Bakery = () => {
         longitude: userData?.longitude,
         categoryId: checkedCategories,
         userLocation: userLocationFilter,
-        expiringProducts: isExpiringFilter
-      })
+        expiringProducts: isExpiringFilter,
+      });
 
       if (response.status === 200) {
         setBakery(response.data ? response.data : []);
@@ -115,43 +115,45 @@ const Bakery = () => {
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
-  }
+  };
 
   const filterBakeries = () => {
     if (showFavorite) {
-      const favoriteBakeries = bakery.filter(item =>
-        item.favorite.some(fav => fav.userId === userData?.userId)
+      const favoriteBakeries = bakery.filter((item) =>
+        item.favorite.some((fav) => fav.userId === userData?.userId)
       );
 
-      return favoriteBakeries.filter(item =>
+      return favoriteBakeries.filter((item) =>
         item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    return bakery.filter(item =>
+    return bakery.filter((item) =>
       item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
 
   const toggleFavorite = async (bakeryId: number) => {
-    const bakeryItem = bakery.find(bakery => bakery.bakeryId === bakeryId);
-    const favoriteItem = bakeryItem?.favorite.find(fav => fav.userId === userData?.userId);
+    const bakeryItem = bakery.find((bakery) => bakery.bakeryId === bakeryId);
+    const favoriteItem = bakeryItem?.favorite.find(
+      (fav) => fav.userId === userData?.userId
+    );
 
     try {
       if (favoriteItem) {
-        await favoriteApi().removeFavorite(favoriteItem.favoriteId)
+        await favoriteApi().removeFavorite(favoriteItem.favoriteId);
       } else {
         await favoriteApi().addFavorite({
           userId: userData?.userId,
-          bakeryId: bakeryId
-        })
+          bakeryId: bakeryId,
+        });
       }
 
       handleGetBakeryApi();
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const handleTempCheckboxClick = (categoryId: number) => {
     setTempCheckedCategories((prev) => {
@@ -183,7 +185,7 @@ const Bakery = () => {
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        const data = await getLocalStorage('filter');
+        const data = await getLocalStorage("filter");
         if (data) {
           const parsedData = JSON.parse(data);
           setLocalStorageData(parsedData);
@@ -193,14 +195,14 @@ const Bakery = () => {
       fetchData();
 
       return () => {
-        removeLocalStorage('filter');
+        removeLocalStorage("filter");
         setLocalStorageData(null);
         setCheckedCategories([]);
         setUserLocationFilter(false);
         setIsExpiringFilter(false);
       };
     }, [])
-);
+  );
 
   useEffect(() => {
     if (!localStorageData) return;
@@ -210,9 +212,8 @@ const Bakery = () => {
     } else if (localStorageData.isExpiringFilter) {
       setIsExpiringFilter(localStorageData.isExpiringFilter);
     } else if (localStorageData.categoryFilter) {
-      setCheckedCategories([localStorageData.categoryFilter]); 
+      setCheckedCategories([localStorageData.categoryFilter]);
     }
-
   }, [localStorageData]);
 
   useEffect(() => {
@@ -221,7 +222,7 @@ const Bakery = () => {
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
-      <View className="mx-5">
+      <View className="mx-5 mb-5">
         <View className="flex-row align-center justify-between">
           <TextHeader label="BAKERI" />
           <TouchableOpacity
@@ -252,20 +253,22 @@ const Bakery = () => {
         </View>
 
         <View className="mt-5 flex-row">
-        <FilterButton
+          <FilterButton
             label="Dekat saya"
             isSelected={userLocationFilter}
             onPress={() => {
-              userLocationFilter ?
-                setUserLocationFilter(false) : setUserLocationFilter(true);
+              userLocationFilter
+                ? setUserLocationFilter(false)
+                : setUserLocationFilter(true);
             }}
           />
           <FilterButton
             label="Jangan lewatkan"
             isSelected={isExpiringFilter}
             onPress={() => {
-              isExpiringFilter ?
-                setIsExpiringFilter(false) : setIsExpiringFilter(true);
+              isExpiringFilter
+                ? setIsExpiringFilter(false)
+                : setIsExpiringFilter(true);
             }}
           />
           <FilterButton
@@ -274,57 +277,80 @@ const Bakery = () => {
             onPress={() => setCategoryModal(true)}
           />
         </View>
+      </View>
 
-        <View className="mt-5 h-full">
-          {
-            isLoading ? (
-              <View className='mt-10 items-center justify-center'>
-                <ActivityIndicator size="small" color="#828282" />
-              </View>
-            ) : (
-              <FlatList
-                data={filterBakeries()}
-                keyExtractor={(item) => item.bakeryId.toString()}
-                renderItem={({ item }) => (
-                  <BakeryCard
-                    item={item}
-                    onPress={() => router.push({
-                      pathname: '/bakery/bakeryDetail' as any,
-                      params: { bakeryId: item.bakeryId }
-                    })}
-                    onFavorite={() => toggleFavorite(item.bakeryId)}
-                  />
-                )}
+      <View className="flex-1 mx-5">
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="small" color="#828282" />
+          </View>
+        ) : filterBakeries().length === 0 ? (
+          <View className="flex-1 items-center justify-center">
+            <Image
+              source={icons.brokenSearch}
+              style={{
+                width: 80,
+                height: 80,
+                marginBottom: 20,
+                tintColor: "#828282",
+              }}
+              resizeMode="contain"
+            />
+            <Text
+              style={{
+                color: "#828282",
+                fontFamily: "poppinsRegular",
+                fontSize: 14,
+                textAlign: "center",
+              }}
+            >
+              Bakeri tidak tersedia
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={filterBakeries()}
+            keyExtractor={(item) => item.bakeryId.toString()}
+            renderItem={({ item }) => (
+              <BakeryCard
+                item={item}
+                onPress={() =>
+                  router.push({
+                    pathname: "/bakery/bakeryDetail" as any,
+                    params: { bakeryId: item.bakeryId },
+                  })
+                }
+                onFavorite={() => toggleFavorite(item.bakeryId)}
               />
-            )
-          }
-        </View>
+            )}
+          />
+        )}
       </View>
 
       {orderData && (
-          <TouchableOpacity
-              style={{
-                  position: 'absolute',
-                  bottom: 20,
-                  right: 20,
-                  backgroundColor: '#B0795A',
-                  padding: 15,
-                  borderRadius: 50,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.25,
-                  shadowRadius: 3.84,
-                  elevation: 5,
-              }}
-              onPress={() => {
-                  router.push({
-                      pathname: '/bakery/bakeryDetail',
-                      params: { bakeryId: orderData.bakeryId },
-                  });
-              }}
-          >
-              <Ionicons name="cart" size={24} color="#fff" />
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            bottom: 20,
+            right: 20,
+            backgroundColor: "#B0795A",
+            padding: 15,
+            borderRadius: 50,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
+          onPress={() => {
+            router.push({
+              pathname: "/bakery/bakeryDetail",
+              params: { bakeryId: orderData.bakeryId },
+            });
+          }}
+        >
+          <Ionicons name="cart" size={24} color="#fff" />
+        </TouchableOpacity>
       )}
 
       <Modal
@@ -340,7 +366,8 @@ const Bakery = () => {
             <TouchableOpacity
               onPress={() => {
                 setCategoryModal(false);
-              }}>
+              }}
+            >
               <FontAwesome name="close" size={18} color="#B0795A" />
             </TouchableOpacity>
           </View>
@@ -370,7 +397,6 @@ const Bakery = () => {
           />
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 };

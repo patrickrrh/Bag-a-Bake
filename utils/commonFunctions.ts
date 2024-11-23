@@ -43,6 +43,12 @@ export const checkEmptyForm = (
         } else {
           errors[value] = null;
         }
+      } else if (value === "userName") {
+        if ((form[value] as string).length < 3) {
+          errors[value] = `${fieldLabel} tidak boleh kurang dari 3 huruf`;
+        } else {
+          errors[value] = null;
+        }
       } else if (value === "password") {
         if (!passwordRegex.test(form[value] as string)) {
           errors[
@@ -56,6 +62,43 @@ export const checkEmptyForm = (
           errors[value] = `${fieldLabel} tidak valid`;
         } else {
           errors[value] = null;
+        }
+      } else if (value === "bakeryPhoneNumber") {
+        if (!phoneRegex.test(form[value] as string)) {
+          errors[value] = `${fieldLabel} tidak valid`;
+        } else {
+          errors[value] = null;
+        }
+      } else if (value === "bakeryName") {
+        if ((form[value] as string).length < 3) {
+          errors[value] = `${fieldLabel} tidak boleh kurang dari 3 huruf`;
+        } else {
+          errors[value] = null;
+        }
+      } else if (value === "bakeryImage") {
+        if (!form[value]) {
+          errors[value] = `${fieldLabel} harus diunggah`;
+        } else {
+          errors[value] = null;
+        }
+      } else if (value === "bakeryDescription") {
+        const wordCount = (form[value] as string).trim().split(/\s+/).length;
+        if (wordCount < 5) {
+          errors[value] = `${fieldLabel} harus minimal 5 kata`;
+        } else {
+          errors[value] = null;
+        }
+      } else if (value === "openingTime" || value === "closingTime") {
+        if (form.openingTime && form.closingTime) {
+          const openingTime = new Date(`1970-01-01T${form.openingTime}:00`);
+          const closingTime = new Date(`1970-01-01T${form.closingTime}:00`);
+          if (openingTime >= closingTime) {
+            errors.openingTime = "Jam Buka harus lebih awal dari Jam Tutup";
+            errors.closingTime = "Jam Tutup harus lebih lambat dari Jam Buka";
+          } else {
+            errors.openingTime = null;
+            errors.closingTime = null;
+          }
         }
       } else {
         errors[value] = null;
@@ -142,7 +185,9 @@ export const checkProductForm = (form: Record<string, unknown>) => {
 
     discountAmounts.forEach((amount, index) => {
       if (index > 0 && amount > discountAmounts[index - 1]) {
-        errors.discount = `Diskon ${index + 1} harus lebih kecil atau sama dengan Diskon ${index}`;
+        errors.discount = `Diskon ${
+          index + 1
+        } harus lebih kecil atau sama dengan Diskon ${index}`;
       }
     });
   } else {
@@ -173,12 +218,12 @@ export const calculateTotalOrderPrice = (orderDetail: any): string => {
 };
 
 export const calculateTotalOrderItem = (orderDetail: any): number => {
-    const total = orderDetail.reduce((sum: number, detail: any) => {
-        return sum + detail.productQuantity;
-    }, 0);
+  const total = orderDetail.reduce((sum: number, detail: any) => {
+    return sum + detail.productQuantity;
+  }, 0);
 
-    return total
-}
+  return total;
+};
 
 export const formatRupiah = (amount: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -190,26 +235,26 @@ export const formatRupiah = (amount: number) => {
 export const formatDate = (date: string) => {
   const dateObj = new Date(date);
   const options: any = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour12: false,
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour12: false,
   };
-  return dateObj.toLocaleString('id-ID', options);
+  return dateObj.toLocaleString("id-ID", options);
 };
 
 export const formatDatewithtime = (date: string) => {
   const dateObj = new Date(date);
   const options: any = {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: false,
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
   };
-  return dateObj.toLocaleString('id-ID', options);
-}
+  return dateObj.toLocaleString("id-ID", options);
+};
 
 export const setLocalStorage = async (key: string, value: string) => {
   try {
@@ -275,23 +320,24 @@ export const updateLocalStorage = async <T>(
   key: string,
   value: T,
   updateFunction: (data: T[], value: T) => T[]
-) => {  try {
-      const jsonValue = await AsyncStorage.getItem(key);
-      const data = jsonValue ? JSON.parse(jsonValue) : [];
+) => {
+  try {
+    const jsonValue = await AsyncStorage.getItem(key);
+    const data = jsonValue ? JSON.parse(jsonValue) : [];
 
-      // Apply the custom update logic provided by the updateFunction
-      const updatedData = updateFunction(data, value);
+    // Apply the custom update logic provided by the updateFunction
+    const updatedData = updateFunction(data, value);
 
-      // Store the updated data back in AsyncStorage
-      await AsyncStorage.setItem(key, JSON.stringify(updatedData));
+    // Store the updated data back in AsyncStorage
+    await AsyncStorage.setItem(key, JSON.stringify(updatedData));
   } catch (error) {
-      console.log("Failed to update local storage:", error);
+    console.log("Failed to update local storage:", error);
   }
 };
 
 export const convertPhoneNumberFormat = (phoneNumber: string): string => {
-  if (phoneNumber.startsWith('0')) {
-      return `62${phoneNumber.slice(1)}`;
+  if (phoneNumber.startsWith("0")) {
+    return `62${phoneNumber.slice(1)}`;
   }
-  return phoneNumber
+  return phoneNumber;
 };

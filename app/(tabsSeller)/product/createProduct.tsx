@@ -206,26 +206,6 @@ const CreateProduct = () => {
     }));
   };
 
-  const fillMissingDiscounts = () => {
-    setForm((prevForm) => {
-      const filledDiscounts = [...prevForm.discount];
-      const expirationDate = dayjs(form.productExpirationDate).startOf("day");
-      const lastDiscount = filledDiscounts[filledDiscounts.length - 1];
-
-      let currentDate = dayjs(lastDiscount.discountDate).startOf("day");
-
-      while (currentDate.isBefore(expirationDate, "day")) {
-        currentDate = currentDate.add(1, "day");
-        filledDiscounts.push({
-          discountAmount: lastDiscount.discountAmount,
-          discountDate: currentDate.toISOString(),
-        });
-      }
-
-      return { ...prevForm, discount: filledDiscounts };
-    });
-  };
-
   const [categories, setCategories] = useState([]);
 
   const handleGetCategoriesAPI = async () => {
