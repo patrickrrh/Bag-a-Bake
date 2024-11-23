@@ -11,6 +11,7 @@ const AuthContext = createContext<{
     signOut: () => void;
     isAuthenticated: boolean | null;
     isLoading: boolean;
+    isEditProfile: boolean;
     justSignedIn: boolean;
     userData: UserType | null;
     refreshUserData: () => Promise<void>;
@@ -19,6 +20,7 @@ const AuthContext = createContext<{
     signUp: (data: object) => null,
     signOut: () => null,
     isAuthenticated: null,
+    isEditProfile: false,
     isLoading: false,
     justSignedIn: false,
     userData: null,
@@ -31,6 +33,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const [isLoading, setIsLoading] = useState(false);
     const [justSignedIn, setJustSignedIn] = useState(false);
     const [userData, setUserData] = useState<UserType | null>(null);
+    const [isEditProfile, setIsEditProfile] = useState(false);
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -122,6 +125,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     const refreshUserData = async () => {
         try {
+            setIsEditProfile(true);
             const updatedUserData = await SecureStore.getItemAsync("userData");
             const parsedUserData = JSON.parse(updatedUserData || "{}");
             setUserData(parsedUserData);
@@ -131,7 +135,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
     
     return (
-        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData, refreshUserData }}>
+        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData, refreshUserData, isEditProfile }}>
             {children}
         </AuthContext.Provider>
     )

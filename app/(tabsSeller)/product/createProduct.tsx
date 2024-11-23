@@ -3,6 +3,7 @@ import {
   Text,
   Image,
   ScrollView,
+  Keyboard
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -164,6 +165,7 @@ const CreateProduct = () => {
       console.error("Error submitting form:", error);
     } finally {
       setIsSubmitting(false);
+      Keyboard.dismiss();
     }
   };
 
