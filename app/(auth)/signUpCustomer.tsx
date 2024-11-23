@@ -98,12 +98,9 @@ const SignUpCustomer = () => {
                 return
             } else {
                 const token = await requestNotificationPermission();
-                console.log("push token", token)
                 if (token) {
-                    console.log("masuk gak oi")
                     form.pushToken = token.data
                 }
-                console.log("form with token", form)
                 signUp(form);
             }
         } catch {
@@ -112,8 +109,6 @@ const SignUpCustomer = () => {
             setisSubmitting(false);
         }
     };
-
-    // console.log("errors", error)
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({

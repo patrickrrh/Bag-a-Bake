@@ -55,7 +55,6 @@ const SignUpBakeryOwner = () => {
     const checkForm = async () => {
         try {
             setisSubmitting(true);
-            console.log(form);
             const errors = checkEmptyForm(form, confirmPassword);
             if (Object.values(errors).some(error => error !== null)) {
                 setError(errors as ErrorState);
@@ -87,7 +86,7 @@ const SignUpBakeryOwner = () => {
                 }
                 router.push({
                     pathname: '/(auth)/signUpBakery' as any,
-                    params: { ...form },
+                    params: { prevForm: JSON.stringify(form) },
                 })
             }
         } catch (error) {
