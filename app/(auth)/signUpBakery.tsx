@@ -1,12 +1,12 @@
 import { View, Text, ScrollView, Image, Button } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import CustomLogo from '@/components/CustomLogo'
 import TextHeader from '@/components/texts/TextHeader'
 import CustomButton from '@/components/CustomButton'
 import ErrorMessage from '@/components/texts/ErrorMessage'
 import TextHeadline from '@/components/texts/TextHeadline'
-import { Link, router, useLocalSearchParams, useRouter } from 'expo-router'
+import { Link, router, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router'
 import TextLink from '@/components/texts/TextLink'
 import FormField from '@/components/FormField'
 import * as ImagePicker from 'expo-image-picker';
@@ -45,7 +45,9 @@ const SignUpBakery = () => {
     const { signUp } = useAuth();
     const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
 
-    const { userName, userPhoneNumber, email, password, userImage, roleId, pushToken } = useLocalSearchParams();
+    // const { userName, userPhoneNumber, email, password, userImage, roleId, pushToken } = useLocalSearchParams();
+    const { prevForm } = useLocalSearchParams();
+    const parsedPrevForm = prevForm && typeof prevForm === 'string' ? JSON.parse(prevForm) : {};
 
     const [form, setForm] = useState({
         bakeryName: '',
@@ -79,17 +81,10 @@ const SignUpBakery = () => {
     useEffect(() => {
         setForm((prevForm) => ({
             ...prevForm,
-            userName: userName,
-            userPhoneNumber: userPhoneNumber,
-            email: email,
-            password: password,
-            userImage: userImage,
-            roleId: parseInt(roleId as string),
-            pushToken: pushToken
+            ...parsedPrevForm,
+            roleId: parseInt(parsedPrevForm.roleId),
         }));
-    }, [userName, userPhoneNumber, email, password, userImage, roleId, pushToken]);
-
-    console.log("form seller", form)
+    }, [prevForm]);
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -110,51 +105,6 @@ const SignUpBakery = () => {
             setForm({ ...form, bakeryImage: result.assets[0].uri })
         }
     };
-
-
-    const handleSignUpAPI = async () => {
-        try {
-            setisSubmitting(true);
-
-            console.log("masuk sini?")
-
-            const errors = checkEmptyForm(form);
-            if (Object.values(errors).some(error => error !== null)) {
-                setError(errors as ErrorState);
-                setisSubmitting(false);
-                return;
-            }
-
-            signUp(form);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setisSubmitting(false);
-        }
-    };
-
-    const headerContent = (
-        <>
-            <View className="flex-row items-center justify-between w-full space-x-4">
-                <BackButton />
-                <View className="flex-1 mx-2">
-                    <ProgressBar progress={0.5} />
-                </View>
-            </View>
-            <View className='items-center'>
-                <TextHeader label="Daftar Akun" />
-            </View>
-        </>
-    )
-
-    const footerContent = (
-        <>
-            <View className='mr-1'>
-                <TextHeadline label='Sudah memiliki akun?' />
-            </View>
-            <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
-        </>
-    );
 
     const showDatePicker = (type: 'openingTime' | 'closingTime') => {
         setTimeFieldType(type);
@@ -221,7 +171,52 @@ const SignUpBakery = () => {
         handleGeocoding(item.description);
     };
 
-    console.log("errors", error)
+    const checkForm = async () => {
+        try {
+            setisSubmitting(true);
+
+            const errors = checkEmptyForm(form);
+            if (Object.values(errors).some(error => error !== null)) {
+                setError(errors as ErrorState);
+                setisSubmitting(false);
+                return;
+            }
+
+            router.push({
+                pathname: '/(auth)/signUpPaymentInfo' as any,
+                params: { prevForm: JSON.stringify(form) },
+            })
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setisSubmitting(false);
+        }
+    }
+
+    const headerContent = (
+        <>
+            <View className="flex-row items-center justify-between w-full space-x-4">
+                <BackButton />
+                <View className="flex-1 mx-2">
+                    <ProgressBar progress={0.4} />
+                </View>
+            </View>
+            <View className='items-center'>
+                <TextHeader label="Daftar Akun" />
+            </View>
+        </>
+    )
+
+    const footerContent = (
+        <>
+            <View className='mr-1'>
+                <TextHeadline label='Sudah memiliki akun?' />
+            </View>
+            <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
+        </>
+    );
+
+    console.log("Form at bakery: ", JSON.stringify(form, null, 2));
 
     return (
         <ScrollView className='bg-background'>
@@ -298,7 +293,7 @@ const SignUpBakery = () => {
                 />
 
                 <View className="mt-8 w-full flex-row space-x-4">
-                    <UploadButton label="Unggah Foto" handlePress={pickImage} />
+                    <UploadButton label="Unggah Foto Toko" handlePress={pickImage} />
                     {form.bakeryImage && (
                         <View className="w-24 h-20">
                             <Image
@@ -313,8 +308,8 @@ const SignUpBakery = () => {
                 )}
 
                 <CustomButton
-                    label='Daftar'
-                    handlePress={() => handleSignUpAPI()}
+                    label='Lanjut'
+                    handlePress={() => checkForm()}
                     buttonStyles='mt-10 w-full'
                     isLoading={isSubmitting}
                 />
