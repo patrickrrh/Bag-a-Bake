@@ -23,7 +23,7 @@ import regionApi from "@/api/regionApi";
 import bakeryApi from "@/api/bakeryApi";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
-import { checkEmptyForm, validateBakeryForm } from "@/utils/commonFunctions";
+import { checkEmptyForm } from "@/utils/commonFunctions";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import ModalAction from "@/components/ModalAction";
@@ -54,7 +54,7 @@ type BakeryErrorState = {
   bakeryLongitude: number | null;
 };
 
-const EditProfile = () => {
+const ProfilePage = () => {
   const { userData, refreshUserData, signOut } = useAuth();
   const GOOGLE_MAPS_API_KEY = process.env
     .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
@@ -147,81 +147,49 @@ const EditProfile = () => {
     if (nextRoute) {
       router.push(nextRoute);
     } else {
-      router.replace("/(tabsSeller)/profile/profilePage");
+      router.replace("/(tabsSeller)/profile/profilePage" as Href);
     }
   };
 
   const handlePasswordChange = () => {
     if (hasUnsavedChanges()) {
-      setNextRoute("/(tabsSeller)/profile/changePassword");
+      setNextRoute("/(tabsSeller)/profile/changePassword" as Href);
       setModalVisible(true);
     } else {
-      router.push("/(tabsSeller)/profile/changePassword");
+      router.push("/(tabsSeller)/profile/changePassword" as Href);
     }
   };
 
   const handleSubmitChange = () => {
+    if (selectedStatus === 1) {
+      const errors = checkEmptyForm(form);
+      if (Object.values(errors).some((error) => error !== null)) {
+        setError(errors as ErrorState);
+        setisSubmitting(false);
+        return;
+      }
+    } else if (selectedStatus === 2) {
+      const errors = checkEmptyForm(bakeryForm);
+      if (Object.values(errors).some((error) => error !== null)) {
+        setBakeryError(errors as BakeryErrorState);
+        setisSubmitting(false);
+        return;
+      }
+    }
+
     if (hasUnsavedChanges() || hasBakeryUnsavedChanges()) {
       setNextRoute("/(tabsSeller)/profile/profilePage");
       setModalVisible(true);
     } else {
-      router.push("/(tabsSeller)/profile/profilePage");
+      router.push("/(tabsSeller)/profile/profilePage" as Href);
     }
   };
-
-  // const handleSaveChanges = async () => {
-  //   try {
-  //     setisSubmitting(true);
-
-  //     const errors = checkEmptyForm(form);
-  //     if (Object.values(errors).some((error) => error !== null)) {
-  //       setError(errors as ErrorState);
-  //       return;
-  //     }
-
-  //     await authenticationApi().updateUser({
-  //       userId: userData?.userId,
-  //       userName: form.userName,
-  //       userPhoneNumber: form.userPhoneNumber,
-  //       email: form.email,
-  //       userImage: form.userImage,
-  //       regionId: form.regionId,
-  //     });
-  //     console.log(form);
-  //     console.log(userData?.userId);
-
-  //     const userDataToStore = {
-  //       ...form,
-  //       userId: userData?.userId,
-  //     };
-
-  //     await SecureStore.setItemAsync(
-  //       "userData",
-  //       JSON.stringify(userDataToStore)
-  //     );
-
-  //     await refreshUserData();
-
-  //     router.replace("/(tabsSeller)/profile");
-  //   } catch (error) {
-  //     console.log(error);
-  //     showToast("error", "An unexpected error occurred");
-  //   } finally {
-  //     setisSubmitting(false);
-  //   }
-  // };
 
   const handleSaveChanges = async () => {
     try {
       setisSubmitting(true);
 
       if (selectedStatus === 1) {
-        const errors = checkEmptyForm(form);
-        if (Object.values(errors).some((error) => error !== null)) {
-          setError(errors as ErrorState);
-          return;
-        }
-
         await authenticationApi().updateUser({
           userId: userData?.userId,
           userName: form.userName,
@@ -231,20 +199,6 @@ const EditProfile = () => {
 
         showToast("success", "User data updated successfully!");
       } else if (selectedStatus === 2) {
-        const errors = checkEmptyForm(form);
-        if (Object.values(errors).some((error) => error !== null)) {
-          setError(errors as ErrorState);
-          setisSubmitting(false);
-          return;
-        }
-
-        const validationErrors = validateBakeryForm(form);
-        if (Object.values(validationErrors).some((error) => error !== null)) {
-          setError(validationErrors as ErrorState);
-          setisSubmitting(false);
-          return;
-        }
-
         await bakeryApi().updateBakery({
           bakeryId: userData?.bakery.bakeryId,
           bakeryName: bakeryForm.bakeryName,
@@ -270,13 +224,16 @@ const EditProfile = () => {
         },
       };
 
+      console.log(JSON.stringify(userDataToStore));
+
       await SecureStore.setItemAsync(
         "userData",
         JSON.stringify(userDataToStore)
       );
 
       await refreshUserData();
-      router.replace("/(tabsSeller)/profile/profilePage");
+      handleRouteChange();
+      
     } catch (error) {
       console.log(error);
       showToast("error", "An unexpected error occurred");
@@ -298,7 +255,7 @@ const EditProfile = () => {
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
-  console.log("user auth data bakery auth data", userData?.bakery);
+
   const handleSelectTime = (time: any) => {
     const timezone = toZonedTime(time, "Asia/Jakarta");
     const formattedTime = format(timezone, "HH:mm");
@@ -376,7 +333,7 @@ const EditProfile = () => {
     handleGeocoding(item.description);
   };
 
-  console.log("bakery form", JSON.stringify(bakeryForm, null, 2));
+  // console.log("bakery form", JSON.stringify(bakeryForm, null, 2));
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -610,4 +567,4 @@ const EditProfile = () => {
   );
 };
 
-export default EditProfile;
+export default ProfilePage;

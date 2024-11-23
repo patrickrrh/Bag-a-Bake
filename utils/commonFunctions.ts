@@ -1,8 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as EmailValidator from "email-validator";
+import { ExpoPushToken } from "expo-notifications";
 
 export const checkEmptyForm = (
-  form: Record<string, string | number | null>,
+  form: Record<string, string | number | ExpoPushToken | null>,
   confirmPassword?: string
 ) => {
   const errors: Record<string, string | null> = {};
@@ -42,6 +43,12 @@ export const checkEmptyForm = (
         } else {
           errors[value] = null;
         }
+      } else if (value === "userName") {
+        if ((form[value] as string).length < 3) {
+          errors[value] = `${fieldLabel} tidak boleh kurang dari 3 huruf`;
+        } else {
+          errors[value] = null;
+        }
       } else if (value === "password") {
         if (!passwordRegex.test(form[value] as string)) {
           errors[
@@ -56,6 +63,43 @@ export const checkEmptyForm = (
         } else {
           errors[value] = null;
         }
+      } else if (value === "bakeryPhoneNumber") {
+        if (!phoneRegex.test(form[value] as string)) {
+          errors[value] = `${fieldLabel} tidak valid`;
+        } else {
+          errors[value] = null;
+        }
+      } else if (value === "bakeryName") {
+        if ((form[value] as string).length < 3) {
+          errors[value] = `${fieldLabel} tidak boleh kurang dari 3 huruf`;
+        } else {
+          errors[value] = null;
+        }
+      } else if (value === "bakeryImage") {
+        if (!form[value]) {
+          errors[value] = `${fieldLabel} harus diunggah`;
+        } else {
+          errors[value] = null;
+        }
+      } else if (value === "bakeryDescription") {
+        const wordCount = (form[value] as string).trim().split(/\s+/).length;
+        if (wordCount < 5) {
+          errors[value] = `${fieldLabel} harus minimal 5 kata`;
+        } else {
+          errors[value] = null;
+        }
+      } else if (value === "openingTime" || value === "closingTime") {
+        if (form.openingTime && form.closingTime) {
+          const openingTime = new Date(`1970-01-01T${form.openingTime}:00`);
+          const closingTime = new Date(`1970-01-01T${form.closingTime}:00`);
+          if (openingTime >= closingTime) {
+            errors.openingTime = "Jam Buka harus lebih awal dari Jam Tutup";
+            errors.closingTime = "Jam Tutup harus lebih lambat dari Jam Buka";
+          } else {
+            errors.openingTime = null;
+            errors.closingTime = null;
+          }
+        }
       } else {
         errors[value] = null;
       }
@@ -66,71 +110,6 @@ export const checkEmptyForm = (
     errors.confirmPassword = "Konfirmasi Password tidak boleh kosong";
   } else {
     errors.confirmPassword = null;
-  }
-
-  return errors;
-};
-
-export const validateBakeryForm = (
-  form: Record<string, string | number | null>
-) => {
-  const errors: Record<string, string | null> = {};
-
-  const phoneRegex = /^(?:\+62|62|0)8[1-9][0-9]{6,10}$/;
-
-  if (form.bakeryName) {
-    if ((form.bakeryName as string).length < 3) {
-      errors.bakeryName = "Nama Toko Roti tidak boleh kurang dari 3 huruf";
-    } else {
-      errors.bakeryName = null;
-    }
-  } else {
-    errors.bakeryName = "Nama Toko Roti tidak boleh kosong";
-  }
-
-  if (!form.bakeryImage) {
-    errors.bakeryImage = `Foto Toko Roti harus diunggah`;
-  } else {
-    errors.bakeryImage = null;
-  }
-
-  if (form.bakeryDescription) {
-    const wordCount = (form.bakeryDescription as string)
-      .trim()
-      .split(/\s+/).length;
-    if (wordCount < 5) {
-      errors.bakeryDescription = "Deskripsi Toko Roti harus minimal 5 kata";
-    } else {
-      errors.bakeryDescription = null;
-    }
-  } else {
-    errors.bakeryDescription = "Deskripsi Toko Roti tidak boleh kosong";
-  }
-
-  if (form.openingTime && form.closingTime) {
-    const openingTime = new Date(`1970-01-01T${form.openingTime}:00`);
-    const closingTime = new Date(`1970-01-01T${form.closingTime}:00`);
-
-    if (openingTime >= closingTime) {
-      errors.openingTime = "Jam Buka harus lebih awal dari Jam Tutup";
-      errors.closingTime = "Jam Tutup harus lebih lambat dari Jam Buka";
-    } else {
-      errors.openingTime = null;
-      errors.closingTime = null;
-    }
-  } else {
-    if (!form.openingTime) errors.openingTime = "Jam Buka tidak boleh kosong";
-    if (!form.closingTime) errors.closingTime = "Jam Tutup tidak boleh kosong";
-  }
-
-  if (form.bakeryPhoneNumber) {
-    if (phoneRegex.test(form.bakeryPhoneNumber as string)) {
-      errors.bakeryPhoneNumber = null;
-    } else {
-      errors.bakeryPhoneNumber = "Nomor HP Toko tidak valid";
-    }
-  } else {
-    errors.bakeryPhoneNumber = "Nomor HP Toko tidak boleh kosong";
   }
 
   return errors;

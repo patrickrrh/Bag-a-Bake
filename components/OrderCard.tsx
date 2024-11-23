@@ -16,6 +16,8 @@ type Props = {
 
 const OrderCard: React.FC<Props> = ({ item, onPress }) => {
 
+  console.log("item", JSON.stringify(item, null, 2));
+
   return (
     <TouchableOpacity
       className="bg-white rounded-lg shadow-sm mt-4 p-4"

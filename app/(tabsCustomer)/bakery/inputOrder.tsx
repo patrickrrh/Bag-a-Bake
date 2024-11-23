@@ -237,7 +237,7 @@ const InputOrder = () => {
     <View>
       <View>
         <Image
-          source={images.logo}
+          source={{ uri: product?.productImage as string }}
           style={{ width: '100%', height: 280 }}
         />
         <View style={{ position: 'absolute', top: 60, left: 30 }}>

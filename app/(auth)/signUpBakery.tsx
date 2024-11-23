@@ -16,18 +16,19 @@ import AuthLayout from "./authLayout";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
 import regionApi from "@/api/regionApi";
-import { checkEmptyForm, validateBakeryForm } from "@/utils/commonFunctions";
+import { checkEmptyForm } from "@/utils/commonFunctions";
 import TextAreaField from "@/components/TextAreaField";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { format, toZonedTime } from "date-fns-tz";
-import TimeField from "@/components/TimeField";
-import BackButton from "@/components/BackButton";
-import ProgressBar from "@/components/ProgressBar";
-import { RegionType } from "@/types/types";
-import InputLocationField from "@/components/InputLocationField";
-import axios from "axios";
-import { add } from "date-fns";
-import Geocoder from "react-native-geocoding";
+import { format, toZonedTime } from 'date-fns-tz';
+import TimeField from '@/components/TimeField'
+import BackButton from '@/components/BackButton'
+import ProgressBar from '@/components/ProgressBar'
+import { RegionType } from '@/types/types'
+import InputLocationField from '@/components/InputLocationField'
+import axios from 'axios'
+import { add } from 'date-fns'
+import Geocoder from 'react-native-geocoding';
+import { requestNotificationPermission } from '@/utils/notificationUtils'
 
 type ErrorState = {
   bakeryName: string | null;
@@ -44,8 +45,7 @@ const SignUpBakery = () => {
   const GOOGLE_MAPS_API_KEY = process.env
     .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
-  const { userName, userPhoneNumber, email, password, userImage, roleId } =
-    useLocalSearchParams();
+    const { userName, userPhoneNumber, email, password, userImage, roleId, pushToken } = useLocalSearchParams();
 
     const [form, setForm] = useState({
         bakeryName: '',
@@ -78,17 +78,20 @@ const SignUpBakery = () => {
     "openingTime" | "closingTime"
   >("openingTime");
 
-  useEffect(() => {
-    setForm((prevForm) => ({
-      ...prevForm,
-      userName: userName,
-      userPhoneNumber: userPhoneNumber,
-      email: email,
-      password: password,
-      userImage: userImage,
-      roleId: parseInt(roleId as string),
-    }));
-  }, [userName, userPhoneNumber, email, password, userImage, roleId]);
+    useEffect(() => {
+        setForm((prevForm) => ({
+            ...prevForm,
+            userName: userName,
+            userPhoneNumber: userPhoneNumber,
+            email: email,
+            password: password,
+            userImage: userImage,
+            roleId: parseInt(roleId as string),
+            pushToken: pushToken
+        }));
+    }, [userName, userPhoneNumber, email, password, userImage, roleId, pushToken]);
+
+    console.log("form seller", form)
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -117,13 +120,6 @@ const SignUpBakery = () => {
       const errors = checkEmptyForm(form);
       if (Object.values(errors).some((error) => error !== null)) {
         setError(errors as ErrorState);
-        setisSubmitting(false);
-        return;
-      }
-
-      const validationErrors = validateBakeryForm(form);
-      if (Object.values(validationErrors).some((error) => error !== null)) {
-        setError(validationErrors as ErrorState);
         setisSubmitting(false);
         return;
       }

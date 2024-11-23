@@ -185,13 +185,13 @@ const CreateProduct = () => {
         throw new Error(response.error);
       }
 
-      setModalVisible(true);
       console.log("Response:", response);
       console.log("Form submitted:", form);
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
       setIsConfirmationModalVisible(false);
+      setModalVisible(true);
     }
   };
 
