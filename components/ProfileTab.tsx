@@ -6,7 +6,7 @@ interface ProfileTabProps {
   onSelectStatus: (status: number) => void;
 }
 
-const statuses: Array<1 | 2> = [1, 2];
+const statuses: Array<1 | 2 | 3> = [1, 2, 3];
 
 const ProfileTab: React.FC<ProfileTabProps> = ({
   selectedStatus,
@@ -15,6 +15,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
   const statusMapping: Record<number, string> = {
     1: "Pengguna",
     2: "Toko",
+    3: "Pembayaran",
   };
 
   return (

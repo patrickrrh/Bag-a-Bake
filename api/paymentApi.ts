@@ -17,8 +17,9 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
     }
 }
 
-export default function bakeryApi() {
+export default function paymentApi() {
     return {
         getPaymentByBakery: createApiFunction("post", "get/bakery/payment-info"),
+        updatePayments: createApiFunction("put", "update/payments"),
     }
 }
