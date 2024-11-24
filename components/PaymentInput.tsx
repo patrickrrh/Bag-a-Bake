@@ -24,9 +24,6 @@ const PaymentInput: React.FC<Props> = ({ selectedMethods, selectMethod, pickImag
         }))
     }));
 
-    console.log("form on payment input", JSON.stringify(form, null, 2));
-
-
     return (
         <View>
             {paymentMethods.map((item, index) => (

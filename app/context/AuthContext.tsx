@@ -117,6 +117,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             await SecureStore.deleteItemAsync("accessToken");
             await SecureStore.deleteItemAsync("refreshToken");
             await SecureStore.deleteItemAsync("userData");
+            setIsEditProfile(false);
             setIsAuthenticated(false);
             setUserData(null);
             setJustSignedIn(true);
@@ -128,7 +129,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
             setIsEditProfile(true);
             const updatedUserData = await SecureStore.getItemAsync("userData");
             const parsedUserData = JSON.parse(updatedUserData || "{}");
-            setUserData(parsedUserData);
+            if (parsedUserData) {
+                setUserData(parsedUserData);
+                console.log("PARSED USER DATA", parsedUserData);
+              } else {
+                console.error("No user data found after refresh");
+              }
         } catch (error) {
             console.error("Error refreshing user data:", error);
         }

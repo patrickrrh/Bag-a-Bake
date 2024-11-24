@@ -15,6 +15,15 @@ export type UserType = {
     longitude: number;
 };
 
+
+export type PaymentType = {
+    paymentId: number;
+    bakeryId: number;
+    paymentMethod: string;
+    paymentDetail: string;
+    paymentService: string;
+}
+
 export type BakeryType = {
     bakeryId: number;
     userId: number;
@@ -34,6 +43,7 @@ export type BakeryType = {
     bakeryAddress: string;
     bakeryLatitude: number;
     bakeryLongitude: number;
+    payment: PaymentType[];
 }
 
 export type FavoriteType = {
