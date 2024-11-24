@@ -26,7 +26,7 @@ const OrderCardWithRating: React.FC<Props> = ({ item, onPress, onPressRating }) 
             <View className="flex-row items-start justify-between">
                 <View className="flex-row p-1">
                     <Image
-                        source={images.logo}
+                        source={{ uri: item.bakery.bakeryImage }}
                         style={{ width: 68, height: 68, borderRadius: 10, borderColor: '#000', borderWidth: 1 }}
                     />
                     <View className="ml-5 space-y-3 flex-1">

@@ -163,7 +163,7 @@ const BakeryDetail = () => {
 
             <ScrollView className="px-5">
                 <View className="flex-row w-full justify-between">
-                    <BackButton />
+                    <BackButton path='/(tabsCustomer)/bakery' />
                     <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
                     {/* TO DO: Toggle Favorite */}
                     <TouchableOpacity

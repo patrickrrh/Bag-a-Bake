@@ -3,10 +3,22 @@ import React from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-const BackButton: React.FC = () => {
+interface BackButtonProps {
+    path?: string;
+    params?: Record<string, any>;
+}
+
+const BackButton: React.FC<BackButtonProps> = ({ path, params }) => {
 
     const handlePress = () => {
-        router.back();
+        if (path) {
+            router.push({
+                pathname: path as any,
+                params,
+            });
+        } else {
+            router.back();
+        }
     };
 
     return (
