@@ -15,7 +15,7 @@ import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
 import orderCustomerApi from '@/api/orderCustomerApi';
 import { useAuth } from '@/app/context/AuthContext';
 import TextTitle5 from '@/components/texts/TextTitle5';
-import { OrderDetailType, ProductType } from '@/types/types';
+import { OrderDetailType, PaymentType, ProductType } from '@/types/types';
 import TextDiscount from '@/components/texts/TextDiscount';
 import TextBeforePrice from '@/components/texts/TextBeforePrice';
 import TextAfterPrice from '@/components/texts/TextAfterPrice';
@@ -24,11 +24,15 @@ import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import ContactButton from '@/components/ContactButton';
 import TextEllipsis from '@/components/TextEllipsis';
 import ModalAction from '@/components/ModalAction';
+import TextHeadline from '@/components/texts/TextHeadline';
+import paymentApi from "@/api/paymentApi";
 
 const OrderDetail = () => {
 
     const { order } = useLocalSearchParams();
     const orderData = order ? JSON.parse(order as string) : null;
+    
+    const [paymentMethods, setPaymentMethods] = useState<PaymentType[]>([]);
 
     const [isSubmitting, setisSubmitting] = useState(false);
     const [isCancelModalVisible, setCancelModalVisible] = useState(false);
@@ -56,6 +60,26 @@ const OrderDetail = () => {
             console.log("Error canceling order ", error)
         }
     }
+
+    const handleGetPaymentMethodsByBakeryAPI = async () => {
+        try {
+            const response = await paymentApi().getPaymentByBakery({
+                bakeryId: orderData.bakery.bakeryId
+            })
+
+            if (response.status === 200) {
+                setPaymentMethods(response.data ? response.data : []);
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        handleGetPaymentMethodsByBakeryAPI();
+    }, [])
+
+    console.log("payment methods", paymentMethods)
 
     return (
         <SafeAreaView className="bg-background h-full flex-1">
@@ -123,6 +147,14 @@ const OrderDetail = () => {
                     <TextTitle5 label={calculateTotalOrderPrice(orderData.orderDetail)} />
                 </View>
             </View>
+
+            {
+                orderData.orderStatus === 1 && (
+                    <View className='p-5 mt-5 bg-white'>
+                        <TextTitle4 label="Metode Pembayaran:" />
+                    </View>
+                )
+            }
 
             {
                 orderData.orderStatus === 1 ? (

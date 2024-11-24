@@ -13,7 +13,7 @@ const UploadButton: React.FC<Props> = ({ label, handlePress, buttonStyles }) => 
         <TouchableOpacity
             onPress={handlePress}
             activeOpacity={0.7}
-            className={`bg-transparent rounded-md h-[26px] px-4 border justify-center border-primary ${buttonStyles}`}
+            className={`bg-transparent rounded-md h-[26px] px-4 border justify-center border-orange ${buttonStyles}`}
             >
             <TextUpload
                 label={label}
