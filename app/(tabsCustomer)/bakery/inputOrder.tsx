@@ -243,7 +243,10 @@ const InputOrder = () => {
         <View style={{ position: 'absolute', top: 60, left: 30 }}>
           <TouchableOpacity
             onPress={() => {
-              router.back();
+              router.push({
+                pathname: "/bakery/bakeryDetail",
+                params: { bakeryId: bakery?.bakery.bakeryId },
+              })
             }}
             style={{
               backgroundColor: "white",
