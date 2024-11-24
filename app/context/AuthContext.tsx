@@ -117,6 +117,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             await SecureStore.deleteItemAsync("accessToken");
             await SecureStore.deleteItemAsync("refreshToken");
             await SecureStore.deleteItemAsync("userData");
+            setIsEditProfile(false);
             setIsAuthenticated(false);
             setUserData(null);
             setJustSignedIn(true);

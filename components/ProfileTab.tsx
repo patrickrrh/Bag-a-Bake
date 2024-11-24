@@ -19,7 +19,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
   };
 
   return (
-    <View className="flex-row space-x-8">
+    <View className="flex-row space-x-8 justify-around">
       {statuses.map((status) => (
         <TouchableOpacity
           key={status}

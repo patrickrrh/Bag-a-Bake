@@ -89,48 +89,40 @@ const ProfilePage = () => {
   const GOOGLE_MAPS_API_KEY = process.env
     .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
-  const [form, setForm] = useState({
-    userName: userData?.userName || "",
-    userPhoneNumber: userData?.userPhoneNumber || "",
-    userImage: userData?.userImage || "",
-    roleId: 2,
-  });
-
-  const [bakeryForm, setBakeryForm] = useState({
-    bakeryName: userData?.bakery.bakeryName || "",
-    bakeryImage: userData?.bakery.bakeryImage || "",
-    bakeryDescription: userData?.bakery.bakeryDescription || "",
-    bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
-    openingTime: userData?.bakery.openingTime || "",
-    closingTime: userData?.bakery.closingTime || "",
-    bakeryAddress: userData?.bakery.bakeryAddress || "",
-    bakeryLatitude: userData?.bakery.bakeryLatitude || 0,
-    bakeryLongitude: userData?.bakery.bakeryLongitude || 0,
-  });
-
-  const [selectedStatus, setSelectedStatus] = useState<number>(1);
+  const [nextRoute, setNextRoute] = useState<Href | null>(null);
+  const [isSubmitting, setisSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  const emptyError: ErrorState = {
-    userName: null,
-    userPhoneNumber: null,
-  };
-  const emptyBakeryError: BakeryErrorState = {
-    bakeryName: null,
-    bakeryImage: null,
-    bakeryDescription: null,
-    bakeryPhoneNumber: null,
-    openingTime: null,
-    closingTime: null,
-    bakeryAddress: null,
-    bakeryLatitude: null,
-    bakeryLongitude: null,
-  };
-  const [error, setError] = useState<ErrorState>(emptyError);
-  const [bakeryError, setBakeryError] =
-    useState<BakeryErrorState>(emptyBakeryError);
+  const [selectedStatus, setSelectedStatus] = useState<number>(1);
+  useEffect(() => {
+    const loadStoredStatus = async () => {
+      const storedStatus = await getLocalStorage("selectedStatusProfile");
+      if (storedStatus) {
+        setSelectedStatus(Number(storedStatus));
+      }
+    };
+    loadStoredStatus();
+  }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedStatus(1);
+      setLocalStorage("selectedStatusProfile", "1");
+    }, [])
+  );
+
+  const handleRouteChange = async () => {
+    if (selectedStatus !== null) {
+      await setLocalStorage("selectedStatusProfile", String(selectedStatus));
+    }
+    Keyboard.dismiss();
+
+    if (nextRoute) {
+      router.push(nextRoute);
+      setNextRoute(null);
+    }
+  };
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -143,78 +135,41 @@ const ProfilePage = () => {
       if (!result.canceled) {
         setForm({ ...form, userImage: result.assets[0].uri });
       }
-    } else {
+    } else if (selectedStatus === 2) {
       if (!result.canceled) {
         setBakeryForm({ ...bakeryForm, bakeryImage: result.assets[0].uri });
       }
-    }
-  };
+    } else if (selectedStatus === 3) {
+      if (!result.canceled) {
+        setPaymentForm((prevPaymentForm) => {
+          const updatedPaymentMethods = prevPaymentForm.paymentMethods.map(
+            (method) => {
+              if (method.paymentMethod === "QRIS") {
+                return { ...method, paymentDetail: result.assets[0].uri };
+              }
+              return method;
+            }
+          );
 
-  const hasUnsavedChanges = () => {
-    return (
-      form.userName !== userData?.userName ||
-      form.userPhoneNumber !== userData?.userPhoneNumber ||
-      form.userImage !== userData?.userImage
-    );
-  };
-
-  const hasBakeryUnsavedChanges = () => {
-    return (
-      bakeryForm.bakeryName !== userData?.bakery.bakeryName ||
-      bakeryForm.bakeryImage !== userData?.bakery.bakeryImage ||
-      bakeryForm.bakeryDescription !== userData?.bakery.bakeryDescription ||
-      bakeryForm.bakeryPhoneNumber !== userData?.bakery.bakeryPhoneNumber ||
-      bakeryForm.openingTime !== userData?.bakery.openingTime ||
-      bakeryForm.closingTime !== userData?.bakery.closingTime ||
-      bakeryForm.bakeryAddress !== userData?.bakery.bakeryAddress ||
-      bakeryForm.bakeryLatitude !== userData?.bakery.bakeryLatitude ||
-      bakeryForm.bakeryLongitude !== userData?.bakery.bakeryLongitude
-    );
-  };
-
-  const hasPaymentUnsavedChanges = () => {
-    const formPaymentIds = (paymentForm.paymentMethods || []).map(
-      (method) => method.paymentId
-    );
-    const userPaymentIds = (userData?.bakery?.payment || []).map(
-      (method) => method.paymentId
-    );
-
-    if (formPaymentIds.length !== userPaymentIds.length) {
-      return true;
-    }
-
-    return (
-      !formPaymentIds.every((id) => userPaymentIds.includes(id)) ||
-      (paymentForm.paymentMethods || []).some((method, index) => {
-        const userPaymentMethod = userData?.bakery?.payment?.[index];
-        return (
-          method.paymentMethod !== userPaymentMethod?.paymentMethod ||
-          method.paymentService !== userPaymentMethod?.paymentService ||
-          method.paymentDetail !== userPaymentMethod?.paymentDetail
-        );
-      })
-    );
-  };
-
-  const [nextRoute, setNextRoute] = useState<Href | null>(null);
-
-  useEffect(() => {
-    const loadStoredStatus = async () => {
-      const storedStatus = await getLocalStorage("selectedStatusProfile");
-      if (storedStatus) {
-        setSelectedStatus(Number(storedStatus));
+          return { ...prevPaymentForm, paymentMethods: updatedPaymentMethods };
+        });
       }
-    };
-    loadStoredStatus();
-  }, []);
-
-  const handleRouteChange = async () => {
-    if (selectedStatus !== null) {
-      await setLocalStorage("selectedStatusProfile", String(selectedStatus));
     }
-    Keyboard.dismiss();
   };
+
+  const [form, setForm] = useState({
+    userName: userData?.userName || "",
+    userPhoneNumber: userData?.userPhoneNumber || "",
+    userImage: userData?.userImage || "",
+    roleId: 2,
+  });
+
+  const emptyError: ErrorState = {
+    userName: null,
+    userPhoneNumber: null,
+  };
+
+  const [error, setError] = useState<ErrorState>(emptyError);
 
   const handlePasswordChange = () => {
     if (hasUnsavedChanges()) {
@@ -225,72 +180,121 @@ const ProfilePage = () => {
     }
   };
 
-  const handleSubmitChange = () => {
-    if (selectedStatus === 1) {
-      const errors = checkEmptyForm(form);
-      if (Object.values(errors).some((error) => error !== null)) {
-        setError(errors as ErrorState);
-        setisSubmitting(false);
-        return;
-      }
-    } else if (selectedStatus === 2) {
-      const errors = checkEmptyForm(bakeryForm);
-      if (Object.values(errors).some((error) => error !== null)) {
-        setBakeryError(errors as BakeryErrorState);
-        setisSubmitting(false);
-        return;
-      }
-    } else if (selectedStatus === 3) {
-      if (paymentForm.paymentMethods.length === 0) {
-        setPaymentError((prevPaymentError) => ({
-          ...prevPaymentError,
-          paymentMethod: "Silakan pilih minimal 1 metode pembayaran",
-        }));
-        return;
-      }
+  const [bakeryForm, setBakeryForm] = useState({
+    bakeryName: userData?.bakery.bakeryName || "",
+    bakeryImage: userData?.bakery.bakeryImage || "",
+    bakeryDescription: userData?.bakery.bakeryDescription || "",
+    bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
+    openingTime: userData?.bakery.openingTime || "",
+    closingTime: userData?.bakery.closingTime || "",
+    bakeryAddress: userData?.bakery.bakeryAddress || "",
+    bakeryLatitude: userData?.bakery.bakeryLatitude || 0,
+    bakeryLongitude: userData?.bakery.bakeryLongitude || 0,
+  });
+  
+  const emptyBakeryError: BakeryErrorState = {
+    bakeryName: null,
+    bakeryImage: null,
+    bakeryDescription: null,
+    bakeryPhoneNumber: null,
+    openingTime: null,
+    closingTime: null,
+    bakeryAddress: null,
+    bakeryLatitude: null,
+    bakeryLongitude: null,
+  };
+  
+  const [bakeryError, setBakeryError] =
+    useState<BakeryErrorState>(emptyBakeryError);
 
-      if (
-        paymentForm.paymentMethods.some(
-          (method) => !method.paymentService || !method.paymentDetail
-        )
-      ) {
-        const incompleteMethods = paymentForm.paymentMethods.filter(
-          (method) => !method.paymentService || !method.paymentDetail
-        );
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [timeFieldType, setTimeFieldType] = useState<
+    "openingTime" | "closingTime"
+  >("openingTime");
 
-        const errorMessage = incompleteMethods
-          .map((method) => method.paymentMethod)
-          .join(", ");
+  const showDatePicker = (type: "openingTime" | "closingTime") => {
+    setTimeFieldType(type);
+    setDatePickerVisibility(true);
+  };
 
-        setPaymentError((prevPaymentError) => ({
-          ...prevPaymentError,
-          paymentMethod: `Silakan lengkapi detail untuk metode pembayaran: ${errorMessage}`,
-        }));
-        return;
-      }
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
 
-      setPaymentError((prevPaymentError) => ({
-        ...prevPaymentError,
-        paymentMethod: null,
+  const handleSelectTime = (time: any) => {
+    const timezone = toZonedTime(time, "Asia/Jakarta");
+    const formattedTime = format(timezone, "HH:mm");
+
+    if (timeFieldType === "openingTime") {
+      setBakeryForm((prevBakeryForm) => ({
+        ...prevBakeryForm,
+        openingTime: formattedTime,
+      }));
+      setBakeryError((prevBakeryError) => ({
+        ...prevBakeryError,
+        openingTime: null,
+      }));
+    } else {
+      setBakeryForm((prevBakeryForm) => ({
+        ...prevBakeryForm,
+        closingTime: formattedTime,
+      }));
+      setBakeryError((prevBakeryError) => ({
+        ...prevBakeryError,
+        closingTime: null,
       }));
     }
 
-    if (
-      hasUnsavedChanges() ||
-      hasBakeryUnsavedChanges() ||
-      hasPaymentUnsavedChanges()
-    ) {
-      setModalVisible(true);
-    } else {
-      router.push("/(tabsSeller)/profile/profilePage" as Href);
-    }
+    hideDatePicker();
   };
 
-  const { prevPaymentForm } = useLocalSearchParams();
-  const parsedPrevForm =
-    prevPaymentForm && typeof prevPaymentForm === "string"
-      ? JSON.parse(prevPaymentForm)
-      : {};
+  const [address, setAddress] = useState(userData?.bakery.bakeryAddress || "");
+  const [suggestions, setSuggestions] = useState([]);
+  const handleGeocoding = (address: string) => {
+    Geocoder.from(address)
+      .then((json) => {
+        const location = json.results[0].geometry.location;
+        setBakeryForm({
+          ...bakeryForm,
+          bakeryLatitude: location.lat,
+          bakeryLongitude: location.lng,
+          bakeryAddress: address,
+        });
+      })
+      .catch((error) => console.warn(error));
+  };
+
+  const handleGetLocationSuggestionsAPI = () => {
+    if (address === "") {
+      setError((prevError) => ({
+        ...prevError,
+        address: "Alamat toko tidak boleh kosong",
+      }));
+      return;
+    }
+
+    axios
+      .get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
+        params: {
+          input: address,
+          key: GOOGLE_MAPS_API_KEY,
+          language: "id",
+          location: "-6.222941492431385, 106.64889532527259",
+          radius: 5000,
+          types: "establishment",
+        },
+      })
+      .then((response) => {
+        setSuggestions(response.data.predictions);
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleSelectSuggestion = (item: any) => {
+    setAddress(item.description);
+    setSuggestions([]);
+    handleGeocoding(item.description);
+  };
 
   const [paymentForm, setPaymentForm] = useState<PaymentForm>({
     paymentMethods:
@@ -312,21 +316,20 @@ const ProfilePage = () => {
     { method: "QRIS" },
   ];
 
-  const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
-
   const paymentEmptyError: PaymentErrorState = {
     paymentMethod: null,
   };
   const [paymentError, setPaymentError] =
     useState<PaymentErrorState>(paymentEmptyError);
 
-  useEffect(() => {
-    setPaymentForm((prevPaymentForm) => ({
-      ...prevPaymentForm,
-      ...parsedPrevForm,
-      roleId: parseInt(parsedPrevForm.roleId),
-    }));
-  }, [prevPaymentForm]);
+  const { prevPaymentForm } = useLocalSearchParams();
+  const parsedPrevForm =
+    prevPaymentForm && typeof prevPaymentForm === "string"
+      ? JSON.parse(prevPaymentForm)
+      : {};
+
+  const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
 
   const handlePaymentMethodSelect = (method: string) => {
     setPaymentError((prevPaymentError) => ({
@@ -335,7 +338,7 @@ const ProfilePage = () => {
     }));
 
     const updatedMethods = selectedMethods.includes(method)
-      ? selectedMethods.filter((m) => m !== method) 
+      ? selectedMethods.filter((m) => m !== method)
       : [...selectedMethods, method];
 
     setSelectedMethods(updatedMethods);
@@ -405,31 +408,13 @@ const ProfilePage = () => {
     });
   };
 
-  const pickQRISImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setPaymentForm((prevPaymentForm) => {
-        const updatedPaymentMethods = prevPaymentForm.paymentMethods.map(
-          (method) => {
-            if (method.paymentMethod === "QRIS") {
-              return { ...method, paymentDetail: result.assets[0].uri };
-            }
-            return method;
-          }
-        );
-
-        return { ...prevPaymentForm, paymentMethods: updatedPaymentMethods };
-      });
-    }
-  };
-
-  const [hasAutoSelected, setHasAutoSelected] = useState(false);
+  useEffect(() => {
+    setPaymentForm((prevPaymentForm) => ({
+      ...prevPaymentForm,
+      ...parsedPrevForm,
+      roleId: parseInt(parsedPrevForm.roleId),
+    }));
+  }, [prevPaymentForm]);
 
   useEffect(() => {
     if (paymentForm?.paymentMethods?.length > 0 && !hasAutoSelected) {
@@ -450,6 +435,114 @@ const ProfilePage = () => {
       setHasAutoSelected(true);
     }
   }, [selectedMethods, hasAutoSelected]);
+
+  const hasUnsavedChanges = () => {
+    return (
+      form.userName !== userData?.userName ||
+      form.userPhoneNumber !== userData?.userPhoneNumber ||
+      form.userImage !== userData?.userImage
+    );
+  };
+
+  const hasBakeryUnsavedChanges = () => {
+    return (
+      bakeryForm.bakeryName !== userData?.bakery.bakeryName ||
+      bakeryForm.bakeryImage !== userData?.bakery.bakeryImage ||
+      bakeryForm.bakeryDescription !== userData?.bakery.bakeryDescription ||
+      bakeryForm.bakeryPhoneNumber !== userData?.bakery.bakeryPhoneNumber ||
+      bakeryForm.openingTime !== userData?.bakery.openingTime ||
+      bakeryForm.closingTime !== userData?.bakery.closingTime ||
+      bakeryForm.bakeryAddress !== userData?.bakery.bakeryAddress ||
+      bakeryForm.bakeryLatitude !== userData?.bakery.bakeryLatitude ||
+      bakeryForm.bakeryLongitude !== userData?.bakery.bakeryLongitude
+    );
+  };
+
+  const hasPaymentUnsavedChanges = () => {
+    const formPaymentIds = (paymentForm.paymentMethods || []).map(
+      (method) => method.paymentId
+    );
+    const userPaymentIds = (userData?.bakery?.payment || []).map(
+      (method) => method.paymentId
+    );
+
+    if (formPaymentIds.length !== userPaymentIds.length) {
+      return true;
+    }
+
+    return (
+      !formPaymentIds.every((id) => userPaymentIds.includes(id)) ||
+      (paymentForm.paymentMethods || []).some((method, index) => {
+        const userPaymentMethod = userData?.bakery?.payment?.[index];
+        return (
+          method.paymentMethod !== userPaymentMethod?.paymentMethod ||
+          method.paymentService !== userPaymentMethod?.paymentService ||
+          method.paymentDetail !== userPaymentMethod?.paymentDetail
+        );
+      })
+    );
+  };
+
+  const handleSubmitChange = () => {
+    if (selectedStatus === 1) {
+      const errors = checkEmptyForm(form);
+      if (Object.values(errors).some((error) => error !== null)) {
+        setError(errors as ErrorState);
+        setisSubmitting(false);
+        return;
+      }
+    } else if (selectedStatus === 2) {
+      const errors = checkEmptyForm(bakeryForm);
+      if (Object.values(errors).some((error) => error !== null)) {
+        setBakeryError(errors as BakeryErrorState);
+        setisSubmitting(false);
+        return;
+      }
+    } else if (selectedStatus === 3) {
+      if (paymentForm.paymentMethods.length === 0) {
+        setPaymentError((prevPaymentError) => ({
+          ...prevPaymentError,
+          paymentMethod: "Silakan pilih minimal 1 metode pembayaran",
+        }));
+        return;
+      }
+
+      if (
+        paymentForm.paymentMethods.some(
+          (method) => !method.paymentService || !method.paymentDetail
+        )
+      ) {
+        const incompleteMethods = paymentForm.paymentMethods.filter(
+          (method) => !method.paymentService || !method.paymentDetail
+        );
+
+        const errorMessage = incompleteMethods
+          .map((method) => method.paymentMethod)
+          .join(", ");
+
+        setPaymentError((prevPaymentError) => ({
+          ...prevPaymentError,
+          paymentMethod: `Silakan lengkapi detail untuk metode pembayaran: ${errorMessage}`,
+        }));
+        return;
+      }
+
+      setPaymentError((prevPaymentError) => ({
+        ...prevPaymentError,
+        paymentMethod: null,
+      }));
+    }
+
+    if (
+      hasUnsavedChanges() ||
+      hasBakeryUnsavedChanges() ||
+      hasPaymentUnsavedChanges()
+    ) {
+      setModalVisible(true);
+    } else {
+      router.push("/(tabsSeller)/profile/profilePage" as Href);
+    }
+  };
 
   const handleSaveChanges = async () => {
     try {
@@ -492,13 +585,19 @@ const ProfilePage = () => {
         showToast("success", "Data pembayaran berhasil diperbarui");
       }
 
+      const paymentDatabase = await paymentApi().getPaymentByBakery({
+        bakeryId: userData?.bakery.bakeryId,
+      });
+
+      const paymentData: PaymentType[] = paymentDatabase?.data || [];
+
       const userDataToStore = {
         ...form,
         userId: userData?.userId,
         bakery: {
           ...bakeryForm,
           bakeryId: userData?.bakery.bakeryId,
-          payment: paymentForm.paymentMethods.map((payment) => ({
+          payment: paymentData.map((payment) => ({
             paymentId: payment.paymentId,
             bakeryId: payment.bakeryId,
             paymentMethod: payment.paymentMethod,
@@ -522,99 +621,6 @@ const ProfilePage = () => {
       setisSubmitting(false);
     }
   };
-
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [timeFieldType, setTimeFieldType] = useState<
-    "openingTime" | "closingTime"
-  >("openingTime");
-
-  const showDatePicker = (type: "openingTime" | "closingTime") => {
-    setTimeFieldType(type);
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleSelectTime = (time: any) => {
-    const timezone = toZonedTime(time, "Asia/Jakarta");
-    const formattedTime = format(timezone, "HH:mm");
-
-    if (timeFieldType === "openingTime") {
-      setBakeryForm((prevBakeryForm) => ({
-        ...prevBakeryForm,
-        openingTime: formattedTime,
-      }));
-      setBakeryError((prevBakeryError) => ({
-        ...prevBakeryError,
-        openingTime: null,
-      }));
-    } else {
-      setBakeryForm((prevBakeryForm) => ({
-        ...prevBakeryForm,
-        closingTime: formattedTime,
-      }));
-      setBakeryError((prevBakeryError) => ({
-        ...prevBakeryError,
-        closingTime: null,
-      }));
-    }
-
-    hideDatePicker();
-  };
-
-  const [isSubmitting, setisSubmitting] = useState(false);
-  const [address, setAddress] = useState(userData?.bakery.bakeryAddress || "");
-  const [suggestions, setSuggestions] = useState([]);
-
-  const handleGeocoding = (address: string) => {
-    Geocoder.from(address)
-      .then((json) => {
-        const location = json.results[0].geometry.location;
-        setBakeryForm({
-          ...bakeryForm,
-          bakeryLatitude: location.lat,
-          bakeryLongitude: location.lng,
-          bakeryAddress: address,
-        });
-      })
-      .catch((error) => console.warn(error));
-  };
-
-  const handleGetLocationSuggestionsAPI = () => {
-    if (address === "") {
-      setError((prevError) => ({
-        ...prevError,
-        address: "Alamat toko tidak boleh kosong",
-      }));
-      return;
-    }
-
-    axios
-      .get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
-        params: {
-          input: address,
-          key: GOOGLE_MAPS_API_KEY,
-          language: "id",
-          location: "-6.222941492431385, 106.64889532527259",
-          radius: 5000,
-          types: "establishment",
-        },
-      })
-      .then((response) => {
-        setSuggestions(response.data.predictions);
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const handleSelectSuggestion = (item: any) => {
-    setAddress(item.description);
-    setSuggestions([]);
-    handleGeocoding(item.description);
-  };
-
-  // console.log("bakery form", JSON.stringify(bakeryForm, null, 2));
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -821,7 +827,7 @@ const ProfilePage = () => {
                     selectMethod={handlePaymentMethodSelect}
                     selectDropdown={handleDropdownSelect}
                     onChangeText={handleTextChange}
-                    pickImage={pickQRISImage}
+                    pickImage={pickImage}
                   />
                 </View>
                 {paymentError.paymentMethod && (
