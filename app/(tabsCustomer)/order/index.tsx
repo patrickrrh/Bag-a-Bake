@@ -198,7 +198,7 @@ const Order = () => {
             <FlatList
               data={orders}
               renderItem={({ item }) =>
-                item.orderStatus === 3 && item.isRated === false ? (
+                item.orderStatus === 4 && item.isRated === false ? (
                   <OrderCardWithRating
                     item={item}
                     onPress={() => {

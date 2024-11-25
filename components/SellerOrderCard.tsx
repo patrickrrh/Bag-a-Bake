@@ -35,7 +35,7 @@ const SellerOrderCard: React.FC<Props> = ({ order, onPress, printPdf }) => {
                             <TextTitle5Gray label={formatDatewithtime(order.orderDate)} />
                         </View>
                         {
-                            order.orderStatus === 3 && (
+                            order.orderStatus === 4 && (
                                 <TouchableOpacity
                                     onPress={printPdf}
                                 >

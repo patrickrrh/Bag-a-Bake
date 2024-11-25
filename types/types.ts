@@ -46,6 +46,14 @@ export type BakeryType = {
     payment: PaymentType[];
 }
 
+export type PaymentType = {
+    paymentId: number;
+    bakeryId: number;
+    paymentMethod: string;
+    paymentService: string;
+    paymentDetail: string;
+}
+
 export type FavoriteType = {
     favoriteId: number;
     userId: number;
@@ -69,6 +77,7 @@ export type OrderType = {
     orderDate: string;
     user: UserType;
     orderDetail: OrderDetailType[];
+    proofOfPayment: string;
 };
 
 export type OrderDetailType = {
