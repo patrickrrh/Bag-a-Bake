@@ -10,7 +10,7 @@ const TextUpload: React.FC<Props> = ({ label }) => {
     <View>
       <Text
         style={{ fontFamily: "poppinsSemiBold", fontSize: 8 }}
-        className='text-orange'
+        className='text-primary'
       >
         {label}
       </Text>

@@ -40,7 +40,6 @@ import RatingInput from "@/components/RatingInput";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { sendNotification, monitorChanges } from "@/utils/notificationUtils";
 import { icons } from "@/constants/icons";
-import OrderCardWithPayment from "@/components/OrderCardWithPayment";
 
 type RatingErrorState = {
   rating: string | null;
@@ -199,7 +198,7 @@ const Order = () => {
             <FlatList
               data={orders}
               renderItem={({ item }) =>
-                item.orderStatus === 3 && item.isRated === false ? (
+                item.orderStatus === 4 && item.isRated === false ? (
                   <OrderCardWithRating
                     item={item}
                     onPress={() => {
@@ -211,19 +210,6 @@ const Order = () => {
                     onPressRating={() => {
                       setRatingModal(true);
                       setRatingOrderId(item.orderId);
-                    }}
-                  />
-                ) : item.orderStatus === 1 && item.proofOfPayment === null ? (
-                  <OrderCardWithPayment
-                    item={item}
-                    onPress={() => {
-                      router.push({
-                        pathname: "/order/orderDetail" as any,
-                        params: { order: JSON.stringify(item) },
-                      });
-                    }}
-                    onPressPayment={() => {
-                      
                     }}
                   />
                 ) : (

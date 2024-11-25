@@ -270,7 +270,7 @@ const Order = () => {
                       });
                     }}
                     onAccept={() => handleActionOrder(item.orderId, 2)}
-                    onReject={() => handleActionOrder(item.orderId, 4)}
+                    onReject={() => handleActionOrder(item.orderId, 5)}
                   />
                 ) : (
                   <SellerOrderCard

@@ -6,14 +6,15 @@ interface OrderStatusTabProps {
   onSelectStatus: (status: number) => void;
 }
 
-const statuses: Array<1 | 2 | 3> = [1, 2, 3];
+const statuses: Array<1 | 2 | 3 | 4> = [1, 2, 3, 4];
 
 const OrderStatusTab: React.FC<OrderStatusTabProps> = ({ selectedStatus, onSelectStatus }) => {
   
   const statusMapping = {
     1: 'Pending',
-    2: 'Berlangsung',
-    3: 'Selesai',
+    2: 'Pembayaran',
+    3: 'Berlangsung',
+    4: 'Selesai',
   };
 
   return (
@@ -22,10 +23,10 @@ const OrderStatusTab: React.FC<OrderStatusTabProps> = ({ selectedStatus, onSelec
         <TouchableOpacity
           key={status}
           onPress={() => onSelectStatus(status)}
-          className="flex-1 items-center pt-2"
+          className="items-center pt-2"
         >
           <Text
-            className={`text-lg font-bold pb-5 ${
+            className={`text-md font-bold pb-5 ${
               selectedStatus === status ? 'text-brown opacity-100' : 'text-black opacity-50'
             }`}
           >
