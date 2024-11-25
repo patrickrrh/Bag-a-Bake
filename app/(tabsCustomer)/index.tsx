@@ -127,19 +127,7 @@ const Home = () => {
                 </Text>
               </View>
             </View>
-            <View>
-              <TouchableOpacity
-                onPress={() => { }}
-                style={{
-                  backgroundColor: "rgba(0, 0, 0, 0.1)",
-                  borderRadius: 25,
-                  padding: 8,
-                }}
-                className='w-10 h-10 justify-center items-center'
-              >
-                <FontAwesome name="bell" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
+            <View style={{ width: 40 }} />
           </View>
         </View>
 

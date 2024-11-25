@@ -6,7 +6,7 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
-  Keyboard
+  Keyboard,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -16,11 +16,16 @@ import UploadButton from "@/components/UploadButton";
 import CustomButton from "@/components/CustomButton";
 import CustomButtonOutline from "@/components/CustomButtonOutline";
 import * as ImagePicker from "expo-image-picker";
-import { router, Href, useFocusEffect } from "expo-router";
+import {
+  router,
+  Href,
+  useFocusEffect,
+  useLocalSearchParams,
+} from "expo-router";
 import TextHeader from "@/components/texts/TextHeader";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
-import regionApi from "@/api/regionApi";
+import paymentApi from "@/api/paymentApi";
 import bakeryApi from "@/api/bakeryApi";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
@@ -36,8 +41,10 @@ import { format, toZonedTime } from "date-fns-tz";
 import Toast from "react-native-toast-message";
 import InputLocationField from "@/components/InputLocationField";
 import axios from "axios";
-import { getLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
+import { getLocalStorage, setLocalStorage } from "@/utils/commonFunctions";
 import Geocoder from "react-native-geocoding";
+import PaymentInput from "@/components/PaymentInput";
+import ErrorMessage from "@/components/texts/ErrorMessage";
 
 type ErrorState = {
   userName: string | null;
@@ -56,53 +63,66 @@ type BakeryErrorState = {
   bakeryLongitude: number | null;
 };
 
+type PaymentErrorState = {
+  paymentMethod: string | null;
+};
+
+interface PaymentMethod {
+  method: string;
+  serviceOptions?: string[];
+}
+
+interface PaymentType {
+  paymentId: number;
+  bakeryId: number;
+  paymentMethod: string;
+  paymentService: string;
+  paymentDetail: string;
+}
+
+interface PaymentForm {
+  paymentMethods: PaymentType[];
+}
+
 const ProfilePage = () => {
   const { userData, refreshUserData, signOut } = useAuth();
   const GOOGLE_MAPS_API_KEY = process.env
     .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
-  const [form, setForm] = useState({
-    userName: userData?.userName || "",
-    userPhoneNumber: userData?.userPhoneNumber || "",
-    userImage: userData?.userImage || "",
-    roleId: 2,
-  });
-
-  const [bakeryForm, setBakeryForm] = useState({
-    bakeryName: userData?.bakery.bakeryName || "",
-    bakeryImage: userData?.bakery.bakeryImage || "",
-    bakeryDescription: userData?.bakery.bakeryDescription || "",
-    bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
-    openingTime: userData?.bakery.openingTime || "",
-    closingTime: userData?.bakery.closingTime || "",
-    bakeryAddress: userData?.bakery.bakeryAddress || "",
-    bakeryLatitude: userData?.bakery.bakeryLatitude || 0,
-    bakeryLongitude: userData?.bakery.bakeryLongitude || 0,
-  });
-
-  const [selectedStatus, setSelectedStatus] = useState<number>(1);
+  const [nextRoute, setNextRoute] = useState<Href | null>(null);
+  const [isSubmitting, setisSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  const emptyError: ErrorState = {
-    userName: null,
-    userPhoneNumber: null,
-  };
-  const emptyBakeryError: BakeryErrorState = {
-    bakeryName: null,
-    bakeryImage: null,
-    bakeryDescription: null,
-    bakeryPhoneNumber: null,
-    openingTime: null,
-    closingTime: null,
-    bakeryAddress: null,
-    bakeryLatitude: null,
-    bakeryLongitude: null,
-  };
-  const [error, setError] = useState<ErrorState>(emptyError);
-  const [bakeryError, setBakeryError] =
-    useState<BakeryErrorState>(emptyBakeryError);
+  const [selectedStatus, setSelectedStatus] = useState<number>(1);
+  useEffect(() => {
+    const loadStoredStatus = async () => {
+      const storedStatus = await getLocalStorage("selectedStatusProfile");
+      if (storedStatus) {
+        setSelectedStatus(Number(storedStatus));
+      }
+    };
+    loadStoredStatus();
+  }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedStatus(1);
+      setLocalStorage("selectedStatusProfile", "1");
+    }, [])
+  );
+
+  const handleRouteChange = async () => {
+    if (selectedStatus !== null) {
+      await setLocalStorage("selectedStatusProfile", String(selectedStatus));
+    }
+    Keyboard.dismiss();
+
+    if (nextRoute) {
+      router.push(nextRoute);
+      setNextRoute(null);
+    }
+  };
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -115,61 +135,41 @@ const ProfilePage = () => {
       if (!result.canceled) {
         setForm({ ...form, userImage: result.assets[0].uri });
       }
-    } else {
+    } else if (selectedStatus === 2) {
       if (!result.canceled) {
         setBakeryForm({ ...bakeryForm, bakeryImage: result.assets[0].uri });
       }
-    }
-  };
+    } else if (selectedStatus === 3) {
+      if (!result.canceled) {
+        setPaymentForm((prevPaymentForm) => {
+          const updatedPaymentMethods = prevPaymentForm.paymentMethods.map(
+            (method) => {
+              if (method.paymentMethod === "QRIS") {
+                return { ...method, paymentDetail: result.assets[0].uri };
+              }
+              return method;
+            }
+          );
 
-  const hasUnsavedChanges = () => {
-    return (
-      form.userName !== userData?.userName ||
-      form.userPhoneNumber !== userData?.userPhoneNumber ||
-      form.userImage !== userData?.userImage
-    );
-  };
-
-  const hasBakeryUnsavedChanges = () => {
-    return (
-      bakeryForm.bakeryName !== userData?.bakery.bakeryName ||
-      bakeryForm.bakeryImage !== userData?.bakery.bakeryImage ||
-      bakeryForm.bakeryDescription !== userData?.bakery.bakeryDescription ||
-      bakeryForm.bakeryPhoneNumber !== userData?.bakery.bakeryPhoneNumber ||
-      bakeryForm.openingTime !== userData?.bakery.openingTime ||
-      bakeryForm.closingTime !== userData?.bakery.closingTime ||
-      bakeryForm.bakeryAddress !== userData?.bakery.bakeryAddress ||
-      bakeryForm.bakeryLatitude !== userData?.bakery.bakeryLatitude ||
-      bakeryForm.bakeryLongitude !== userData?.bakery.bakeryLongitude
-    );
-  };
-
-  const [nextRoute, setNextRoute] = useState<Href | null>(null);
-
-  useEffect(() => {
-    const loadStoredStatus = async () => {
-      const storedStatus = await getLocalStorage("selectedStatusProfile");
-      if (storedStatus) {
-        setSelectedStatus(Number(storedStatus)); // Convert to integer if available
+          return { ...prevPaymentForm, paymentMethods: updatedPaymentMethods };
+        });
       }
-    };
-    loadStoredStatus();
-  }, []);
-  
-
-  const handleRouteChange = async () => {
-    // if (nextRoute) {
-    //   router.replace(nextRoute);
-    // } else {
-    //   router.replace("/(tabsSeller)/profile/profilePage" as Href);
-    // }
-
-    if (selectedStatus !== null) {
-      await setLocalStorage("selectedStatusProfile", String(selectedStatus));
     }
-    Keyboard.dismiss();
-
   };
+
+  const [form, setForm] = useState({
+    userName: userData?.userName || "",
+    userPhoneNumber: userData?.userPhoneNumber || "",
+    userImage: userData?.userImage || "",
+    roleId: 2,
+  });
+
+  const emptyError: ErrorState = {
+    userName: null,
+    userPhoneNumber: null,
+  };
+
+  const [error, setError] = useState<ErrorState>(emptyError);
 
   const handlePasswordChange = () => {
     if (hasUnsavedChanges()) {
@@ -180,86 +180,32 @@ const ProfilePage = () => {
     }
   };
 
-  const handleSubmitChange = () => {
-    if (selectedStatus === 1) {
-      const errors = checkEmptyForm(form);
-      if (Object.values(errors).some((error) => error !== null)) {
-        setError(errors as ErrorState);
-        setisSubmitting(false);
-        return;
-      }
-    } else if (selectedStatus === 2) {
-      const errors = checkEmptyForm(bakeryForm);
-      if (Object.values(errors).some((error) => error !== null)) {
-        setBakeryError(errors as BakeryErrorState);
-        setisSubmitting(false);
-        return;
-      }
-    }
-
-    if (hasUnsavedChanges() || hasBakeryUnsavedChanges()) {
-      setNextRoute("/(tabsSeller)/profile/profilePage");
-      setModalVisible(true);
-    } else {
-      router.push("/(tabsSeller)/profile/profilePage" as Href);
-    }
+  const [bakeryForm, setBakeryForm] = useState({
+    bakeryName: userData?.bakery.bakeryName || "",
+    bakeryImage: userData?.bakery.bakeryImage || "",
+    bakeryDescription: userData?.bakery.bakeryDescription || "",
+    bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
+    openingTime: userData?.bakery.openingTime || "",
+    closingTime: userData?.bakery.closingTime || "",
+    bakeryAddress: userData?.bakery.bakeryAddress || "",
+    bakeryLatitude: userData?.bakery.bakeryLatitude || 0,
+    bakeryLongitude: userData?.bakery.bakeryLongitude || 0,
+  });
+  
+  const emptyBakeryError: BakeryErrorState = {
+    bakeryName: null,
+    bakeryImage: null,
+    bakeryDescription: null,
+    bakeryPhoneNumber: null,
+    openingTime: null,
+    closingTime: null,
+    bakeryAddress: null,
+    bakeryLatitude: null,
+    bakeryLongitude: null,
   };
-
-  const handleSaveChanges = async () => {
-    try {
-      setisSubmitting(true);
-
-      if (selectedStatus === 1) {
-        await authenticationApi().updateUser({
-          userId: userData?.userId,
-          userName: form.userName,
-          userPhoneNumber: form.userPhoneNumber,
-          userImage: form.userImage,
-        });
-
-        showToast("success", "Data pengguna berhasil diperbarui");
-      } else if (selectedStatus === 2) {
-        await bakeryApi().updateBakery({
-          bakeryId: userData?.bakery.bakeryId,
-          bakeryName: bakeryForm.bakeryName,
-          bakeryImage: bakeryForm.bakeryImage,
-          bakeryDescription: bakeryForm.bakeryDescription,
-          bakeryPhoneNumber: bakeryForm.bakeryPhoneNumber,
-          openingTime: bakeryForm.openingTime,
-          closingTime: bakeryForm.closingTime,
-          bakeryAddress: bakeryForm.bakeryAddress,
-          bakeryLatitude: bakeryForm.bakeryLatitude,
-          bakeryLongitude: bakeryForm.bakeryLongitude,
-        });
-
-        showToast("success", "Data bakeri berhasil diperbarui");
-      }
-
-      const userDataToStore = {
-        ...form,
-        userId: userData?.userId,
-        bakery: {
-          ...bakeryForm,
-          bakeryId: userData?.bakery.bakeryId,
-        },
-      };
-
-      console.log(JSON.stringify(userDataToStore));
-
-      await SecureStore.setItemAsync(
-        "userData",
-        JSON.stringify(userDataToStore)
-      );
-
-      await refreshUserData();
-      handleRouteChange();
-    } catch (error) {
-      console.log(error);
-      showToast("error", "An unexpected error occurred");
-    } finally {
-      setisSubmitting(false);
-    }
-  };
+  
+  const [bakeryError, setBakeryError] =
+    useState<BakeryErrorState>(emptyBakeryError);
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [timeFieldType, setTimeFieldType] = useState<
@@ -302,10 +248,8 @@ const ProfilePage = () => {
     hideDatePicker();
   };
 
-  const [isSubmitting, setisSubmitting] = useState(false);
   const [address, setAddress] = useState(userData?.bakery.bakeryAddress || "");
   const [suggestions, setSuggestions] = useState([]);
-
   const handleGeocoding = (address: string) => {
     Geocoder.from(address)
       .then((json) => {
@@ -352,7 +296,331 @@ const ProfilePage = () => {
     handleGeocoding(item.description);
   };
 
-  // console.log("bakery form", JSON.stringify(bakeryForm, null, 2));
+  const [paymentForm, setPaymentForm] = useState<PaymentForm>({
+    paymentMethods:
+      userData?.bakery?.payment?.map((payment: any) => ({
+        paymentId: payment.paymentId || 0,
+        bakeryId: payment.bakeryId || 0,
+        paymentMethod: payment.paymentMethod || "",
+        paymentService: payment.paymentService || "",
+        paymentDetail: payment.paymentDetail || "",
+      })) || [],
+  });
+
+  const paymentMethods: PaymentMethod[] = [
+    {
+      method: "Transfer Bank",
+      serviceOptions: ["BCA", "Mandiri", "BNI", "BRI"],
+    },
+    { method: "E-Wallet", serviceOptions: ["Gopay", "Dana", "OVO"] },
+    { method: "QRIS" },
+  ];
+
+  const paymentEmptyError: PaymentErrorState = {
+    paymentMethod: null,
+  };
+  const [paymentError, setPaymentError] =
+    useState<PaymentErrorState>(paymentEmptyError);
+
+  const { prevPaymentForm } = useLocalSearchParams();
+  const parsedPrevForm =
+    prevPaymentForm && typeof prevPaymentForm === "string"
+      ? JSON.parse(prevPaymentForm)
+      : {};
+
+  const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
+  const [hasAutoSelected, setHasAutoSelected] = useState(false);
+
+  const handlePaymentMethodSelect = (method: string) => {
+    setPaymentError((prevPaymentError) => ({
+      ...prevPaymentError,
+      paymentMethod: null,
+    }));
+
+    const updatedMethods = selectedMethods.includes(method)
+      ? selectedMethods.filter((m) => m !== method)
+      : [...selectedMethods, method];
+
+    setSelectedMethods(updatedMethods);
+
+    setPaymentForm((prevPaymentForm) => {
+      const existingMethods = prevPaymentForm.paymentMethods || [];
+
+      const updatedMethodsList = updatedMethods.map((method) => {
+        if (method === "QRIS") {
+          const existingQRIS = existingMethods.find(
+            (entry) => entry.paymentMethod === "QRIS"
+          );
+          return (
+            existingQRIS || {
+              paymentId: 0,
+              bakeryId: 0,
+              paymentMethod: "QRIS",
+              paymentService: "QRIS",
+              paymentDetail: "",
+            }
+          );
+        }
+
+        const existingMethod = existingMethods.find(
+          (entry) => entry.paymentMethod === method
+        );
+        return (
+          existingMethod || {
+            paymentId: 0,
+            bakeryId: 0,
+            paymentMethod: method,
+            paymentService: "",
+            paymentDetail: "",
+          }
+        );
+      });
+
+      return { ...prevPaymentForm, paymentMethods: updatedMethodsList };
+    });
+  };
+
+  const handleDropdownSelect = (method: string, service: string) => {
+    setPaymentForm((prevPaymentForm) => {
+      const updatedMethods = (prevPaymentForm.paymentMethods || []).map(
+        (entry) =>
+          entry.paymentMethod === method
+            ? { ...entry, paymentService: service }
+            : entry
+      );
+
+      return { ...prevPaymentForm, paymentMethods: updatedMethods };
+    });
+  };
+
+  const handleTextChange = (method: string, detail: string) => {
+    setPaymentForm((prevPaymentForm) => {
+      const updatedMethods = prevPaymentForm.paymentMethods.map(
+        (payment: any) =>
+          payment.paymentMethod === method
+            ? { ...payment, paymentDetail: detail }
+            : payment
+      );
+      return {
+        ...prevPaymentForm,
+        paymentMethods: updatedMethods,
+      };
+    });
+  };
+
+  useEffect(() => {
+    setPaymentForm((prevPaymentForm) => ({
+      ...prevPaymentForm,
+      ...parsedPrevForm,
+      roleId: parseInt(parsedPrevForm.roleId),
+    }));
+  }, [prevPaymentForm]);
+
+  useEffect(() => {
+    if (paymentForm?.paymentMethods?.length > 0 && !hasAutoSelected) {
+      const defaultSelectedMethods = paymentForm.paymentMethods
+        .filter((method) => method.paymentMethod)
+        .map((method) => method.paymentMethod);
+
+      setSelectedMethods(defaultSelectedMethods);
+      setHasAutoSelected(true);
+    }
+  }, [paymentForm, hasAutoSelected]);
+
+  useEffect(() => {
+    if (selectedMethods.length > 0 && !hasAutoSelected) {
+      selectedMethods.forEach((method) => {
+        handlePaymentMethodSelect(method);
+      });
+      setHasAutoSelected(true);
+    }
+  }, [selectedMethods, hasAutoSelected]);
+
+  const hasUnsavedChanges = () => {
+    return (
+      form.userName !== userData?.userName ||
+      form.userPhoneNumber !== userData?.userPhoneNumber ||
+      form.userImage !== userData?.userImage
+    );
+  };
+
+  const hasBakeryUnsavedChanges = () => {
+    return (
+      bakeryForm.bakeryName !== userData?.bakery.bakeryName ||
+      bakeryForm.bakeryImage !== userData?.bakery.bakeryImage ||
+      bakeryForm.bakeryDescription !== userData?.bakery.bakeryDescription ||
+      bakeryForm.bakeryPhoneNumber !== userData?.bakery.bakeryPhoneNumber ||
+      bakeryForm.openingTime !== userData?.bakery.openingTime ||
+      bakeryForm.closingTime !== userData?.bakery.closingTime ||
+      bakeryForm.bakeryAddress !== userData?.bakery.bakeryAddress ||
+      bakeryForm.bakeryLatitude !== userData?.bakery.bakeryLatitude ||
+      bakeryForm.bakeryLongitude !== userData?.bakery.bakeryLongitude
+    );
+  };
+
+  const hasPaymentUnsavedChanges = () => {
+    const formPaymentIds = (paymentForm.paymentMethods || []).map(
+      (method) => method.paymentId
+    );
+    const userPaymentIds = (userData?.bakery?.payment || []).map(
+      (method) => method.paymentId
+    );
+
+    if (formPaymentIds.length !== userPaymentIds.length) {
+      return true;
+    }
+
+    return (
+      !formPaymentIds.every((id) => userPaymentIds.includes(id)) ||
+      (paymentForm.paymentMethods || []).some((method, index) => {
+        const userPaymentMethod = userData?.bakery?.payment?.[index];
+        return (
+          method.paymentMethod !== userPaymentMethod?.paymentMethod ||
+          method.paymentService !== userPaymentMethod?.paymentService ||
+          method.paymentDetail !== userPaymentMethod?.paymentDetail
+        );
+      })
+    );
+  };
+
+  const handleSubmitChange = () => {
+    if (selectedStatus === 1) {
+      const errors = checkEmptyForm(form);
+      if (Object.values(errors).some((error) => error !== null)) {
+        setError(errors as ErrorState);
+        setisSubmitting(false);
+        return;
+      }
+    } else if (selectedStatus === 2) {
+      const errors = checkEmptyForm(bakeryForm);
+      if (Object.values(errors).some((error) => error !== null)) {
+        setBakeryError(errors as BakeryErrorState);
+        setisSubmitting(false);
+        return;
+      }
+    } else if (selectedStatus === 3) {
+      if (paymentForm.paymentMethods.length === 0) {
+        setPaymentError((prevPaymentError) => ({
+          ...prevPaymentError,
+          paymentMethod: "Silakan pilih minimal 1 metode pembayaran",
+        }));
+        return;
+      }
+
+      if (
+        paymentForm.paymentMethods.some(
+          (method) => !method.paymentService || !method.paymentDetail
+        )
+      ) {
+        const incompleteMethods = paymentForm.paymentMethods.filter(
+          (method) => !method.paymentService || !method.paymentDetail
+        );
+
+        const errorMessage = incompleteMethods
+          .map((method) => method.paymentMethod)
+          .join(", ");
+
+        setPaymentError((prevPaymentError) => ({
+          ...prevPaymentError,
+          paymentMethod: `Silakan lengkapi detail untuk metode pembayaran: ${errorMessage}`,
+        }));
+        return;
+      }
+
+      setPaymentError((prevPaymentError) => ({
+        ...prevPaymentError,
+        paymentMethod: null,
+      }));
+    }
+
+    if (
+      hasUnsavedChanges() ||
+      hasBakeryUnsavedChanges() ||
+      hasPaymentUnsavedChanges()
+    ) {
+      setModalVisible(true);
+    } else {
+      router.push("/(tabsSeller)/profile/profilePage" as Href);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      setisSubmitting(true);
+      if (selectedStatus === 1) {
+        await authenticationApi().updateUser({
+          userId: userData?.userId,
+          userName: form.userName,
+          userPhoneNumber: form.userPhoneNumber,
+          userImage: form.userImage,
+        });
+
+        showToast("success", "Data pengguna berhasil diperbarui");
+      } else if (selectedStatus === 2) {
+        await bakeryApi().updateBakery({
+          bakeryId: userData?.bakery.bakeryId,
+          bakeryName: bakeryForm.bakeryName,
+          bakeryImage: bakeryForm.bakeryImage,
+          bakeryDescription: bakeryForm.bakeryDescription,
+          bakeryPhoneNumber: bakeryForm.bakeryPhoneNumber,
+          openingTime: bakeryForm.openingTime,
+          closingTime: bakeryForm.closingTime,
+          bakeryAddress: bakeryForm.bakeryAddress,
+          bakeryLatitude: bakeryForm.bakeryLatitude,
+          bakeryLongitude: bakeryForm.bakeryLongitude,
+        });
+
+        showToast("success", "Data bakeri berhasil diperbarui");
+      } else if (selectedStatus === 3) {
+        const paymentUpdates = paymentForm.paymentMethods.map((payment) => ({
+          paymentId: payment.paymentId,
+          bakeryId: userData?.bakery.bakeryId,
+          paymentMethod: payment.paymentMethod,
+          paymentService: payment.paymentService,
+          paymentDetail: payment.paymentDetail,
+        }));
+
+        await paymentApi().updatePayments(paymentUpdates);
+
+        showToast("success", "Data pembayaran berhasil diperbarui");
+      }
+
+      const paymentDatabase = await paymentApi().getPaymentByBakery({
+        bakeryId: userData?.bakery.bakeryId,
+      });
+
+      const paymentData: PaymentType[] = paymentDatabase?.data || [];
+
+      const userDataToStore = {
+        ...form,
+        userId: userData?.userId,
+        bakery: {
+          ...bakeryForm,
+          bakeryId: userData?.bakery.bakeryId,
+          payment: paymentData.map((payment) => ({
+            paymentId: payment.paymentId,
+            bakeryId: payment.bakeryId,
+            paymentMethod: payment.paymentMethod,
+            paymentService: payment.paymentService,
+            paymentDetail: payment.paymentDetail,
+          })),
+        },
+      };
+
+      await SecureStore.setItemAsync(
+        "userData",
+        JSON.stringify(userDataToStore)
+      );
+
+      await refreshUserData();
+      handleRouteChange();
+    } catch (error) {
+      console.log(error);
+      showToast("error", "An unexpected error occurred");
+    } finally {
+      setisSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">
@@ -443,7 +711,7 @@ const ProfilePage = () => {
                   isLoading={isSubmitting}
                 />
               </>
-            ) : (
+            ) : selectedStatus === 2 ? (
               <>
                 <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
                   <Image
@@ -547,6 +815,29 @@ const ProfilePage = () => {
                   mode="time"
                   onConfirm={handleSelectTime}
                   onCancel={hideDatePicker}
+                />
+              </>
+            ) : (
+              <>
+                <View className="w-full">
+                  <PaymentInput
+                    paymentMethods={paymentMethods}
+                    selectedMethods={selectedMethods}
+                    form={paymentForm.paymentMethods || []}
+                    selectMethod={handlePaymentMethodSelect}
+                    selectDropdown={handleDropdownSelect}
+                    onChangeText={handleTextChange}
+                    pickImage={pickImage}
+                  />
+                </View>
+                {paymentError.paymentMethod && (
+                  <ErrorMessage label={paymentError.paymentMethod} />
+                )}
+                <CustomButton
+                  label="Simpan Perubahan"
+                  handlePress={handleSubmitChange}
+                  buttonStyles="mt-10 w-full"
+                  isLoading={isSubmitting}
                 />
               </>
             )}
