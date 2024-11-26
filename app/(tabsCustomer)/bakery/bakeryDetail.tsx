@@ -30,6 +30,7 @@ import { images } from '@/constants/images'
 import TextRating from '@/components/texts/TextRating';
 import OpenCartButton from '@/components/OpenCartButton';
 import TextEllipsis from '@/components/TextEllipsis';
+import { icons } from "@/constants/icons";
 
 type Bakery = {
     bakery: Bakery;
@@ -161,34 +162,35 @@ const BakeryDetail = () => {
 
             <View style={{ height: insets.top }} />
 
-            <ScrollView className="px-5">
-                <View className="flex-row w-full justify-between">
-                    <BackButton path='/(tabsCustomer)/bakery' />
-                    <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
-                    <TouchableOpacity
-                        onPress={() => {
-                            setShowFavorite(!showFavorite);
-                        }}
-                    >
-                        {
-                            showFavorite ? (
-                                <Ionicons
-                                    name="heart"
-                                    size={24}
-                                    color="red"
-                                />
-                            ) : (
-                                <Ionicons
-                                    name="heart-outline"
-                                    size={24}
-                                    color="black"
-                                />
-                            )
-                        }
-                    </TouchableOpacity>
-                </View>
+            <View className="flex-row px-5 mb-5 w-full justify-between">
+                <BackButton path='/(tabsCustomer)/bakery' />
+                <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
+                <TouchableOpacity
+                    onPress={() => {
+                        setShowFavorite(!showFavorite);
+                    }}
+                >
+                    {
+                        showFavorite ? (
+                            <Ionicons
+                                name="heart"
+                                size={24}
+                                color="red"
+                            />
+                        ) : (
+                            <Ionicons
+                                name="heart-outline"
+                                size={24}
+                                color="black"
+                            />
+                        )
+                    }
+                </TouchableOpacity>
+            </View>
 
-                <View className='mt-5 rounded-lg'>
+            <ScrollView className="px-5">
+
+                <View className='rounded-lg'>
                     <LargeImage
                         image={{ uri: bakeryDetail?.bakery.bakeryImage as string }}
                     />
@@ -236,29 +238,59 @@ const BakeryDetail = () => {
                         <TextTitle3 label={"Produk Bakeri"} />
                     </View>
 
-                    <View
-                        style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
-                        className='mt-3'
-                    >
-                        {bakeryDetail?.bakery?.product.map((product) => (
+                    {
+                        bakeryDetail?.bakery?.product.length !== 0 ? (
                             <View
-                                key={product.productId}
-                                className='pb-5 w-[50%]'
+                                style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
+                                className='mt-3'
                             >
-                                <ProductCardBakery
-                                    product={product}
-                                    onPress={() =>
-                                        router.push({
-                                            pathname: '/bakery/inputOrder',
-                                            params: {
-                                                productId: product.productId
+                                {bakeryDetail?.bakery?.product.map((product) => (
+                                    <View
+                                        key={product.productId}
+                                        className='pb-5 w-[50%]'
+                                    >
+                                        <ProductCardBakery
+                                            product={product}
+                                            onPress={() =>
+                                                router.push({
+                                                    pathname: '/bakery/inputOrder',
+                                                    params: {
+                                                        productId: product.productId
+                                                    }
+                                                })
                                             }
-                                        })
-                                    }
-                                />
+                                        />
+                                    </View>
+                                ))}
                             </View>
-                        ))}
-                    </View>
+                        ) : (
+                            <View className="flex-1 items-center justify-center mt-5">
+                                <Image
+                                    source={icons.bakeBread}
+                                    style={{
+                                        width: 60,
+                                        height: 60,
+                                        marginBottom: 10,
+                                        tintColor: "#828282",
+                                    }}
+                                    resizeMode="contain"
+                                />
+                                <Text
+                                    style={{
+                                        color: "#828282",
+                                        fontFamily: "poppinsRegular",
+                                        fontSize: 14,
+                                        textAlign: "center",
+                                        marginInline: 40
+                                    }}
+                                >
+                                    Bakeri ini sedang tidak menjual produk, silakan coba lagi nanti
+                                </Text>
+                            </View>
+                        )
+                    }
+
+
                 </View>
 
             </ScrollView>

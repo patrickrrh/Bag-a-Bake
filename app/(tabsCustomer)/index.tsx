@@ -170,24 +170,52 @@ const Home = () => {
                   setLocalStorage('filter', JSON.stringify({ userLocationFilter: true }));
                 }} />
             </View>
-            <FlatList
-              horizontal={true}
-              data={recommendedProducts}
-              renderItem={({ item }) => (
-                <ProductCard
-                  product={item}
-                  onPress={() => {
-                    router.push({
-                      pathname: '/bakery/bakeryDetail' as any,
-                      params: { bakeryId: item.bakery.bakeryId },
-                    })
-                  }}
+            {
+              recommendedProducts.length === 0 ? (
+                <View className="flex-1 items-center justify-center my-14">
+                  <Image
+                    source={icons.bakeBread}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      marginBottom: 10,
+                      tintColor: "#828282",
+                    }}
+                    resizeMode="contain"
+                  />
+                  <Text
+                    style={{
+                      color: "#828282",
+                      fontFamily: "poppinsRegular",
+                      fontSize: 14,
+                      textAlign: "center",
+                      marginInline: 40
+                    }}
+                  >
+                    Tidak ada produk rekomendasi saat ini
+                  </Text>
+                </View>
+              ) : (
+                <FlatList
+                  horizontal={true}
+                  data={recommendedProducts}
+                  renderItem={({ item }) => (
+                    <ProductCard
+                      product={item}
+                      onPress={() => {
+                        router.push({
+                          pathname: '/bakery/bakeryDetail' as any,
+                          params: { bakeryId: item.bakery.bakeryId },
+                        })
+                      }}
+                    />
+                  )}
+                  keyExtractor={(item) => item.productId.toString()}
+                  className='mt-3'
+                  showsHorizontalScrollIndicator={false}
                 />
-              )}
-              keyExtractor={(item) => item.productId.toString()}
-              className='mt-3'
-              showsHorizontalScrollIndicator={false}
-            />
+              )
+            }
           </View>
 
           <View className='mt-5 w-full'>
@@ -201,24 +229,52 @@ const Home = () => {
                   setLocalStorage('filter', JSON.stringify({ isExpiringFilter: true }));
                 }} />
             </View>
-            <FlatList
-              horizontal={true}
-              data={expiringProducts}
-              renderItem={({ item }) => (
-                <ProductCard
-                  product={item}
-                  onPress={() => {
-                    router.push({
-                      pathname: '/bakery/bakeryDetail' as any,
-                      params: { bakeryId: item.bakery.bakeryId },
-                    })
-                  }}
+            {
+              expiringProducts.length === 0 ? (
+                <View className="flex-1 items-center justify-center my-14">
+                  <Image
+                    source={icons.bakeBread}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      marginBottom: 10,
+                      tintColor: "#828282",
+                    }}
+                    resizeMode="contain"
+                  />
+                  <Text
+                    style={{
+                      color: "#828282",
+                      fontFamily: "poppinsRegular",
+                      fontSize: 14,
+                      textAlign: "center",
+                      marginInline: 40
+                    }}
+                  >
+                    Promo produk ini sedang tidak tersedia
+                  </Text>
+                </View>
+              ) : (
+                <FlatList
+                  horizontal={true}
+                  data={expiringProducts}
+                  renderItem={({ item }) => (
+                    <ProductCard
+                      product={item}
+                      onPress={() => {
+                        router.push({
+                          pathname: '/bakery/bakeryDetail' as any,
+                          params: { bakeryId: item.bakery.bakeryId },
+                        })
+                      }}
+                    />
+                  )}
+                  keyExtractor={(item) => item.productId.toString()}
+                  className='mt-3'
+                  showsHorizontalScrollIndicator={false}
                 />
-              )}
-              keyExtractor={(item) => item.productId.toString()}
-              className='mt-3'
-              showsHorizontalScrollIndicator={false}
-            />
+              )
+            }
           </View>
         </View>
 

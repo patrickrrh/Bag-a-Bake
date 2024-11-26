@@ -66,7 +66,7 @@ const PriceInputField: React.FC<Props> = ({
         <Ionicons
           name="information-circle-outline"
           size={18}
-          color="black"
+          color="gray"
           style={{ marginLeft: 2 }}
           onPress={() => setIsModalVisible(true)}
         />

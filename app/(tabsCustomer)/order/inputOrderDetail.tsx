@@ -5,9 +5,9 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Image, FlatList, Animated, TouchableOpacity } from 'react-native'
+import { View, Text, Image, FlatList, Animated, TouchableOpacity, ScrollView } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { calculateTotalOrderPrice, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import bakeryApi from '@/api/bakeryApi';
@@ -21,6 +21,7 @@ import TextBeforePrice from '@/components/texts/TextBeforePrice';
 import TextAfterPrice from '@/components/texts/TextAfterPrice';
 import { FontAwesome } from '@expo/vector-icons';
 import TextEllipsis from '@/components/TextEllipsis';
+import ContactButton from '@/components/ContactButton';
 
 type Bakery = {
     bakery: Bakery;
@@ -53,6 +54,7 @@ const InputOrderDetail = () => {
 
     const { userData } = useAuth();
     const { bakeryId } = useLocalSearchParams();
+    const insets = useSafeAreaInsets();
 
     const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
     const [totalPrice, setTotalPrice] = useState("");
@@ -136,8 +138,11 @@ const InputOrderDetail = () => {
     }, [bakeryDetail]);
 
     return (
-        <SafeAreaView className="bg-background h-full flex-1">
-            <View className="mx-5">
+        <View className="bg-background h-full flex-1">
+
+            <View style={{ height: insets.top }} />
+
+            <View className="mx-5 mb-5">
                 <View className="flex-row">
                     <TouchableOpacity
                         onPress={() => {
@@ -161,55 +166,67 @@ const InputOrderDetail = () => {
                 </View>
             </View>
 
-            <View className='p-5 gap-y-3 mt-5 bg-white'>
-                <TextTitle3 label="Detail Toko" />
-                <View className='flex-row'>
-                    <TextTitle5 label={`Jam pengambilan terakhir: `} />
-                    <TextTitle5Bold label={bakeryDetail?.bakery.closingTime as string} color='#FA6F33' />
-                </View>
-                <View className='flex-row w-4/5'>
-                    <TextTitle5 label={`Lokasi: `} />
-                    <TextTitle5Bold label={bakeryDetail?.bakery.bakeryAddress as string} />
-                </View>
-            </View>
-
-            <View className='p-5 gap-y-3 mt-5 bg-white'>
-                <TextTitle3 label="Ringkasan Pesanan" />
-                {mappedOrderDetail.map((item, index) => (
-                    <View key={index} className='flex-row justify-between'>
-                        <View style={{ flexDirection: 'row', columnGap: 8 }}>
-                            <TextTitle5 label={item.productQuantity} />
-                            <TextTitle5 label={item.product?.productName} />
-                        </View>
-                        <View className='flex-col items-end'>
-                            <View className='flex-row'>
-                                <View className='mr-1'>
-                                    <TextTitle5 label={formatRupiah(Number(item.product?.productPrice) * item.productQuantity)} textStyle={{ textDecorationLine: 'line-through' }} />
-                                </View>
-                                <TextDiscount label={item.product?.discountPercentage} />
-                            </View>
-                            <TextTitle5 label={formatRupiah(Number(item.product?.todayPrice) * item.productQuantity)} />
-                        </View>
+            <ScrollView>
+                <View className='p-5 gap-y-3 bg-white'>
+                    <TextTitle3 label="Detail Toko" />
+                    <View className='flex-row'>
+                        <TextTitle5 label={`Jam pengambilan terakhir: `} />
+                        <TextTitle5Bold label={bakeryDetail?.bakery.closingTime as string} color='#FA6F33' />
                     </View>
-                ))}
-            </View>
-
-            <View className='p-5 mt-5 bg-white'>
-                <View className='flex-row justify-between'>
-                    <TextTitle4 label="Total" />
-                    <TextTitle5 label={`${totalPrice}`} />
+                    <View className='flex-row w-4/5'>
+                        <TextTitle5 label={`Lokasi: `} />
+                        <TextTitle5Bold label={bakeryDetail?.bakery.bakeryAddress as string} />
+                    </View>
                 </View>
-            </View>
 
-            <View className="mx-5 mt-10 ">
-                <CustomButton
-                    label="Pesan"
-                    handlePress={() => handleCreateOrder()}
-                    buttonStyles="w-full"
-                    isLoading={isSubmitting}
-                />
-            </View>
-        </SafeAreaView>
+                <View className='p-5 gap-y-3 mt-5 bg-white'>
+                    <TextTitle3 label="Ringkasan Pesanan" />
+                    {mappedOrderDetail.map((item, index) => (
+                        <View key={index} className='flex-row justify-between'>
+                            <View style={{ flexDirection: 'row', columnGap: 8 }}>
+                                <TextTitle5 label={item.productQuantity} />
+                                <TextTitle5 label={item.product?.productName} />
+                            </View>
+                            <View className='flex-col items-end'>
+                                <View className='flex-row'>
+                                    <View className='mr-1'>
+                                        <TextTitle5 label={formatRupiah(Number(item.product?.productPrice) * item.productQuantity)} textStyle={{ textDecorationLine: 'line-through' }} />
+                                    </View>
+                                    <TextDiscount label={item.product?.discountPercentage} />
+                                </View>
+                                <TextTitle5 label={formatRupiah(Number(item.product?.todayPrice) * item.productQuantity)} />
+                            </View>
+                        </View>
+                    ))}
+                </View>
+
+                <View className='p-5 mt-5 bg-white'>
+                    <View className='flex-row justify-between'>
+                        <TextTitle4 label="Total" />
+                        <TextTitle5 label={`${totalPrice}`} />
+                    </View>
+                </View>
+
+                <View className="mx-5 my-5">
+                    <CustomButton
+                        label="Pesan"
+                        handlePress={() => handleCreateOrder()}
+                        buttonStyles="w-full"
+                        isLoading={isSubmitting}
+                    />
+                    <ContactButton
+                        label="Hapus Keranjang"
+                        handlePress={() => {
+                            removeLocalStorage('orderData');
+                            router.replace('/order')
+                        }}
+                        buttonStyles='mt-3'
+                        isLoading={isSubmitting}
+                    />
+                </View>
+            </ScrollView>
+
+        </View>
 
     )
 }

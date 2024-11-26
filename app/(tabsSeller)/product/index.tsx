@@ -27,6 +27,7 @@ import TextTitle4 from "@/components/texts/TextTitle4";
 import TextTitle5Date from "@/components/texts/TextTitle5Date";
 import { router, useFocusEffect } from "expo-router";
 import ListProductCard from "@/components/ListProductCard";
+import Toast from "react-native-toast-message";
 
 interface ListDiscount {
   discountId: number;
@@ -130,6 +131,10 @@ const ListProduct = () => {
           height: insets.top,
         }}
       />
+      
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+        <Toast topOffset={50} />
+      </View>
 
       <View className="bg-background h-full flex-1">
         <View className="px-5 bg-white">
@@ -185,7 +190,7 @@ const ListProduct = () => {
                   <Text
                     style={{
                       color: "#828282",
-                      fontFamily: "poppinsRegular", 
+                      fontFamily: "poppinsRegular",
                       fontSize: 14,
                       textAlign: "center",
                     }}

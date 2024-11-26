@@ -639,26 +639,30 @@ const ProfilePage = () => {
         <Toast topOffset={50} />
       </View>
 
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 20,
+          marginBottom: 20,
+          position: "relative",
+        }}
+      >
+        <TextHeader label="Profil Saya" />
+
+        <TouchableOpacity
+          style={{ position: "absolute", right: 20 }}
+          onPress={() => setLogoutModalVisible(true)}
+        >
+          <Ionicons name="log-out-outline" size={24} color="#b0795a" />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <TextHeader label="Profil Saya" />
 
-            <TouchableOpacity
-              onPress={() => setLogoutModalVisible(true)}
-              style={{ position: "absolute", right: 0 }}
-            >
-              <Ionicons name="log-out-outline" size={24} color="#b0795a" />
-            </TouchableOpacity>
-          </View>
-
-          <View className="mx-5 mt-6">
+          <View className="mx-5">
             <ProfileTab
               selectedStatus={selectedStatus}
               onSelectStatus={(status) => {
@@ -667,7 +671,7 @@ const ProfilePage = () => {
             />
           </View>
 
-          <View className="mt-4 w-full items-center" style={{ marginTop: 40 }}>
+          <View className="w-full items-center" style={{ marginTop: 20 }}>
             {selectedStatus === 1 ? (
               <>
                 <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">

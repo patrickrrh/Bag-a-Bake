@@ -44,9 +44,7 @@ type OrderItem = {
 };
 const Bakery = () => {
   const { userData } = useAuth();
-  const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>(
-    []
-  );
+  const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
   const [userLocationFilter, setUserLocationFilter] = useState(false);
   const [isExpiringFilter, setIsExpiringFilter] = useState(false);
@@ -214,9 +212,11 @@ const Bakery = () => {
     }
   }, [localStorageData]);
 
-  useEffect(() => {
-    handleGetBakeryApi();
-  }, [checkedCategories, userLocationFilter, isExpiringFilter]);
+  useFocusEffect(
+    useCallback(() => {
+      handleGetBakeryApi();
+    }, [checkedCategories, userLocationFilter, isExpiringFilter])
+  )
 
   return (
     <SafeAreaView className="bg-background h-full flex-1">

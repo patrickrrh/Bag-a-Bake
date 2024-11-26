@@ -6,12 +6,7 @@ import Toast from "react-native-toast-message";
 function RootLayout() {
   const { isAuthenticated, isLoading, userData, isEditProfile } = useAuth();
 
-  // console.log("user data", JSON.stringify(userData, null, 2))
-  // console.log("is auth", isAuthenticated)
-  // console.log("is loading", isLoading)
-
   useEffect(() => {
-    
     if (!isLoading) {
       if (isAuthenticated === null) return;
       

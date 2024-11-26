@@ -92,9 +92,11 @@ const Order = () => {
     }, [])
   );
 
-  useEffect(() => {
-    handleGetAllOrderByStatusApi();
-  }, [selectedStatus]);
+  useFocusEffect(
+    useCallback(() => {
+      handleGetAllOrderByStatusApi();
+    }, [selectedStatus])
+  )
 
   const handleActionOrder = async (orderId: number, orderStatus: number) => {
     try {

@@ -14,7 +14,6 @@ import UploadButton from '@/components/UploadButton'
 import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
 import { useAuth } from '@/app/context/AuthContext'
-import regionApi from '@/api/regionApi';
 import CustomDropdown from '@/components/CustomDropdown'
 import { checkEmptyForm } from '@/utils/commonFunctions'
 import authenticationApi from '@/api/authenticationApi';

@@ -51,9 +51,6 @@ const OrderDetail = () => {
         payload.paymentStartedAt = new Date().toISOString();
       }
 
-      console.log("masuk sini gak")
-      console.log("payload", payload)
-
       const response = await orderSellerApi().actionOrder(payload)
       if (response.status === 200) {
         router.replace({
@@ -103,6 +100,8 @@ const OrderDetail = () => {
       .catch((err) => console.error('An error occurred', err));
   }
 
+  console.log("odrere data", JSON.stringify(orderData, null, 2))
+
   return (
     <View className='bg-background h-full flex-1'>
 
@@ -112,8 +111,7 @@ const OrderDetail = () => {
         <Toast topOffset={50} />
       </View>
 
-      <ScrollView>
-        <View className='mx-5 flex-row items-start'>
+      <View className='mx-5 mb-5 flex-row items-start'>
           <TouchableOpacity
             onPress={() => {
               router.replace({
@@ -136,7 +134,9 @@ const OrderDetail = () => {
           </View>
         </View>
 
-        <View className='p-5 gap-y-3 mt-5 bg-white'>
+      <ScrollView>
+
+        <View className='p-5 gap-y-3 bg-white'>
           <TextTitle3 label="Data Pembeli" />
           <View className='flex-row justify-between'>
             <TextTitle5 label="Nama Penerima" />

@@ -21,7 +21,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { router, useFocusEffect } from 'expo-router';
 import { OrderType } from '@/types/types';
 import { setLocalStorage } from '@/utils/commonFunctions';
-import { sendNotification } from '@/utils/notificationUtils';
 
 const Home = () => {
 
@@ -134,17 +133,6 @@ const Home = () => {
         handleCountAllPendingOrderApi();
         handleCountAllPaymentOrderApi();
         handleCountAllOngoingOrderApi();
-
-        if (latestPendingOrder?.userId) {
-          const message = orderStatus === 2 
-            ? `Pesanan #${latestPendingOrder?.orderId} Anda telah diterima.` 
-            : `Pesanan #${latestPendingOrder?.orderId} Anda telah dibatalkan.`;
-          
-            sendNotification(
-              'Status Pesanan Diperbarui',
-              message
-            )
-        }
       }
     } catch (error) {
       console.log(error)

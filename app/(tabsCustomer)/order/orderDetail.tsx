@@ -146,6 +146,8 @@ const OrderDetail = () => {
         }
     }
 
+    console.log("order adta", JSON.stringify(orderData, null, 2))
+
     return (
         <View className="bg-background h-full flex-1">
 
@@ -155,33 +157,34 @@ const OrderDetail = () => {
                 <Toast topOffset={50} />
             </View>
 
-            <ScrollView>
-                <View className="mx-5">
-                    <View className="flex-row">
-                        <TouchableOpacity
-                            onPress={() => {
-                                router.replace({
-                                    pathname: '/order' as any,
-                                })
-                                setLocalStorage('orderCustomerParams', JSON.stringify({ status: orderData.orderStatus }))
-                            }}
-                            activeOpacity={0.7}
-                            style={{ width: 10, height: 24 }}
-                        >
-                            <FontAwesome
-                                name="angle-left"
-                                size={24}
-                                color="#000"
-                            />
-                        </TouchableOpacity>
-                        <View className="flex-1 items-center pr-3">
-                            <TextTitle3 label={orderData.bakery.bakeryName as string} />
-                            <TextTitle5Date label={formatDatewithtime(orderData.orderDate)} />
-                        </View>
+            <View className="mx-5 mb-5">
+                <View className="flex-row">
+                    <TouchableOpacity
+                        onPress={() => {
+                            router.replace({
+                                pathname: '/order' as any,
+                            })
+                            setLocalStorage('orderCustomerParams', JSON.stringify({ status: orderData.orderStatus }))
+                        }}
+                        activeOpacity={0.7}
+                        style={{ width: 10, height: 24 }}
+                    >
+                        <FontAwesome
+                            name="angle-left"
+                            size={24}
+                            color="#000"
+                        />
+                    </TouchableOpacity>
+                    <View className="flex-1 items-center pr-3">
+                        <TextTitle3 label={orderData.bakery.bakeryName as string} />
+                        <TextTitle5Date label={formatDatewithtime(orderData.orderDate)} />
                     </View>
                 </View>
+            </View>
 
-                <View className='p-5 gap-y-3 mt-5 bg-white'>
+            <ScrollView>
+
+                <View className='p-5 gap-y-3 bg-white'>
                     <TextTitle3 label="Detail Toko" />
                     <View className='flex-row'>
                         <TextTitle5 label={`Jam pengambilan terakhir: `} />
@@ -217,7 +220,7 @@ const OrderDetail = () => {
                 <View className='p-5 mt-5 bg-white'>
                     <View className='flex-row justify-between'>
                         <TextTitle4 label="Total" />
-                        <TextTitle5 label={calculateTotalOrderPrice(orderData.orderDetail)} />
+                        <TextTitle5 label={formatRupiah(orderData.totalOrderPrice)} />
                     </View>
                 </View>
 

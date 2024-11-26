@@ -22,6 +22,7 @@ const ModalAction: React.FC<ModalActionProps> = ({
   onPrimaryAction,
   onSecondaryAction,
 }) => {
+
   return (
     <Modal
       visible={modalVisible}
