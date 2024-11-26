@@ -203,10 +203,18 @@ const BakeryDetail = () => {
                                     <TextTitle5 label={bakeryDetail?.bakery?.bakeryAddress as string} />
                                 </View>
                             </View>
-                            <TextRating
-                                rating={bakeryDetail?.prevRating.averageRating || "0"}
-                                reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
-                            />
+                            <TouchableOpacity 
+                                onPress={() =>
+                                    router.push({
+                                        pathname: "/bakery/ratingBakery" as any,
+                                        params: { bakeryId, bakeryName: bakeryDetail?.bakery.bakeryName as string },
+                                    })
+                                }>
+                                <TextRating
+                                    rating={bakeryDetail?.prevRating.averageRating || "0"}
+                                    reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
+                                />
+                            </TouchableOpacity>
                         </View>
 
                         <View>
@@ -271,7 +279,7 @@ const BakeryDetail = () => {
                             router.push({
                                 pathname: '/order/inputOrderDetail' as any,
                                 params: {
-                                    bakeryId: bakeryId
+                                    bakeryId: bakeryId,
                                 }
                             })
                         }}
