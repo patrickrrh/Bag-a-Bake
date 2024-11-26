@@ -165,7 +165,6 @@ const BakeryDetail = () => {
                 <View className="flex-row w-full justify-between">
                     <BackButton path='/(tabsCustomer)/bakery' />
                     <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
-                    {/* TO DO: Toggle Favorite */}
                     <TouchableOpacity
                         onPress={() => {
                             setShowFavorite(!showFavorite);

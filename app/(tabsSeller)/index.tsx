@@ -31,8 +31,10 @@ const Home = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [latestPendingOrder, setLatestPendingOrder] = useState<OrderType | null>(null);
+  const [latestPaymentOrder, setLatestPaymentOrder] = useState<OrderType | null>(null);
   const [latestOngoingOrder, setLatestOngoingOrder] = useState<OrderType | null>(null);
   const [latestPendingOrderCount, setLatestPendingOrderCount] = useState(null);
+  const [latestPaymentOrderCount, setLatestPaymentOrderCount] = useState(null);
   const [latestOngoingOrderCount, setLatestOngoingOrderCount] = useState(null);
 
   const handleGetLatestPendingOrderApi = async () => {
@@ -42,6 +44,19 @@ const Home = () => {
       });
       if (response.status === 200) {
         setLatestPendingOrder(response.data || null);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleGetLatestPaymentOrderApi = async () => {
+    try {
+      const response = await orderSellerApi().getLatestPaymentOrder({
+        bakeryId: userData?.bakery?.bakeryId
+      });
+      if (response.status === 200) {
+        setLatestPaymentOrder(response.data || null);
       }
     } catch (error) {
       console.log(error)
@@ -74,6 +89,19 @@ const Home = () => {
     }
   }
 
+  const handleCountAllPaymentOrderApi = async () => {
+    try {
+      const response = await orderSellerApi().countAllOnPaymentOrder({
+        bakeryId: userData?.bakery?.bakeryId
+      });
+      if (response.status === 200) {
+        setLatestPaymentOrderCount(response.data || null);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   const handleCountAllOngoingOrderApi = async () => {
     try {
       const response = await orderSellerApi().countAllOngoingOrder({
@@ -89,14 +117,22 @@ const Home = () => {
 
   const handleActionOrder = async (orderStatus: number) => {
     try {
-      const response = await orderSellerApi().actionOrder({
+      const payload: any = {
         orderId: latestPendingOrder?.orderId,
-        orderStatus: orderStatus
-      })
+        orderStatus: orderStatus,
+      };
+
+      if (orderStatus === 2) {
+        payload.paymentStartedAt = new Date().toISOString();
+      }
+
+      const response = await orderSellerApi().actionOrder(payload)
       if (response.status === 200) {
         handleGetLatestPendingOrderApi();
+        handleGetLatestPaymentOrderApi();
         handleGetLatestOngoingOrderApi();
         handleCountAllPendingOrderApi();
+        handleCountAllPaymentOrderApi();
         handleCountAllOngoingOrderApi();
 
         if (latestPendingOrder?.userId) {
@@ -114,13 +150,15 @@ const Home = () => {
       console.log(error)
     }
   }
-
+  
   const onRefresh = () => {
     setRefreshing(true);
     setTimeout(() => {
       handleGetLatestPendingOrderApi();
+      handleGetLatestPaymentOrderApi();
       handleGetLatestOngoingOrderApi();
       handleCountAllPendingOrderApi();
+      handleCountAllPaymentOrderApi();
       handleCountAllOngoingOrderApi();
       setRefreshing(false);
     }, 1000);
@@ -128,10 +166,12 @@ const Home = () => {
 
   useFocusEffect(
     useCallback(() => {
-    handleGetLatestPendingOrderApi();
-    handleGetLatestOngoingOrderApi();
-    handleCountAllPendingOrderApi();
-    handleCountAllOngoingOrderApi();
+      handleGetLatestPendingOrderApi();
+      handleGetLatestPaymentOrderApi();
+      handleGetLatestOngoingOrderApi();
+      handleCountAllPendingOrderApi();
+      handleCountAllPaymentOrderApi();
+      handleCountAllOngoingOrderApi();
   }, []))
 
   return (
@@ -197,12 +237,50 @@ const Home = () => {
                       params: { order: JSON.stringify(latestPendingOrder) }
                     })
                   }}
-                  onReject={() => handleActionOrder(4)}
+                  onReject={() => handleActionOrder(5)}
                   onAccept={() => handleActionOrder(2)}
                 />
               ) : (
                 <View className='w-full my-5 justify-center items-center'>
                   <TextTitle5Gray label="Tidak ada pesanan masuk saat ini" />
+                </View>
+              )
+            }
+          </View>
+
+          <View className='mt-8'>
+            <View className='flex-row justify-between items-center w-full'>
+              <TextTitle3 label="Menunggu Pembayaran" />
+              {
+                latestPaymentOrderCount ? (
+                  <TextLink
+                    label={`${latestPaymentOrderCount} menunggu pembayaran >`}
+                    size={10}
+                    onPress={() => {
+                      router.replace({
+                        pathname: '/order',
+                      })
+                      setLocalStorage("orderSellerParams", JSON.stringify({ status: 2, isFromHomePage: "true" }));
+                    }}
+                  />
+                ) : (null)
+              }
+            </View>
+
+            {
+              latestPaymentOrder && Object.keys(latestPaymentOrder).length > 0 ? (
+                <SellerOrderCard
+                  order={latestPaymentOrder}
+                  onPress={() => {
+                    router.push({
+                      pathname: '/order/orderDetail',
+                      params: { order: JSON.stringify(latestPaymentOrder) }
+                    })
+                  }}
+                />
+              ) : (
+                <View className='w-full my-5 justify-center items-center'>
+                  <TextTitle5Gray label="Tidak ada pesanan yang sedang berlangsung" />
                 </View>
               )
             }

@@ -256,6 +256,27 @@ export const formatDatewithtime = (date: string) => {
   return dateObj.toLocaleString("id-ID", options);
 };
 
+export const calculateValidPaymentTime = (date: string) => {
+  const dateObj = new Date(date);
+
+  dateObj.setMinutes(dateObj.getMinutes() + 15);
+
+  const currentSeconds = dateObj.getSeconds();
+
+  const secondsToAdd = currentSeconds === 0 ? 0 : 60 - currentSeconds;
+
+  dateObj.setSeconds(dateObj.getSeconds() + secondsToAdd);
+
+  const options: any = {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: false,
+  };
+
+  return dateObj.toLocaleString("id-ID", options);
+};
+
+
 export const setLocalStorage = async (key: string, value: string) => {
   try {
     await AsyncStorage.setItem(key, value);

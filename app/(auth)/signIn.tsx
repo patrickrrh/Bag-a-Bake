@@ -146,15 +146,6 @@ const SignIn = () => {
         isLoading={isSubmitting}
       />
 
-      <CustomButton
-        label='testing payment'
-        handlePress={() => {
-          router.push('/signUpPaymentInfo' as any)
-        }}
-        buttonStyles='mt-8'
-        isLoading={isSubmitting}
-      />
-
     </AuthLayout>
   );
 };

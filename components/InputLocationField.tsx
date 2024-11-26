@@ -22,7 +22,7 @@ const InputLocationField: React.FC<Props> = ({ label, value, placeholder, onChan
     return (
         <View className={`space-y-1 ${moreStyles}`}>
             <TextFormLabel label={label} />
-            <View className={`w-full h-[40px] bg-white rounded-[8px] border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row items-center`}>
+            <View className={`w-full h-[46px] bg-white rounded-[8px] border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row items-center`}>
                 <TextInput
                     className="flex-1 px-4 text-black"
                     style={{ fontFamily: 'poppinsRegular', fontSize: 14 }}

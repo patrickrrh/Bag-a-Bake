@@ -71,7 +71,6 @@ const Bakery = () => {
       const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
       setOrderData(data);
 
-      console.log("Order Data: ", orderData);
     } catch (error) {
       console.log(error);
     }
@@ -107,7 +106,6 @@ const Bakery = () => {
         setBakery(response.data ? response.data : []);
       }
 
-      console.log("response", JSON.stringify(response.data, null, 2));
     } catch (error) {
       console.log(error);
     }

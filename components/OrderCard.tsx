@@ -16,8 +16,6 @@ type Props = {
 
 const OrderCard: React.FC<Props> = ({ item, onPress }) => {
 
-  console.log("item", JSON.stringify(item, null, 2));
-
   return (
     <TouchableOpacity
       className="bg-white rounded-lg shadow-sm mt-4 p-4"
@@ -30,7 +28,7 @@ const OrderCard: React.FC<Props> = ({ item, onPress }) => {
             style={{ width: 68, height: 68, borderRadius: 10, borderColor: '#000', borderWidth: 1 }}
           />
           <View className="ml-5 space-y-3 flex-1">
-            <View className='flex-row justify-between items-center mb-1'>
+            <View className='flex-row items-center justify-between mb-1'>
               <TextTitle3 label={item.bakery.bakeryName} />
               <TextTitle5Gray label={formatDate(item.orderDate)} />
             </View>

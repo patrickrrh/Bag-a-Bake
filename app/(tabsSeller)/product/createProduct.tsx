@@ -6,7 +6,7 @@ import {
   Keyboard
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
 import BackButton from "@/components/BackButton";
@@ -49,6 +49,7 @@ type DiscountItem = {
 };
 
 const CreateProduct = () => {
+  const insets = useSafeAreaInsets();
   const { userData } = useAuth();
 
   const [form, setForm] = useState({
@@ -265,8 +266,16 @@ const CreateProduct = () => {
   }, [form.productExpirationDate]);
 
   return (
-    <SafeAreaView className="bg-background h-full flex-1">
-      <View className="flex-row items-center px-4 pt-4 pb-2 relative">
+    <View className="bg-background h-full flex-1">
+
+      <View
+        style={{
+          backgroundColor: "#FEFAF9",
+          height: insets.top,
+        }}
+      />
+
+      <View className="flex-row items-center px-4 pb-2 relative">
         {/* Back Button */}
         <View className="pl-5">
           <BackButton />
@@ -280,7 +289,6 @@ const CreateProduct = () => {
             right: 0,
             justifyContent: "center",
             alignItems: "center",
-            paddingTop: 10,
           }}
         >
           <TextTitle3 label="Tambahkan Produk" />
@@ -397,7 +405,7 @@ const CreateProduct = () => {
                 style={{ marginLeft: 2 }}
                 onPress={() => setIsInfoModalVisible(true)}
               />
-             
+
             </View>
 
             <View className="flex-col">
@@ -430,7 +438,7 @@ const CreateProduct = () => {
           </View>
 
           {/* Stock Field */}
-          <View className="mt-7 space-y-1">
+          <View className="mt-1 space-y-1">
             <TextFormLabel label="Jumlah Stok" />
             <View className="w-full h-[40px] flex-row items-center">
               <StockInput
@@ -446,7 +454,7 @@ const CreateProduct = () => {
           <CustomButton
             label="Tambahkan"
             handlePress={handleAddProduct}
-            buttonStyles="mt-6"
+            buttonStyles="mt-10 mb-5"
             isLoading={isSubmitting}
           />
         </View>
@@ -472,8 +480,8 @@ const CreateProduct = () => {
 
       {isConfirmationModalVisible && (
         <ModalAction
-        modalVisible={isConfirmationModalVisible}
-        setModalVisible={setIsConfirmationModalVisible}
+          modalVisible={isConfirmationModalVisible}
+          setModalVisible={setIsConfirmationModalVisible}
           title="Apakah Anda yakin ingin menambahkan produk?"
           primaryButtonLabel="Iya"
           secondaryButtonLabel="Tidak"
@@ -505,7 +513,7 @@ const CreateProduct = () => {
           content="Harga Jual adalah harga produk setelah dikurangi diskon per hari, dengan hari pertama dihitung mulai dari hari ini."
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

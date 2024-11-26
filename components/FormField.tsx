@@ -22,7 +22,7 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
   return (
     <View className={`space-y-1 ${moreStyles}`}>
       <TextFormLabel label={label} />
-      <View className={`w-full h-[40px] px-4 bg-white rounded-[8px] justify-center items-center border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row`}>
+      <View className={`w-full h-[46px] px-4 bg-white rounded-[8px] justify-center items-center border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex-row`}>
         <TextInput
           className='flex-1 text-black'
           style={{ fontFamily: "poppinsRegular", fontSize: 14 }}

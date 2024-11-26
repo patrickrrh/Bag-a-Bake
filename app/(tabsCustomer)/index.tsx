@@ -19,6 +19,7 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { getLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { CategoryType, ProductType } from '@/types/types';
 import getDistance from 'geolib/es/getDistance';
+import TextEllipsis from '@/components/TextEllipsis';
 
 const Home = () => {
 
@@ -97,17 +98,18 @@ const Home = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        showsVerticalScrollIndicator={false}
       >
 
         {/* Header */}
         <View
-          className='bg-brown px-5 pt-2 pb-2'
+          className='bg-brown px-5 pt-2'
           style={{
             borderBottomLeftRadius: 15,
             borderBottomRightRadius: 15,
           }}
         >
-          <View className='flex-row justify-between items-center w-full mb-7'>
+          <View className='flex-row justify-between w-full mb-7'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">
               <Image
                 source={userData?.userImage ? { uri: userData?.userImage } : images.profile}
@@ -115,11 +117,13 @@ const Home = () => {
               />
             </View>
             <View className="flex-col items-center gap-y-1">
-              <Text style={{ fontFamily: "poppinsLight", fontSize: 12, color: "white" }}>Alamat Anda</Text>
-              <View className="flex-row">
+              <View className='flex-row'>
                 <Ionicons name="location-sharp" size={12} color="white" style={{ marginRight: 5 }} />
+                <Text style={{ fontFamily: "poppinsLight", fontSize: 12, color: "white" }}>Alamat Anda</Text>
+              </View>
+              <View className="flex-row">
                 <Text
-                  style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white", maxWidth: 200 }}
+                  style={{ fontFamily: "poppinsSemiBold", fontSize: 12, color: "white", maxWidth: 200, textAlign: 'center' }}
                   numberOfLines={2}
                   ellipsizeMode="tail"
                 >
@@ -127,7 +131,7 @@ const Home = () => {
                 </Text>
               </View>
             </View>
-            <View style={{ width: 40 }} />
+            <View className="w-10 h-10" />
           </View>
         </View>
 
@@ -151,6 +155,7 @@ const Home = () => {
               )}
               keyExtractor={(item) => item.categoryId.toString()}
               className='mt-3'
+              showsHorizontalScrollIndicator={false}
             />
           </View>
 
@@ -181,6 +186,7 @@ const Home = () => {
               )}
               keyExtractor={(item) => item.productId.toString()}
               className='mt-3'
+              showsHorizontalScrollIndicator={false}
             />
           </View>
 
@@ -211,6 +217,7 @@ const Home = () => {
               )}
               keyExtractor={(item) => item.productId.toString()}
               className='mt-3'
+              showsHorizontalScrollIndicator={false}
             />
           </View>
         </View>

@@ -80,13 +80,12 @@ const PriceInputField: React.FC<Props> = ({
       />
 
       <View
-        className={`w-full h-[40px] px-4 bg-white rounded-[8px] items-center border ${
-          error ? "border-red-500" : "border-gray-200"
-        } flex-row`}
+        className={`w-full h-[46px] px-4 bg-white rounded-[8px] items-center border ${error ? "border-red-500" : "border-gray-200"
+          } flex-row`}
       >
         <TextTitle4 label="Rp   " />
         <TextInput
-          className="flex-1 text-black text-base"
+          className="flex-1 text-black"
           style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
           value={internalValue}
           placeholder={placeholder}

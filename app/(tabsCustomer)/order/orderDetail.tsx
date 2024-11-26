@@ -8,7 +8,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Image, FlatList, Animated, TouchableOpacity, Linking, ScrollView } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { calculateTotalOrderPrice, convertPhoneNumberFormat, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, calculateValidPaymentTime, convertPhoneNumberFormat, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import bakeryApi from '@/api/bakeryApi';
 import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
@@ -30,6 +30,10 @@ import ModalInformation from '@/components/ModalInformation';
 import UploadButton from '@/components/UploadButton';
 import UploadPayment from '@/components/UploadPayment';
 import * as ImagePicker from 'expo-image-picker';
+import TextTitle5Gray from '@/components/texts/TextTitle5Gray';
+import ImageView from "react-native-image-viewing";
+import { handleDownloadImage } from '@/utils/mediaUtils';
+import Toast from 'react-native-toast-message';
 
 type ErrorState = {
     proofOfPayment: string | null;
@@ -53,6 +57,8 @@ const OrderDetail = () => {
     const [isCancelModalVisible, setCancelModalVisible] = useState(false);
     const [paymentInfoModal, setPaymentInfoModal] = useState(false);
     const [proofOfPayment, setProofOfPayment] = useState('');
+    const [isShowPayment, setIsShowPayment] = useState(false);
+    const [isPreviewQRIS, setIsPreviewQRIS] = useState(false);
 
     const handleContactSeller = (phoneNumber: string) => {
         const formattedPhoneNumber = convertPhoneNumberFormat(phoneNumber);
@@ -95,6 +101,13 @@ const OrderDetail = () => {
         handleGetPaymentMethodsByBakeryAPI();
     }, [])
 
+    useEffect(() => {
+        if (orderData.proofOfPayment && orderData.proofOfPayment !== '') {
+            setProofOfPayment(orderData.proofOfPayment)
+            setIsShowPayment(true)
+        }
+    }, [orderData])
+
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -124,21 +137,23 @@ const OrderDetail = () => {
 
             if (response.status === 200) {
                 router.push({
-                  pathname: '/order',
+                    pathname: '/order',
                 })
                 setLocalStorage('orderCustomerParams', JSON.stringify({ status: 3 }))
-              }
+            }
         } catch (error) {
             console.log(error)
         }
     }
 
-    console.log("proof di parent", proofOfPayment)
-
     return (
         <View className="bg-background h-full flex-1">
 
             <View style={{ height: insets.top }} />
+
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+                <Toast topOffset={50} />
+            </View>
 
             <ScrollView>
                 <View className="mx-5">
@@ -214,24 +229,43 @@ const OrderDetail = () => {
                                     <TextTitle4 label="Metode Pembayaran" />
                                     <Ionicons name="information-circle-outline" size={14} color="gray" onPress={() => setPaymentInfoModal(true)} />
                                 </View>
+                                {
+                                    <View className='flex-row'>
+                                        <View className='mr-1'>
+                                            <TextTitle5Gray label={`Konfirmasi sebelum`} />
+                                        </View>
+                                        <TextTitle5Bold label={calculateValidPaymentTime(orderData.paymentStartedAt)} color='#FA6F33' />
+                                    </View>
+                                }
                                 <FlatList
                                     data={paymentMethods}
                                     renderItem={({ item }) => (
                                         <View>
                                             {
                                                 item.paymentMethod === 'QRIS' ? (
-                                                    <View className='mt-1'>
+                                                    <View className='mt-2'>
                                                         <View className='flex-row items-center'>
                                                             <TextTitle5 label='• ' />
                                                             <TextTitle4 label={item.paymentMethod} />
+                                                            <TouchableOpacity className='ml-1 pb-1'>
+                                                                <Ionicons name='download-outline' size={18} color="gray" onPress={() => handleDownloadImage(item.paymentDetail)} />
+                                                            </TouchableOpacity>
                                                         </View>
-                                                        <Image
-                                                            source={{ uri: item.paymentDetail }}
-                                                            className='ml-2 mt-1 w-28 h-28'
+                                                        <TouchableOpacity onPress={() => setIsPreviewQRIS(true)}>
+                                                            <Image
+                                                                source={{ uri: item.paymentDetail }}
+                                                                className='ml-2 mt-1 w-28 h-28'
+                                                            />
+                                                        </TouchableOpacity>
+                                                        <ImageView
+                                                            images={[{ uri: item.paymentDetail }]}
+                                                            imageIndex={0}
+                                                            visible={isPreviewQRIS}
+                                                            onRequestClose={() => setIsPreviewQRIS(false)}
                                                         />
                                                     </View>
                                                 ) : (
-                                                    <View className='mt-1'>
+                                                    <View className='mt-2'>
                                                         <View className='flex-row items-center'>
                                                             <TextTitle5 label='• ' />
                                                             <TextTitle4 label={item.paymentMethod} />
@@ -253,6 +287,7 @@ const OrderDetail = () => {
                                 <UploadPayment
                                     handlePress={pickImage}
                                     proofOfPayment={proofOfPayment}
+                                    isDisabled={isShowPayment}
                                 />
                             </View>
                         </View>
@@ -275,12 +310,17 @@ const OrderDetail = () => {
                             />
                         </View>
                     ) : orderData.orderStatus === 2 ? (
-                        <View className='mx-5 mt-10 mb-5'>
-                            <CustomButton
-                                label="Konfirmasi Pembayaran"
-                                handlePress={() => handleSubmitProofOfPaymentAPI()}
-                                isLoading={isSubmitting}
-                            />
+                        <View className='mx-5 my-5'>
+                            {
+                                isShowPayment === false && (
+                                    <CustomButton
+                                        label="Konfirmasi Pembayaran"
+                                        handlePress={() => handleSubmitProofOfPaymentAPI()}
+                                        isLoading={isSubmitting}
+                                        disabled={proofOfPayment === ''}
+                                    />
+                                )
+                            }
                             <ContactButton
                                 label="Hubungi Penjual"
                                 handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
@@ -289,7 +329,7 @@ const OrderDetail = () => {
                             />
                         </View>
                     ) : orderData.orderStatus === 3 && (
-                        <View className='mx-5 mt-10 mb-5'>
+                        <View className='mx-5 my-5'>
                             <ContactButton
                                 label="Hubungi Penjual"
                                 handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
@@ -300,30 +340,23 @@ const OrderDetail = () => {
                     )
                 }
 
-                {
-                    isCancelModalVisible && (
-                        <ModalAction
-                            setModalVisible={setCancelModalVisible}
-                            modalVisible={isCancelModalVisible}
-                            title="Apakah Anda yakin ingin membatalkan pesanan ini?"
-                            primaryButtonLabel="Kembali"
-                            secondaryButtonLabel="Batalkan Pesanan"
-                            onPrimaryAction={() => setCancelModalVisible(false)}
-                            onSecondaryAction={handleCancelOrderApi}
-                        />
-                    )
-                }
+                <ModalAction
+                    setModalVisible={setCancelModalVisible}
+                    modalVisible={isCancelModalVisible}
+                    title="Apakah Anda yakin ingin membatalkan pesanan ini?"
+                    primaryButtonLabel="Kembali"
+                    secondaryButtonLabel="Batalkan Pesanan"
+                    onPrimaryAction={() => setCancelModalVisible(false)}
+                    onSecondaryAction={handleCancelOrderApi}
+                />
 
-                {
-                    paymentInfoModal && (
-                        <ModalInformation
-                            visible={paymentInfoModal}
-                            onClose={() => setPaymentInfoModal(false)}
-                            title='Informasi Pembayaran'
-                            content='Apabila Anda memiliki pertanyaan tentang metode pembayaran, silakan hubungi penjual pada tombol dibawah.'
-                        />
-                    )
-                }
+                <ModalInformation
+                    visible={paymentInfoModal}
+                    onClose={() => setPaymentInfoModal(false)}
+                    title='Informasi Pembayaran'
+                    content='Pesanan akan otomatis dibatalkan jika tidak mengirimkan konfirmasi pembayaran sebelum waktu yang ditentukan.'
+                />
+
             </ScrollView>
         </View>
 

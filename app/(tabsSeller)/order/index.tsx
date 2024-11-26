@@ -98,10 +98,16 @@ const Order = () => {
 
   const handleActionOrder = async (orderId: number, orderStatus: number) => {
     try {
-      const response = await orderSellerApi().actionOrder({
+      const payload: any = {
         orderId: orderId,
         orderStatus: orderStatus,
-      });
+      };
+
+      if (orderStatus === 2) {
+        payload.paymentStartedAt = new Date().toISOString();
+      }
+
+      const response = await orderSellerApi().actionOrder(payload);
       if (response.status === 200) {
         handleGetAllOrderByStatusApi();
       }
@@ -252,6 +258,8 @@ const Order = () => {
                 {selectedStatus === 1
                   ? "Anda tidak memiliki pesanan baru"
                   : selectedStatus === 2
+                  ? "Anda tidak memiliki pesanan dalam proses pembayaran"
+                  : selectedStatus === 3
                   ? "Anda tidak memiliki pesanan berlangsung"
                   : "Anda belum memiliki riwayat pesanan"}
               </Text>

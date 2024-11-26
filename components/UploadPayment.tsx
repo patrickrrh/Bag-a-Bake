@@ -4,17 +4,19 @@ import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
     handlePress: () => void;
-    buttonStyles?: object; // Accepts a style object
+    buttonStyles?: object;
     proofOfPayment: string;
+    isDisabled?: boolean
 }
 
-const UploadPayment: React.FC<Props> = ({ handlePress, buttonStyles, proofOfPayment }) => {
+const UploadPayment: React.FC<Props> = ({ handlePress, buttonStyles, proofOfPayment, isDisabled }) => {
 
-    console.log("proof of payment", proofOfPayment);
+    console.log("proofojasfjaosijiasd", proofOfPayment)
 
     return (
         <TouchableOpacity
             onPress={handlePress}
+            disabled={isDisabled}
             activeOpacity={0.7}
             style={[
                 {
@@ -32,7 +34,7 @@ const UploadPayment: React.FC<Props> = ({ handlePress, buttonStyles, proofOfPaym
             {
                 proofOfPayment !== '' ? (
                     <Image
-                        source={{ uri: proofOfPayment }}
+                        source={ isDisabled ? { uri: encodeURI(proofOfPayment) } : { uri: proofOfPayment } }
                         style={{
                             width: '100%',
                             height: '100%',
