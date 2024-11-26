@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { View, Text, Image, FlatList, Animated, TouchableOpacity } from 'react-native'
+import { View, Text, Image, FlatList, Animated, TouchableOpacity, ScrollView } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import productApi from '@/api/productApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -190,12 +190,12 @@ const InputOrder = () => {
           }).filter(item => item.productQuantity > 0);
 
           if (
-              updatedItems.length === 0 || 
-              (updatedItems.length === 1 && updatedItems[0].productId === parseInt(productId as string) && updatedItems[0].productQuantity === 0)
+            updatedItems.length === 0 ||
+            (updatedItems.length === 1 && updatedItems[0].productId === parseInt(productId as string) && updatedItems[0].productQuantity === 0)
           ) {
-              await removeLocalStorage('orderData');
+            await removeLocalStorage('orderData');
           } else {
-              await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
+            await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
           }
         }
       }
@@ -211,9 +211,9 @@ const InputOrder = () => {
 
   useEffect(() => {
     if (product) {
-        loadProductQuantity();
+      loadProductQuantity();
     }
-}, [product]);
+  }, [product]);
 
   useFocusEffect(
     useCallback(() => {
@@ -234,7 +234,7 @@ const InputOrder = () => {
   console.log("Error: ", error)
 
   return (
-    <View>
+    <ScrollView>
       <View>
         <Image
           source={{ uri: product?.productImage as string }}
@@ -315,20 +315,20 @@ const InputOrder = () => {
         }
 
         <View className='my-5'>
-        <AddOrderProductButton
-          label={
-            form.productQuantity === 0 && isProduct
-              ? "Back to Menu"
-              : `Tambahkan Pesanan  •  ${formatRupiah(totalPrice)}`
-          }
-          handlePress={
-            form.productQuantity === 0 && !isProduct
-              ? () => {} // Disable jika tidak ada produk & jumlah 0
-              : handleAddOrder
-          }
-          isLoading={false}
-          disabled={form.productQuantity === 0 && !isProduct && !hasExistingOrder} // Disable jika kondisi terpenuhi
-        />
+          <AddOrderProductButton
+            label={
+              form.productQuantity === 0 && isProduct
+                ? "Back to Menu"
+                : `Tambahkan Pesanan  •  ${formatRupiah(totalPrice)}`
+            }
+            handlePress={
+              form.productQuantity === 0 && !isProduct
+                ? () => { } // Disable jika tidak ada produk & jumlah 0
+                : handleAddOrder
+            }
+            isLoading={false}
+            disabled={form.productQuantity === 0 && !isProduct && !hasExistingOrder} // Disable jika kondisi terpenuhi
+          />
         </View>
       </View>
 
@@ -341,7 +341,7 @@ const InputOrder = () => {
         onPrimaryAction={() => handleCreateNewOrder()}
         onSecondaryAction={() => setChangeOrderModal(false)}
       />
-    </View >
+    </ScrollView >
 
   )
 }

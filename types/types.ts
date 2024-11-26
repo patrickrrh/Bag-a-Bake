@@ -16,14 +16,6 @@ export type UserType = {
 };
 
 
-export type PaymentType = {
-    paymentId: number;
-    bakeryId: number;
-    paymentMethod: string;
-    paymentDetail: string;
-    paymentService: string;
-}
-
 export type BakeryType = {
     bakeryId: number;
     userId: number;

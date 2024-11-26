@@ -21,6 +21,11 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { OrderDetailType } from '@/types/types';
 import TextTitle5Gray from '@/components/texts/TextTitle5Gray';
 import ModalInformation from '@/components/ModalInformation';
+import CustomClickableButton from '@/components/CustomClickableButton';
+import TextDiscount from '@/components/texts/TextDiscount';
+import ImageView from "react-native-image-viewing";
+import { handleDownloadImage } from '@/utils/mediaUtils';
+import Toast from 'react-native-toast-message';
 
 const OrderDetail = () => {
 
@@ -31,19 +36,50 @@ const OrderDetail = () => {
 
   const [isSubmitting, setisSubmitting] = useState(false);
   const [paymentInfoModal, setPaymentInfoModal] = useState(false);
+  const [isPreviewPayment, setIsPreviewPayment] = useState(false);
 
   const handleActionOrder = async (orderStatus: number) => {
     try {
       setisSubmitting(true)
-      const response = await orderSellerApi().actionOrder({
+
+      const payload: any = {
         orderId: orderData.orderId,
-        orderStatus: orderStatus
-      })
+        orderStatus: orderStatus,
+      };
+
+      if (orderStatus === 2) {
+        payload.paymentStartedAt = new Date().toISOString();
+      }
+
+      console.log("masuk sini gak")
+      console.log("payload", payload)
+
+      const response = await orderSellerApi().actionOrder(payload)
       if (response.status === 200) {
-        router.push({
+        router.replace({
           pathname: '/order',
         })
         setLocalStorage('orderSellerParams', JSON.stringify({ status: orderStatus }))
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setisSubmitting(false)
+    }
+  }
+
+  const handleCancelOrder = async () => {
+    try {
+      setisSubmitting(true)
+
+      const response = await orderSellerApi().cancelOrder({
+        orderId: orderData.orderId
+      })
+      if (response.status === 200) {
+        router.replace({
+          pathname: '/order',
+        })
+        setLocalStorage('orderSellerParams', JSON.stringify({ status: 4 }))
       }
     } catch (error) {
       console.log(error)
@@ -72,11 +108,15 @@ const OrderDetail = () => {
 
       <View style={{ height: insets.top }} />
 
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+        <Toast topOffset={50} />
+      </View>
+
       <ScrollView>
         <View className='mx-5 flex-row items-start'>
           <TouchableOpacity
             onPress={() => {
-              router.push({
+              router.replace({
                 pathname: '/order',
               })
               setLocalStorage('orderSellerParams', JSON.stringify({ status: orderData.orderStatus }))
@@ -121,6 +161,27 @@ const OrderDetail = () => {
           ))}
         </View>
 
+        <View className='p-5 gap-y-3 mt-5 bg-white'>
+          <TextTitle3 label="Ringkasan Pesanan" />
+          {orderData.orderDetail.map((item: OrderDetailType) => (
+            <View key={item.orderDetailId} className='flex-row justify-between'>
+              <View style={{ flexDirection: 'row', columnGap: 8 }}>
+                <TextTitle5 label={item.productQuantity} />
+                <TextTitle5 label={item.product.productName} />
+              </View>
+              <View className='flex-col items-end'>
+                <View className='flex-row'>
+                  <View className='mr-1'>
+                    <TextTitle5 label={formatRupiah(Number(item.product.productPrice) * item.productQuantity)} textStyle={{ textDecorationLine: 'line-through' }} />
+                  </View>
+                  <TextDiscount label={item.discountPercentage} />
+                </View>
+                <TextTitle5 label={formatRupiah(item.totalDetailPrice)} />
+              </View>
+            </View>
+          ))}
+        </View>
+
         <View className='p-5 mt-5 bg-white'>
           <View className='flex-row justify-between'>
             <TextTitle4 label="Total" />
@@ -131,20 +192,44 @@ const OrderDetail = () => {
         {
           orderData.orderStatus !== 1 && (
             <View className='p-5 mt-5 bg-white'>
-              <View className='flex-row items-center space-x-1'>
-                <TextTitle4 label="Bukti Pembayaran" />
-                <Ionicons name="information-circle-outline" size={14} color="gray" onPress={() => setPaymentInfoModal(true)} />
-              </View>              
+              <View className='flex-row items-center justify-between'>
+                <View className='flex-row items-center space-x-1'>
+                  <TextTitle4 label="Bukti Pembayaran" />
+                  <Ionicons name="information-circle-outline" size={14} color="gray" onPress={() => setPaymentInfoModal(true)} />
+                </View>
+                <CustomClickableButton
+                  label={"Hubungi Pembeli"}
+                  handlePress={() => handleContactBuyer(orderData.user.userPhoneNumber)}
+                  isLoading={isSubmitting}
+                  icon="whatsapp"
+                  iconColor='#25D366'
+                />
+              </View>
               {
                 orderData.proofOfPayment ? (
                   <View>
-                    <Image
-                      source={{ uri: orderData.proofOfPayment }}
-                      style={{ width: 150, height: 240, borderRadius: 8, aspectRatio: 9 / 16, resizeMode: 'cover', marginTop: 10 }}
+                    <View className='flex-row items-end'>
+                      <TouchableOpacity onPress={() => setIsPreviewPayment(true)}>
+                        <Image
+                          source={{ uri: encodeURI(orderData.proofOfPayment) }}
+                          style={{ width: 150, height: 240, borderRadius: 8, aspectRatio: 9 / 16, resizeMode: 'cover', marginTop: 10 }}
+                        />
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleDownloadImage(orderData.proofOfPayment)} className='ml-1'>
+                        <Ionicons name="download-outline" size={18} color="gray" />
+                      </TouchableOpacity>
+                    </View>
+                    <ImageView
+                      images={[{ uri: encodeURI(orderData.proofOfPayment) }]}
+                      imageIndex={0}
+                      visible={isPreviewPayment}
+                      onRequestClose={() => setIsPreviewPayment(false)}
                     />
                   </View>
                 ) : (
-                  <TextTitle5Gray label="Pembeli belum mengirimkan bukti pembayaran" />
+                  <View style={{ marginTop: 10 }}>
+                    <TextTitle5Gray label="Pembeli belum mengirimkan bukti pembayaran" />
+                  </View>
                 )
               }
             </View>
@@ -153,7 +238,7 @@ const OrderDetail = () => {
 
         {
           orderData.orderStatus === 1 ? (
-            <View className='mx-5 mt-10 mb-5'>
+            <View className='mx-5 my-5'>
               <CustomButton
                 label="Terima Pesanan"
                 handlePress={() => handleActionOrder(2)}
@@ -167,21 +252,25 @@ const OrderDetail = () => {
               />
             </View>
           ) : orderData.orderStatus === 2 ? (
-            <View className='mx-5 mt-10 mb-5'>
+            <View className='mx-5 my-5'>
               <CustomButton
                 label="Konfirmasi Pembayaran"
                 handlePress={() => handleActionOrder(3)}
                 isLoading={isSubmitting}
               />
-              <ContactButton
-                label="Hubungi Pembeli"
-                handlePress={() => handleContactBuyer(orderData.user.userPhoneNumber)}
-                buttonStyles='mt-3'
-                isLoading={isSubmitting}
-              />
+              {
+                orderData.proofOfPayment && (
+                  <ContactButton
+                    label="Batalkan Pesanan"
+                    handlePress={() => handleCancelOrder()}
+                    buttonStyles='mt-3'
+                    isLoading={isSubmitting}
+                  />
+                )
+              }
             </View>
           ) : orderData.orderStatus === 3 && (
-            <View className='mx-5 mt-10 mb-5'>
+            <View className='mx-5 my-5'>
               <CustomButton
                 label="Selesaikan Pesanan"
                 handlePress={() => handleActionOrder(4)}

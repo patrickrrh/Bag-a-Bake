@@ -9,7 +9,7 @@ import {
   Keyboard
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import UploadButton from "@/components/UploadButton";
 import CustomButton from "@/components/CustomButton";
@@ -38,6 +38,7 @@ type ErrorState = {
 };
 
 const ProfilePage = () => {
+  const insets = useSafeAreaInsets();
   const { userData, refreshUserData, signOut } = useAuth();
   const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
 
@@ -202,13 +203,20 @@ const ProfilePage = () => {
   console.log("Form", JSON.stringify(form, null, 2));
 
   return (
-    <SafeAreaView className="bg-background h-full flex-1">
+    <View className="bg-background h-full flex-1">
+
+      <View
+        style={{
+          backgroundColor: "#FEFAF9",
+          height: insets.top,
+        }}
+      />
 
       <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
         <Toast topOffset={50} />
       </View>
 
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
 
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View
@@ -281,7 +289,7 @@ const ProfilePage = () => {
           <CustomButtonOutline
             label="Ganti Kata Sandi"
             handlePress={handlePasswordChange}
-            buttonStyles="mt-10 w-full"
+            buttonStyles="mt-8"
             isLoading={isSubmitting}
             color="#b0795a"
           />
@@ -289,7 +297,7 @@ const ProfilePage = () => {
           <CustomButton
             label="Simpan Perubahan"
             handlePress={handleSubmitChange}
-            buttonStyles="mt-5 w-full"
+            buttonStyles="mt-3"
             isLoading={isSubmitting}
           />
 
@@ -324,7 +332,7 @@ const ProfilePage = () => {
           onPrimaryAction={() => console.log("Cancel Log Out")}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

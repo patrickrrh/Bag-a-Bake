@@ -66,7 +66,6 @@ const InputOrderDetail = () => {
         try {
             const jsonValue = await getLocalStorage('orderData');
             const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
-            console.log("order data", data);
             setOrderData(data);
 
             const mappedOrderDetail = data?.items.map((item: any) => {

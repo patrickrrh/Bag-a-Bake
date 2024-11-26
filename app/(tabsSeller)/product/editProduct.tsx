@@ -9,7 +9,7 @@ import {
   Keyboard
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
 import BackButton from "@/components/BackButton";
@@ -56,6 +56,7 @@ type DiscountItem = {
 };
 
 const EditProduct = () => {
+  const insets = useSafeAreaInsets();
   const { userData } = useAuth();
   const { productId } = useLocalSearchParams();
 
@@ -138,7 +139,7 @@ const EditProduct = () => {
         setIsConfirmationModalVisible(true);
         return;
       }
-      
+
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -216,21 +217,21 @@ const EditProduct = () => {
           discount:
             response.data.discount && response.data.discount.length > 0
               ? response.data.discount.map(
-                  (discount: {
-                    discountAmount: string;
-                    discountDate: string;
-                  }) => ({
-                    discountAmount: discount.discountAmount.toString(),
-                    discountDate:
-                      discount.discountDate || new Date().toISOString(),
-                  })
-                )
+                (discount: {
+                  discountAmount: string;
+                  discountDate: string;
+                }) => ({
+                  discountAmount: discount.discountAmount.toString(),
+                  discountDate:
+                    discount.discountDate || new Date().toISOString(),
+                })
+              )
               : [
-                  {
-                    discountAmount: "",
-                    discountDate: new Date().toISOString(),
-                  },
-                ],
+                {
+                  discountAmount: "",
+                  discountDate: new Date().toISOString(),
+                },
+              ],
           productStock: response.data.productStock,
           productImage: response.data.productImage,
           bakeryId: response.data.bakeryId,
@@ -371,8 +372,16 @@ const EditProduct = () => {
   }, [form.productExpirationDate, isExpirationDateUpdated]);
 
   return (
-    <SafeAreaView className="bg-background h-full flex-1">
-      <View className="flex-row items-center px-4 pt-5 pb-2 relative">
+    <View className="bg-background h-full flex-1">
+
+      <View
+        style={{
+          backgroundColor: "#FEFAF9",
+          height: insets.top,
+        }}
+      />
+
+      <View className="flex-row items-center px-4 pb-2 relative">
         {/* Back Button */}
         <View className="pl-5">
           <BackButton />
@@ -386,7 +395,6 @@ const EditProduct = () => {
             right: 0,
             justifyContent: "center",
             alignItems: "center",
-            paddingTop: 14,
           }}
         >
           <TextTitle3 label="Perbarui Produk" />
@@ -394,7 +402,7 @@ const EditProduct = () => {
 
         <TouchableOpacity
           onPress={confirmDelete}
-          style={{ position: "absolute", right: 32, paddingTop: 8 }}
+          style={{ position: "absolute", right: 32 }}
         >
           <Ionicons name="trash-outline" size={24} color="#b0795a" />
         </TouchableOpacity>
@@ -560,7 +568,7 @@ const EditProduct = () => {
           </View>
 
           {/* Stock Field */}
-          <View className="mt-7 space-y-1">
+          <View className="mt-1 space-y-1">
             <TextFormLabel label="Jumlah Stok" />
             <View className="w-full h-[40px] flex-row items-center">
               <StockInput
@@ -615,7 +623,7 @@ const EditProduct = () => {
           <CustomButton
             label="Perbarui"
             handlePress={handleEditProduct}
-            buttonStyles="mt-6"
+            buttonStyles="mt-10 mb-5"
             isLoading={isSubmitting}
           />
         </View>
@@ -686,7 +694,7 @@ const EditProduct = () => {
           }}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

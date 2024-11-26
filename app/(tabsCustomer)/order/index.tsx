@@ -190,6 +190,8 @@ const Order = () => {
                 {selectedStatus === 1
                   ? "Anda tidak memiliki pesanan baru"
                   : selectedStatus === 2
+                  ? "Anda tidak memiliki pesanan dalam proses pembayaran"
+                  : selectedStatus === 3
                   ? "Anda tidak memiliki pesanan berlangsung"
                   : "Anda belum memiliki riwayat pesanan"}
               </Text>

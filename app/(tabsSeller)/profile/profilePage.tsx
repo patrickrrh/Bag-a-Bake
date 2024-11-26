@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import UploadButton from "@/components/UploadButton";
 import CustomButton from "@/components/CustomButton";
@@ -85,6 +85,7 @@ interface PaymentForm {
 }
 
 const ProfilePage = () => {
+  const insets = useSafeAreaInsets();
   const { userData, refreshUserData, signOut } = useAuth();
   const GOOGLE_MAPS_API_KEY = process.env
     .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
@@ -191,7 +192,7 @@ const ProfilePage = () => {
     bakeryLatitude: userData?.bakery.bakeryLatitude || 0,
     bakeryLongitude: userData?.bakery.bakeryLongitude || 0,
   });
-  
+
   const emptyBakeryError: BakeryErrorState = {
     bakeryName: null,
     bakeryImage: null,
@@ -203,7 +204,7 @@ const ProfilePage = () => {
     bakeryLatitude: null,
     bakeryLongitude: null,
   };
-  
+
   const [bakeryError, setBakeryError] =
     useState<BakeryErrorState>(emptyBakeryError);
 
@@ -623,14 +624,22 @@ const ProfilePage = () => {
   };
 
   return (
-    <SafeAreaView className="bg-background h-full flex-1">
+    <View className="bg-background h-full flex-1">
+
+      <View
+        style={{
+          backgroundColor: "#FEFAF9",
+          height: insets.top,
+        }}
+      />
+
       <View
         style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 100 }}
       >
         <Toast topOffset={50} />
       </View>
 
-      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           <View
             style={{
@@ -707,7 +716,7 @@ const ProfilePage = () => {
                 <CustomButton
                   label="Simpan Perubahan"
                   handlePress={handleSubmitChange}
-                  buttonStyles="mt-5 w-full"
+                  buttonStyles="my-5 w-full"
                   isLoading={isSubmitting}
                 />
               </>
@@ -873,7 +882,7 @@ const ProfilePage = () => {
           onPrimaryAction={() => console.log("Cancel Log Out")}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
