@@ -39,12 +39,14 @@ import ratingApi from "@/api/ratingApi";
 import RatingInput from "@/components/RatingInput";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { icons } from "@/constants/icons";
+import { useAuth } from "@/app/context/AuthContext";
 
 type RatingErrorState = {
   rating: string | null;
 };
 
 const Order = () => {
+  const { userData } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState(1);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [ratingOrderId, setRatingOrderId] = useState(0);
@@ -74,6 +76,7 @@ const Order = () => {
     setIsLoading(true);
     try {
       const response = await orderCustomerApi().getOrderByStatus({
+        userId: userData?.userId,
         orderStatus: selectedStatus,
       });
       if (response.status === 200) {

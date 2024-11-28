@@ -75,16 +75,13 @@ const RatingBakerySeller = () => {
 
     const { bakeryId, bakeryName } = useLocalSearchParams();
     const [rating, setRating] = useState<Rating | null>(null);
-    const [selectedStar, setSelectedStar] = useState<string | number | null>("all");
+    const [selectedStar, setSelectedStar] = useState<string | number>("Semua");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleGetRatings = async () => {
         setIsLoading(true);
         setRating(null);
         try {
-            if (selectedStar === "all") {
-                setSelectedStar(null);
-            }
             const response = await ratingApi().findBakeryRating({
                 bakeryId: parseInt(bakeryId as string),
                 star: selectedStar,

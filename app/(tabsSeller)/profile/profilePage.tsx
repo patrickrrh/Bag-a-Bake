@@ -711,11 +711,10 @@ const ProfilePage = () => {
                   isLoading={isSubmitting}
                   color="#b0795a"
                 />
-
                 <CustomButton
                   label="Simpan Perubahan"
                   handlePress={handleSubmitChange}
-                  buttonStyles="my-5 w-full"
+                  buttonStyles="my-3 w-full"
                   isLoading={isSubmitting}
                 />
               </>

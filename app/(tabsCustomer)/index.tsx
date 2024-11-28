@@ -216,7 +216,7 @@ const Home = () => {
                           <ProductCard
                             product={item}
                             onPress={() => {
-                              router.push({
+                              router.replace({
                                 pathname: '/bakery/bakeryDetail' as any,
                                 params: { bakeryId: item.bakery.bakeryId },
                               })
@@ -275,7 +275,7 @@ const Home = () => {
                           <ProductCard
                             product={item}
                             onPress={() => {
-                              router.push({
+                              router.replace({
                                 pathname: '/bakery/bakeryDetail' as any,
                                 params: { bakeryId: item.bakery.bakeryId },
                               })

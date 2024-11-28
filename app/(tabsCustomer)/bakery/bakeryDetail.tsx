@@ -150,7 +150,7 @@ const BakeryDetail = () => {
             <View style={{ height: insets.top }} />
 
             <View className="flex-row px-5 mb-5 w-full justify-between">
-                <BackButton path='/(tabsCustomer)/bakery' />
+                <BackButton path='/bakery' />
                 <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
                 <TouchableOpacity
                     onPress={() => {
@@ -202,10 +202,13 @@ const BakeryDetail = () => {
                                             params: { bakeryId, bakeryName: bakeryDetail?.bakery.bakeryName as string },
                                         })
                                     }>
-                                    <TextRating
-                                        rating={bakeryDetail?.prevRating.averageRating || "0"}
-                                        reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
-                                    />
+                                    <View className='flex-row items-center'>
+                                        <TextRating
+                                            rating={bakeryDetail?.prevRating.averageRating || "0"}
+                                            reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
+                                        />
+                                        <FontAwesome name="hand-o-left" size={14} color="#FA6F33" style={{ marginLeft: 5 }} />
+                                    </View>
                                 </TouchableOpacity>
                             </View>
 
@@ -241,8 +244,8 @@ const BakeryDetail = () => {
                 {
                     bakeryDetail?.bakery?.product.length !== 0 ? (
                         <View
-                            style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly' }}
-                            className='mt-3'
+                            style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
+                            className='mt-3 mx-4'
                         >
                             {bakeryDetail?.bakery?.product.map((product) => (
                                 <View
