@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, Image, StatusBar, FlatList, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, Image, StatusBar, FlatList, ScrollView, TouchableOpacity, RefreshControl, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { images } from '@/constants/images';
 import TextTitle5 from '@/components/texts/TextTitle5';
@@ -31,6 +31,7 @@ const Home = () => {
   const [recommendedProducts, setRecommendedProducts] = useState<ProductType[]>([]);
   const [expiringProducts, setExpiringProducts] = useState<ProductType[]>([]);
   const [isSubmitting, setisSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleGetCategoryApi = async () => {
     try {
@@ -44,6 +45,7 @@ const Home = () => {
   }
 
   const handleGetRecommendedProducts = async () => {
+    setIsLoading(true);
     try {
       const response = await productApi().getRecommendedProducts({
         latitude: userData?.latitude,
@@ -55,9 +57,14 @@ const Home = () => {
     } catch (error) {
       console.log(error)
     }
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
   }
 
   const handleGetExpiringProducts = async () => {
+    setIsLoading(true);
     try {
       const response = await productApi().getExpiringProducts({
         latitude: userData?.latitude,
@@ -69,6 +76,10 @@ const Home = () => {
     } catch (error) {
       console.log(error)
     }
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
   }
 
   useFocusEffect(
@@ -89,12 +100,11 @@ const Home = () => {
   }
 
   return (
-    <View className='flex-1 bg-brown'>
+    <View className='flex-1 bg-background'>
 
-      <View style={{ backgroundColor: '#B0795A', height: insets.top }} />
+      <View style={{ height: insets.top }} />
 
       <ScrollView
-        style={{ backgroundColor: 'transparent' }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -103,13 +113,9 @@ const Home = () => {
 
         {/* Header */}
         <View
-          className='bg-brown px-5 pt-2'
-          style={{
-            borderBottomLeftRadius: 15,
-            borderBottomRightRadius: 15,
-          }}
+          className='bg-brown px-5 mx-5 mt-3 rounded-xl'
         >
-          <View className='flex-row justify-between w-full mb-7'>
+          <View className='flex-row justify-between w-full my-8'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">
               <Image
                 source={userData?.userImage ? { uri: userData?.userImage } : images.profile}
@@ -159,123 +165,133 @@ const Home = () => {
             />
           </View>
 
-          <View className='mt-6 w-full'>
-            <View className='flex-row justify-between items-center w-full'>
-              <TextTitle3 label="Rekomendasi untuk Anda" />
-              <TextLink label='Lihat semua >' size={10}
-                onPress={() => {
-                  router.replace({
-                    pathname: '/bakery' as any,
-                  })
-                  setLocalStorage('filter', JSON.stringify({ userLocationFilter: true }));
-                }} />
-            </View>
-            {
-              recommendedProducts.length === 0 ? (
-                <View className="flex-1 items-center justify-center my-14">
-                  <Image
-                    source={icons.bakeBread}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      marginBottom: 10,
-                      tintColor: "#828282",
-                    }}
-                    resizeMode="contain"
-                  />
-                  <Text
-                    style={{
-                      color: "#828282",
-                      fontFamily: "poppinsRegular",
-                      fontSize: 14,
-                      textAlign: "center",
-                      marginInline: 40
-                    }}
-                  >
-                    Tidak ada produk rekomendasi saat ini
-                  </Text>
-                </View>
-              ) : (
-                <FlatList
-                  horizontal={true}
-                  data={recommendedProducts}
-                  renderItem={({ item }) => (
-                    <ProductCard
-                      product={item}
+          {
+            isLoading ? (
+              <View className="flex-1 items-center justify-center my-48">
+                <ActivityIndicator size="small" color="#828282" />
+              </View>
+            ) : (
+              <>
+                <View className='mt-6 w-full'>
+                  <View className='flex-row justify-between items-center w-full'>
+                    <TextTitle3 label="Rekomendasi untuk Anda" />
+                    <TextLink label='Lihat semua >' size={10}
                       onPress={() => {
-                        router.push({
-                          pathname: '/bakery/bakeryDetail' as any,
-                          params: { bakeryId: item.bakery.bakeryId },
+                        router.replace({
+                          pathname: '/bakery' as any,
                         })
-                      }}
-                    />
-                  )}
-                  keyExtractor={(item) => item.productId.toString()}
-                  className='mt-3'
-                  showsHorizontalScrollIndicator={false}
-                />
-              )
-            }
-          </View>
+                        setLocalStorage('filter', JSON.stringify({ userLocationFilter: true }));
+                      }} />
+                  </View>
+                  {
+                    recommendedProducts.length === 0 ? (
+                      <View className="flex-1 items-center justify-center my-14">
+                        <Image
+                          source={icons.bakeBread}
+                          style={{
+                            width: 60,
+                            height: 60,
+                            marginBottom: 10,
+                            tintColor: "#828282",
+                          }}
+                          resizeMode="contain"
+                        />
+                        <Text
+                          style={{
+                            color: "#828282",
+                            fontFamily: "poppinsRegular",
+                            fontSize: 14,
+                            textAlign: "center",
+                            marginInline: 50
+                          }}
+                        >
+                          Tidak ada produk rekomendasi saat ini
+                        </Text>
+                      </View>
+                    ) : (
+                      <FlatList
+                        horizontal={true}
+                        data={recommendedProducts}
+                        renderItem={({ item }) => (
+                          <ProductCard
+                            product={item}
+                            onPress={() => {
+                              router.push({
+                                pathname: '/bakery/bakeryDetail' as any,
+                                params: { bakeryId: item.bakery.bakeryId },
+                              })
+                            }}
+                          />
+                        )}
+                        keyExtractor={(item) => item.productId.toString()}
+                        className='mt-3 pb-2 pl-2'
+                        showsHorizontalScrollIndicator={false}
+                      />
+                    )
+                  }
+                </View>
 
-          <View className='mt-5 w-full'>
-            <View className='flex-row justify-between items-end w-full'>
-              <TextTitle3 label="Dapatkan Sebelum Terlambat" />
-              <TextLink label='Lihat semua >' size={10}
-                onPress={() => {
-                  router.replace({
-                    pathname: '/bakery' as any,
-                  })
-                  setLocalStorage('filter', JSON.stringify({ isExpiringFilter: true }));
-                }} />
-            </View>
-            {
-              expiringProducts.length === 0 ? (
-                <View className="flex-1 items-center justify-center my-14">
-                  <Image
-                    source={icons.bakeBread}
-                    style={{
-                      width: 60,
-                      height: 60,
-                      marginBottom: 10,
-                      tintColor: "#828282",
-                    }}
-                    resizeMode="contain"
-                  />
-                  <Text
-                    style={{
-                      color: "#828282",
-                      fontFamily: "poppinsRegular",
-                      fontSize: 14,
-                      textAlign: "center",
-                      marginInline: 40
-                    }}
-                  >
-                    Promo produk ini sedang tidak tersedia
-                  </Text>
-                </View>
-              ) : (
-                <FlatList
-                  horizontal={true}
-                  data={expiringProducts}
-                  renderItem={({ item }) => (
-                    <ProductCard
-                      product={item}
+                <View className='mt-5 w-full'>
+                  <View className='flex-row justify-between items-center w-full'>
+                    <TextTitle3 label="Dapatkan Sebelum Terlambat" />
+                    <TextLink label='Lihat semua >' size={10}
                       onPress={() => {
-                        router.push({
-                          pathname: '/bakery/bakeryDetail' as any,
-                          params: { bakeryId: item.bakery.bakeryId },
+                        router.replace({
+                          pathname: '/bakery' as any,
                         })
-                      }}
-                    />
-                  )}
-                  keyExtractor={(item) => item.productId.toString()}
-                  className='mt-3'
-                  showsHorizontalScrollIndicator={false}
-                />
-              )
-            }
-          </View>
+                        setLocalStorage('filter', JSON.stringify({ isExpiringFilter: true }));
+                      }} />
+                  </View>
+                  {
+                    expiringProducts.length === 0 ? (
+                      <View className="flex-1 items-center justify-center my-14">
+                        <Image
+                          source={icons.bakeBread}
+                          style={{
+                            width: 60,
+                            height: 60,
+                            marginBottom: 10,
+                            tintColor: "#828282",
+                          }}
+                          resizeMode="contain"
+                        />
+                        <Text
+                          style={{
+                            color: "#828282",
+                            fontFamily: "poppinsRegular",
+                            fontSize: 14,
+                            textAlign: "center",
+                            marginInline: 50
+                          }}
+                        >
+                          Promo produk ini sedang tidak tersedia
+                        </Text>
+                      </View>
+                    ) : (
+                      <FlatList
+                        horizontal={true}
+                        data={expiringProducts}
+                        renderItem={({ item }) => (
+                          <ProductCard
+                            product={item}
+                            onPress={() => {
+                              router.push({
+                                pathname: '/bakery/bakeryDetail' as any,
+                                params: { bakeryId: item.bakery.bakeryId },
+                              })
+                            }}
+                          />
+                        )}
+                        keyExtractor={(item) => item.productId.toString()}
+                        className='mt-3 pb-2 pl-2'
+                        showsHorizontalScrollIndicator={false}
+                      />
+                    )
+                  }
+                </View>
+              </>
+            )
+          }
         </View>
 
       </ScrollView>

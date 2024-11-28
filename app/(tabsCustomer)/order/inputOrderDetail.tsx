@@ -15,7 +15,7 @@ import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
 import orderCustomerApi from '@/api/orderCustomerApi';
 import { useAuth } from '@/app/context/AuthContext';
 import TextTitle5 from '@/components/texts/TextTitle5';
-import { OrderDetailType, ProductType } from '@/types/types';
+import { BakeryType, OrderDetailType, OrderItemType, ProductType } from '@/types/types';
 import TextDiscount from '@/components/texts/TextDiscount';
 import TextBeforePrice from '@/components/texts/TextBeforePrice';
 import TextAfterPrice from '@/components/texts/TextAfterPrice';
@@ -23,42 +23,15 @@ import { FontAwesome } from '@expo/vector-icons';
 import TextEllipsis from '@/components/TextEllipsis';
 import ContactButton from '@/components/ContactButton';
 
-type Bakery = {
-    bakery: Bakery;
-    bakeryId: number;
-    userId: number;
-    bakeryName: string;
-    bakeryImage: string;
-    bakeryDescription: string;
-    bakeryPhoneNumber: string;
-    openingTime: string;
-    closingTime: string;
-    bakeryAddress: string;
-    bakeryLatitude: number;
-    bakeryLongitude: number;
-    product: ProductType[];
-    prevRating: {
-        averageRating: string;
-        reviewCount: string;
-    }
-};
-
-type OrderItem = {
-    bakeryId: number;
-    items: {
-        productQuantity: number;
-        productId: number;
-    }[];
-};
 const InputOrderDetail = () => {
 
     const { userData } = useAuth();
     const { bakeryId } = useLocalSearchParams();
     const insets = useSafeAreaInsets();
 
-    const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
+    const [bakeryDetail, setBakeryDetail] = useState<BakeryType | null>(null);
     const [totalPrice, setTotalPrice] = useState("");
-    const [orderData, setOrderData] = useState<OrderItem | null>(null);
+    const [orderData, setOrderData] = useState<OrderItemType | null>(null);
     const [mappedOrderDetail, setMappedOrderDetail] = useState<{ product: ProductType, productQuantity: number }[]>([]);
     const [orderDetail, setOrderDetail] = useState<OrderDetailType[]>([]);
 
@@ -67,7 +40,7 @@ const InputOrderDetail = () => {
     const fetchOrderData = async () => {
         try {
             const jsonValue = await getLocalStorage('orderData');
-            const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+            const data: OrderItemType = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
 
             const mappedOrderDetail = data?.items.map((item: any) => {
@@ -147,8 +120,7 @@ const InputOrderDetail = () => {
                     <TouchableOpacity
                         onPress={() => {
                             router.replace({
-                                pathname: '/bakery/bakeryDetail',
-                                params: { bakeryId: bakeryDetail?.bakery.bakeryId },
+                                pathname: '/order',
                             });
                         }}
                         activeOpacity={0.7}

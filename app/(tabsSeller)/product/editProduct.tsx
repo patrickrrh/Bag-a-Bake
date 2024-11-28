@@ -47,10 +47,6 @@ type ErrorState = {
   productImage: string | null;
 };
 
-type RouteParams = {
-  productId: number;
-};
-
 type DiscountItem = {
   discountAmount: string;
   discountDate: string;

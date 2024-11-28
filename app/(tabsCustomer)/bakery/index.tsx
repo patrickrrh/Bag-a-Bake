@@ -27,21 +27,12 @@ import TextTitle1 from "@/components/texts/TextTitle1";
 import categoryApi from "@/api/categoryApi";
 import CheckBox from "react-native-check-box";
 import CustomButton from "@/components/CustomButton";
-import { BakeryType, CategoryType } from "@/types/types";
+import { BakeryType, CategoryType, OrderItemType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { set } from "date-fns";
 import { icons } from "@/constants/icons";
 
-type OrderItem = {
-  bakeryId: number;
-  items: [
-    {
-      productQuantity: number;
-      productId: number;
-    }
-  ];
-};
 const Bakery = () => {
   const { userData } = useAuth();
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
@@ -61,12 +52,12 @@ const Bakery = () => {
   const [localStorageData, setLocalStorageData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [orderData, setOrderData] = useState<OrderItem | null>(null);
+  const [orderData, setOrderData] = useState<OrderItemType | null>(null);
 
   const fetchOrderData = async () => {
     try {
       const jsonValue = await getLocalStorage("orderData");
-      const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+      const data: OrderItemType = jsonValue ? JSON.parse(jsonValue) : null;
       setOrderData(data);
 
     } catch (error) {

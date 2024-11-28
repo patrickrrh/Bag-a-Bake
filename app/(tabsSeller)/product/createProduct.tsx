@@ -380,7 +380,10 @@ const CreateProduct = () => {
           <PriceInputField
             label="Harga Awal"
             value={form.productPrice}
-            onChangeText={(text) => setForm({ ...form, productPrice: text })}
+            onChangeText={(text) => {
+              setForm({ ...form, productPrice: text });
+              setError((prevError) => ({ ...prevError, productPrice: null }));
+            }}
             placeholder="Masukkan Harga Awal"
             moreStyles="mt-7"
             error={error.productPrice}

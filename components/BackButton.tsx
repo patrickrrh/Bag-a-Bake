@@ -26,7 +26,7 @@ const BackButton: React.FC<BackButtonProps> = ({ path, params }) => {
             onPress={handlePress}
             activeOpacity={0.7}
             style={styles.button}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
         >
             <FontAwesome
                 name="angle-left"

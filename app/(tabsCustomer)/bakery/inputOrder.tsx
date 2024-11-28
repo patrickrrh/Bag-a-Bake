@@ -13,7 +13,7 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import CustomButton from '@/components/CustomButton';
 import StockInput from '@/components/StockInput';
 import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
-import { BakeryType, ProductType } from '@/types/types';
+import { BakeryDetailType, BakeryType, ProductType } from '@/types/types';
 import AddOrderProductButton from '@/components/AddOrderProductButton';
 import BackButton from '@/components/BackButton';
 import CircleBackButton from '@/components/CircleBackButton';
@@ -28,18 +28,7 @@ import TextDiscount from '@/components/texts/TextDiscount';
 import TextAfterPrice from '@/components/texts/TextAfterPrice';
 import ModalAction from '@/components/ModalAction';
 import ErrorMessage from '@/components/texts/ErrorMessage';
-
-type BakeryDetailType = {
-  bakery: {
-    bakeryId: number;
-    bakeryName: string;
-    closingTime: string;
-  },
-  prevRating: {
-    averageRating: string;
-    reviewCount: string;
-  }
-}
+import TextEllipsis from '@/components/TextEllipsis';
 
 type StockInputErrorState = {
   productQuantity: string | null;
@@ -234,7 +223,7 @@ const InputOrder = () => {
   console.log("Error: ", error)
 
   return (
-    <ScrollView>
+    <ScrollView className='bg-background'>
       <View>
         <Image
           source={{ uri: product?.productImage as string }}
@@ -268,22 +257,24 @@ const InputOrder = () => {
           <CustomTag count={product?.productStock as number} />
         </View>
 
-        <TextTitle4 label={bakery?.bakery.bakeryName as string} />
+        <View className='my-2'>
+          <TextTitle4 label={bakery?.bakery.bakeryName as string} />
+        </View>
 
         <TextRating
           rating={bakery?.prevRating.averageRating as string}
           reviewCount={bakery?.prevRating.reviewCount as string}
         />
 
-        <View className='flex-row items-center'>
+        <View className='flex-row items-center mt-2'>
           <TextTitle5 label={"Jam Pengambilan Terakhir: "}></TextTitle5>
           <TextTitle5Bold label={bakery?.bakery.closingTime as string} color='#FA6F33' />
         </View>
 
         <View className="h-px bg-gray-200 my-4" />
 
-        <View className='h-14'>
-          <TextTitle5 label={product?.productDescription as string} />
+        <View className='h-18'>
+          <TextEllipsis label={product?.productDescription as string} line={4} />
         </View>
 
         <View className="mt-5">

@@ -33,8 +33,8 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
                         source={{ uri: item.bakeryImage }}
                         style={{ width: 68, height: 68, borderRadius: 10, borderColor: '#000', borderWidth: 1 }}
                     />
-                    <View className="ml-5">
-                        <View className='flex-row justify-between'>
+                    <View className="ml-5" style={{ flex: 1 }}>
+                        <View className="flex-row justify-between w-full">
                             <TextTitle3 label={item.bakeryName} />
                             <TouchableOpacity onPress={onFavorite}>
                                 <Ionicons
@@ -44,11 +44,14 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <TextTitle5Gray label={`Jarak: ${item.distanceInKm} km`} />
-                        <View className="flex-row items-start mt-2">
-                            <Ionicons name="location-sharp" size={12} color="black" style={{ marginRight: 5 }} />
-                            <View style={{ width: 200 }}>
-                                <TextEllipsis label={item.bakeryAddress} />
+
+                        <View className="flex-col mt-2">
+                            <TextTitle5Gray label={`Jarak: ${item.distanceInKm} km`} />
+                            <View className="flex-row items-start mt-2">
+                                <Ionicons name="location-sharp" size={12} color="black" style={{ marginRight: 5 }} />
+                                <View style={{ flex: 1, paddingRight: 20 }}>
+                                    <TextEllipsis label={item.bakeryAddress} />
+                                </View>
                             </View>
                         </View>
                     </View>
@@ -57,5 +60,7 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
         </TouchableOpacity>
     );
 };
+
+
 
 export default BakeryCard;

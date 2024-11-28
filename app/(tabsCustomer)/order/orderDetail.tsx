@@ -77,7 +77,7 @@ const OrderDetail = () => {
 
     const handleCancelOrderApi = async () => {
         try {
-            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId });
+            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId, bakeryId: orderData.bakery.bakeryId });
             router.push("/order");
         } catch (error) {
             console.log("Error canceling order ", error)
@@ -132,30 +132,30 @@ const OrderDetail = () => {
         try {
             const response = await orderCustomerApi().submitProofOfPayment({
                 orderId: orderData.orderId,
-                proofOfPayment: proofOfPayment
+                proofOfPayment: proofOfPayment,
+                bakeryId: orderData.bakery.bakeryId
             })
 
             if (response.status === 200) {
-                router.push({
-                    pathname: '/order',
-                })
-                setLocalStorage('orderCustomerParams', JSON.stringify({ status: 3 }))
+                // router.push({
+                //     pathname: '/order',
+                // })
+                // setLocalStorage('orderCustomerParams', JSON.stringify({ status: 2 }))
+                router.back();
             }
         } catch (error) {
             console.log(error)
         }
     }
 
-    console.log("order adta", JSON.stringify(orderData, null, 2))
-
     return (
         <View className="bg-background h-full flex-1">
 
             <View style={{ height: insets.top }} />
 
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+            {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
                 <Toast topOffset={50} />
-            </View>
+            </View> */}
 
             <View className="mx-5 mb-5">
                 <View className="flex-row">
@@ -232,14 +232,12 @@ const OrderDetail = () => {
                                     <TextTitle4 label="Metode Pembayaran" />
                                     <Ionicons name="information-circle-outline" size={14} color="gray" onPress={() => setPaymentInfoModal(true)} />
                                 </View>
-                                {
-                                    <View className='flex-row'>
-                                        <View className='mr-1'>
-                                            <TextTitle5Gray label={`Konfirmasi sebelum`} />
-                                        </View>
-                                        <TextTitle5Bold label={calculateValidPaymentTime(orderData.paymentStartedAt)} color='#FA6F33' />
+                                <View className='flex-row'>
+                                    <View className='mr-1'>
+                                        <TextTitle5Gray label={`Konfirmasi sebelum`} />
                                     </View>
-                                }
+                                    <TextTitle5Bold label={calculateValidPaymentTime(orderData.paymentStartedAt)} color='#FA6F33' />
+                                </View>
                                 <FlatList
                                     data={paymentMethods}
                                     renderItem={({ item }) => (

@@ -45,6 +45,7 @@ import { getLocalStorage, setLocalStorage } from "@/utils/commonFunctions";
 import Geocoder from "react-native-geocoding";
 import PaymentInput from "@/components/PaymentInput";
 import ErrorMessage from "@/components/texts/ErrorMessage";
+import { PaymentType } from "@/types/types";
 
 type ErrorState = {
   userName: string | null;
@@ -70,14 +71,6 @@ type PaymentErrorState = {
 interface PaymentMethod {
   method: string;
   serviceOptions?: string[];
-}
-
-interface PaymentType {
-  paymentId: number;
-  bakeryId: number;
-  paymentMethod: string;
-  paymentService: string;
-  paymentDetail: string;
 }
 
 interface PaymentForm {
@@ -633,11 +626,11 @@ const ProfilePage = () => {
         }}
       />
 
-      <View
+      {/* <View
         style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 100 }}
       >
         <Toast topOffset={50} />
-      </View>
+      </View> */}
 
       <View
         style={{
@@ -659,17 +652,19 @@ const ProfilePage = () => {
         </TouchableOpacity>
       </View>
 
+      <View className="mx-5">
+        <ProfileTab
+          selectedStatus={selectedStatus}
+          onSelectStatus={(status) => {
+            setSelectedStatus(status);
+          }}
+        />
+      </View>
+
+
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
 
-          <View className="mx-5">
-            <ProfileTab
-              selectedStatus={selectedStatus}
-              onSelectStatus={(status) => {
-                setSelectedStatus(status);
-              }}
-            />
-          </View>
 
           <View className="w-full items-center" style={{ marginTop: 20 }}>
             {selectedStatus === 1 ? (

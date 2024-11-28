@@ -20,5 +20,6 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
 export default function ratingApi() {
     return {
         createRating: createApiFunction("post", "create/rating"),
+        findBakeryRating: createApiFunction("post", "get/rating/user-detail"),
     }
 }

@@ -31,67 +31,24 @@ import TextRating from '@/components/texts/TextRating';
 import OpenCartButton from '@/components/OpenCartButton';
 import TextEllipsis from '@/components/TextEllipsis';
 import { icons } from "@/constants/icons";
-
-type Bakery = {
-    bakery: Bakery;
-    bakeryId: number;
-    userId: number;
-    bakeryName: string;
-    bakeryImage: string;
-    bakeryDescription: string;
-    bakeryPhoneNumber: string;
-    openingTime: string;
-    closingTime: string;
-    bakeryAddress: string;
-    bakeryLatitude: number;
-    bakeryLongitude: number;
-    product: Product[];
-    prevRating: {
-        averageRating: string;
-        reviewCount: string;
-    }
-};
-
-type Product = {
-    productId: number;
-    bakeryId: number;
-    categoryId: number;
-    productName: string;
-    productPrice: string;
-    productImage: string;
-    productDescription: string;
-    productExpirationDate: string;
-    productStock: number;
-    isActive: number;
-}
-
-type OrderItem = {
-    bakeryId: number;
-    items:
-    [
-        {
-            productQuantity: number;
-            productId: number;
-        }
-    ];
-};
+import { BakeryType, OrderItemType } from '@/types/types';
 
 const BakeryDetail = () => {
 
     const insets = useSafeAreaInsets();
 
     const { bakeryId } = useLocalSearchParams();
-    const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
+    const [bakeryDetail, setBakeryDetail] = useState<BakeryType | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
     const [totalPrice, setTotalPrice] = useState("");
-    const [orderData, setOrderData] = useState<OrderItem | null>(null);
+    const [orderData, setOrderData] = useState<OrderItemType | null>(null);
 
     const [showFavorite, setShowFavorite] = useState(false);
 
     const fetchOrderData = async () => {
         try {
             const jsonValue = await getLocalStorage('orderData');
-            const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+            const data: OrderItemType = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
 
             console.log("Data: ", orderData);
@@ -205,10 +162,18 @@ const BakeryDetail = () => {
                                     <TextTitle5 label={bakeryDetail?.bakery?.bakeryAddress as string} />
                                 </View>
                             </View>
-                            <TextRating
-                                rating={bakeryDetail?.prevRating.averageRating || "0"}
-                                reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
-                            />
+                            <TouchableOpacity 
+                                onPress={() =>
+                                    router.push({
+                                        pathname: "/bakery/ratingBakeryCustomer" as any,
+                                        params: { bakeryId, bakeryName: bakeryDetail?.bakery.bakeryName as string },
+                                    })
+                                }>
+                                <TextRating
+                                    rating={bakeryDetail?.prevRating.averageRating || "0"}
+                                    reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
+                                />
+                            </TouchableOpacity>
                         </View>
 
                         <View>
@@ -264,7 +229,7 @@ const BakeryDetail = () => {
                                 ))}
                             </View>
                         ) : (
-                            <View className="flex-1 items-center justify-center mt-5">
+                            <View className="flex-1 items-center justify-center my-10">
                                 <Image
                                     source={icons.bakeBread}
                                     style={{
@@ -303,7 +268,7 @@ const BakeryDetail = () => {
                             router.push({
                                 pathname: '/order/inputOrderDetail' as any,
                                 params: {
-                                    bakeryId: bakeryId
+                                    bakeryId: bakeryId,
                                 }
                             })
                         }}

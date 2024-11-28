@@ -123,10 +123,14 @@ const Order = () => {
 
   useFocusEffect(
     useCallback(() => {
+      setOrders([]);
       const fetchData = async () => {
         const data = await getLocalStorage("orderCustomerParams");
         if (data) {
           const parsedData = JSON.parse(data);
+          if (parsedData.status === 5) {
+            parsedData.status = 4;
+          }
           setSelectedStatus(parsedData.status);
         }
       };
