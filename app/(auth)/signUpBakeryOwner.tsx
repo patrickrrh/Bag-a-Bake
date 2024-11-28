@@ -117,7 +117,7 @@ const SignUpBakeryOwner = () => {
                     <ProgressBar progress={0.1} />
                 </View>
             </View>
-            <View className='items-center'>
+            <View className='items-center pb-5'>
                 <TextHeader label="Daftar Akun" />
             </View>
         </>
@@ -133,98 +133,96 @@ const SignUpBakeryOwner = () => {
     );
 
     return (
-        <ScrollView className='bg-background'>
-            <AuthLayout headerContent={headerContent} footerContent={footerContent}>
-                <View className="mt-4 w-full items-center">
-                    {form.userImage ? (
-                        <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
-                            <Image
-                                source={{ uri: form.userImage }}
-                                className="w-full h-full rounded-full"
-                            />
-                        </View>
-                    ) : (
-                        <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
-                            <Image
-                                source={images.profile}
-                                className="w-full h-full rounded-full"
-                                resizeMode='cover'
-                            />
-                        </View>
-                    )}
-                    <UploadButton label="Unggah Foto" handlePress={pickImage} />
-                </View>
+        <AuthLayout headerContent={headerContent} footerContent={footerContent} isScrollable>
+            <View className="w-full items-center">
+                {form.userImage ? (
+                    <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
+                        <Image
+                            source={{ uri: form.userImage }}
+                            className="w-full h-full rounded-full"
+                        />
+                    </View>
+                ) : (
+                    <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
+                        <Image
+                            source={images.profile}
+                            className="w-full h-full rounded-full"
+                            resizeMode='cover'
+                        />
+                    </View>
+                )}
+                <UploadButton label="Unggah Foto" handlePress={pickImage} />
+            </View>
 
-                <FormField
-                    label='Nama Pengguna'
-                    value={form.userName}
-                    onChangeText={(text) => {
-                        setForm({ ...form, userName: text });
-                        setError((prevError) => ({ ...prevError, userName: null }));
-                    }}
-                    keyboardType='default'
-                    moreStyles='mt-7'
-                    error={error.userName}
-                    placeholder='Masukkan nama'
-                />
-                <FormField
-                    label='Nomor Telepon'
-                    value={form.userPhoneNumber}
-                    onChangeText={(text) => {
-                        setForm({ ...form, userPhoneNumber: text });
-                        setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
-                    }}
-                    keyboardType='phone-pad'
-                    moreStyles='mt-7'
-                    error={error.userPhoneNumber}
-                    placeholder='Masukkan nomor telepon'
-                />
-                <FormField
-                    label='Email'
-                    value={form.email}
-                    onChangeText={(text) => {
-                        setForm({ ...form, email: text });
-                        setError((prevError) => ({ ...prevError, email: null }));
-                    }}
-                    keyboardType='email-address'
-                    moreStyles='mt-7'
-                    error={error.email}
-                    placeholder='Masukkan email'
-                />
-                <FormField
-                    label='Kata Sandi'
-                    value={form.password}
-                    onChangeText={(text) => {
-                        setForm({ ...form, password: text });
-                        setError((prevError) => ({ ...prevError, password: null }));
-                    }}
-                    keyboardType='default'
-                    moreStyles='mt-7'
-                    error={error.password}
-                    placeholder='Masukkan kata sandi'
-                />
-                <FormField
-                    label='Konfirmasi Kata Sandi'
-                    value={confirmPassword}
-                    onChangeText={(text) => {
-                        setConfirmPassword(text);
-                        setError((prevError) => ({ ...prevError, confirmPassword: null }));
-                    }}
-                    keyboardType='default'
-                    moreStyles='mt-7'
-                    error={error.confirmPassword}
-                    placeholder='Konfirmasi kata sandi'
-                />
+            <FormField
+                label='Nama Pengguna'
+                value={form.userName}
+                onChangeText={(text) => {
+                    setForm({ ...form, userName: text });
+                    setError((prevError) => ({ ...prevError, userName: null }));
+                }}
+                keyboardType='default'
+                moreStyles='mt-7'
+                error={error.userName}
+                placeholder='Masukkan nama'
+            />
+            <FormField
+                label='Nomor Telepon'
+                value={form.userPhoneNumber}
+                onChangeText={(text) => {
+                    setForm({ ...form, userPhoneNumber: text });
+                    setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
+                }}
+                keyboardType='phone-pad'
+                moreStyles='mt-7'
+                error={error.userPhoneNumber}
+                placeholder='Masukkan nomor telepon'
+            />
+            <FormField
+                label='Email'
+                value={form.email}
+                onChangeText={(text) => {
+                    setForm({ ...form, email: text });
+                    setError((prevError) => ({ ...prevError, email: null }));
+                }}
+                keyboardType='email-address'
+                moreStyles='mt-7'
+                error={error.email}
+                placeholder='Masukkan email'
+            />
+            <FormField
+                label='Kata Sandi'
+                value={form.password}
+                onChangeText={(text) => {
+                    setForm({ ...form, password: text });
+                    setError((prevError) => ({ ...prevError, password: null }));
+                }}
+                keyboardType='default'
+                moreStyles='mt-7'
+                error={error.password}
+                placeholder='Masukkan kata sandi'
+            />
+            <FormField
+                label='Konfirmasi Kata Sandi'
+                value={confirmPassword}
+                onChangeText={(text) => {
+                    setConfirmPassword(text);
+                    setError((prevError) => ({ ...prevError, confirmPassword: null }));
+                }}
+                keyboardType='default'
+                moreStyles='mt-7'
+                error={error.confirmPassword}
+                placeholder='Konfirmasi kata sandi'
+            />
 
-                <CustomButton
-                    label='Lanjut'
-                    handlePress={() => checkForm()}
-                    buttonStyles='mt-10 w-full'
-                    isLoading={isSubmitting}
-                />
+            <CustomButton
+                label='Lanjut'
+                handlePress={() => checkForm()}
+                buttonStyles='mt-10 w-full'
+                isLoading={isSubmitting}
+            />
 
-            </AuthLayout>
-        </ScrollView>
+        </AuthLayout>
     )
 }
 

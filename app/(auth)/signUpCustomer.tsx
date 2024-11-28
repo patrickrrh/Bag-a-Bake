@@ -165,7 +165,7 @@ const SignUpCustomer = () => {
     const headerContent = (
         <View className="flex-row">
             <BackButton />
-            <View className="flex-1 items-center pr-3">
+            <View className="flex-1 items-center pr-3 pb-5">
                 <TextHeader label="Daftar Akun" />
             </View>
         </View>
@@ -181,9 +181,8 @@ const SignUpCustomer = () => {
     );
 
     return (
-        <ScrollView className='bg-background' nestedScrollEnabled>
-            <AuthLayout headerContent={headerContent} footerContent={footerContent}>
-                <View className="mt-4 w-full items-center">
+            <AuthLayout headerContent={headerContent} footerContent={footerContent} isScrollable>
+                <View className="w-full items-center">
                     {form.userImage ? (
                         <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
                             <Image
@@ -286,7 +285,6 @@ const SignUpCustomer = () => {
                 />
 
             </AuthLayout>
-        </ScrollView>
     )
 }
 
