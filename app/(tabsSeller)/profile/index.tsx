@@ -534,7 +534,7 @@ const ProfilePage = () => {
     ) {
       setModalVisible(true);
     } else {
-      router.push("/(tabsSeller)/profile/profilePage" as Href);
+      router.push("/(tabsSeller)/profile" as Href);
     }
   };
 

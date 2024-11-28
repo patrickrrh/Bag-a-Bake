@@ -13,6 +13,8 @@ type Props = {
 };
 
 const ListProductCard: React.FC<Props> = ({ item, onPress }) => {
+
+  console.log("item list product", JSON.stringify(item, null, 2))
   
   return (
     <TouchableOpacity
@@ -36,7 +38,7 @@ const ListProductCard: React.FC<Props> = ({ item, onPress }) => {
               <TextTitle3 label={item.productName} />
               <CustomTag count={item.productStock} />
             </View>
-            <TextTitle5Gray label={formatDate(item.productExpirationDate)} />
+            <TextTitle5Gray label={`Exp: ${formatDate(item.productExpirationDate)}`} />
             <View className="items-end">
               <TextTitle4 label={formatRupiah(item.todayPrice)} />
             </View>

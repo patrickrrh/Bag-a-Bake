@@ -264,6 +264,8 @@ const CreateProduct = () => {
     fillDiscountFields();
   }, [form.productExpirationDate]);
 
+  console.log("prodyct form", JSON.stringify(form, null, 2))
+
   return (
     <View className="bg-background h-full flex-1">
 

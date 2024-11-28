@@ -6,7 +6,7 @@ import Toast from 'react-native-toast-message'
 const ProfileCustomerLayout = () => {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name='profilePage' />
+        <Stack.Screen name='index' />
         <Stack.Screen name="changePassword" />
     </Stack>
   )

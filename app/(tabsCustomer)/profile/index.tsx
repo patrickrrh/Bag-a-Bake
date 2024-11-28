@@ -90,7 +90,7 @@ const ProfilePage = () => {
     if (nextRoute) {
       router.push(nextRoute);
     } else {
-      router.replace("/(tabsCustomer)/profile/profilePage" as Href);
+      router.replace("/(tabsCustomer)/profile" as Href);
     }
     Keyboard.dismiss();
   };
@@ -106,10 +106,10 @@ const ProfilePage = () => {
 
   const handleSubmitChange = () => {
     if (hasUnsavedChanges()) {
-      setNextRoute("/(tabsCustomer)/profile/profilePage" as Href);
+      setNextRoute("/(tabsCustomer)/profile" as Href);
       setModalVisible(true);
     } else {
-      router.push("/(tabsCustomer)/profile/profilePage" as Href);
+      router.push("/(tabsCustomer)/profile" as Href);
     }
   };
 
@@ -134,6 +134,8 @@ const ProfilePage = () => {
         longitude: form.longitude
       });
 
+      showToast("success", "Data pengguna berhasil diperbarui");
+
       const userDataToStore = {
         ...form,
         userId: userData?.userId
@@ -143,8 +145,6 @@ const ProfilePage = () => {
         "userData",
         JSON.stringify(userDataToStore)
       );
-
-      console.log(JSON.stringify(userDataToStore));
 
       await refreshUserData();
 

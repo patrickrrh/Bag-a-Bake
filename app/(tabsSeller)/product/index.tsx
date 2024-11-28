@@ -110,10 +110,6 @@ const ListProduct = () => {
           height: insets.top,
         }}
       />
-      
-      {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
-        <Toast topOffset={50} />
-      </View> */}
 
       <View className="bg-background h-full flex-1">
         <View className="px-5 bg-white">

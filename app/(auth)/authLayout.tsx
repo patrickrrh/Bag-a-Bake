@@ -7,20 +7,16 @@ type Props = {
     children: React.ReactNode;
     headerContent?: React.ReactNode;
     footerContent?: React.ReactNode;
+    isScrollable?: boolean;
 }
 
-const AuthLayout: React.FC<Props> = ({ children, headerContent, footerContent }) => {
+const AuthLayout: React.FC<Props> = ({ children, headerContent, footerContent, isScrollable }) => {
     return (
         <SafeAreaView className="bg-background h-full flex-1">
-            {/* Wrap everything inside a single View or Fragment */}
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{ flex: 1 }}>
-                    {/* Toast */}
-                    {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
-                        <Toast topOffset={50} />
-                    </View> */}
 
-                    {/* Main content */}
+                <View style={{ flex: 1 }}>
+
                     <View
                         style={{
                             flex: 1,
@@ -29,15 +25,30 @@ const AuthLayout: React.FC<Props> = ({ children, headerContent, footerContent })
                             marginBottom: Platform.OS === 'android' ? 20 : 0,
                         }}
                     >
-                        {/* Header */}
                         <View>{headerContent}</View>
 
-                        {/* Content */}
-                        <View className="mt-4">{children}</View>
+                        {
+                            isScrollable ? (
+                                <ScrollView showsVerticalScrollIndicator={false}>
+                                    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                                        <View>
+                                            <View className="mt-4">{children}</View>
 
-                        {/* Footer */}
-                        <View style={{ flex: 1 }} className="mt-20" />
-                        <View className="flex-row justify-center items-center">{footerContent}</View>
+                                            <View style={{ flex: 1 }} className="mt-20" />
+                                            <View className="flex-row justify-center items-center">{footerContent}</View>
+                                        </View>
+                                    </TouchableWithoutFeedback>
+                                </ScrollView>
+                            ) : (
+                                <>
+                                    <View className="mt-4">{children}</View>
+
+                                    <View style={{ flex: 1 }} className="mt-20" />
+                                    <View className="flex-row justify-center items-center">{footerContent}</View>
+                                </>
+                            )
+                        }
+
                     </View>
                 </View>
             </TouchableWithoutFeedback>

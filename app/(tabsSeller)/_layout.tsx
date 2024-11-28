@@ -1,9 +1,26 @@
 import { View, Text, Image } from 'react-native'
-import React from 'react'
+import React, { useTransition } from 'react'
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from 'expo-router';
+import { router, Tabs, usePathname } from 'expo-router';
 
 const TabsSellerLayout = () => {
+  const currentPath = usePathname();
+  const [isPending, startTransition] = useTransition();
+
+  const handleTabPress = (e: any, targetPath: any) => {
+    e.preventDefault();
+
+    if (currentPath === targetPath) {
+      return;
+    }
+
+    startTransition(() => {
+      router.replace(targetPath);
+    });
+  };
+
+  console.log("first path", currentPath);
+
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: '#B0795A', tabBarInactiveTintColor: 'gray' }}>
       <Tabs.Screen
@@ -13,6 +30,9 @@ const TabsSellerLayout = () => {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'home' : 'home-outline'} color={color} size={18} />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => handleTabPress(e, "/home"),
         }}
       />
       <Tabs.Screen
@@ -24,6 +44,9 @@ const TabsSellerLayout = () => {
             <Ionicons name={focused ? 'bag' : 'bag-outline'} color={color} size={18} />
           ),
         }}
+        listeners={{
+          tabPress: (e) => handleTabPress(e, "/order"),
+        }}
       />
       <Tabs.Screen
         name='product'
@@ -33,6 +56,9 @@ const TabsSellerLayout = () => {
             <Ionicons name={focused ? 'list' : 'list-outline'} color={color} size={18} />
           ),
         }}
+        listeners={{
+          tabPress: (e) => handleTabPress(e, "/product"),
+        }}
       />
       <Tabs.Screen
         name='profile'
@@ -41,6 +67,9 @@ const TabsSellerLayout = () => {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={18} />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => handleTabPress(e, "/profile"),
         }}
       />
     </Tabs>
