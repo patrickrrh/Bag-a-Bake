@@ -67,7 +67,7 @@ const ModalAction: React.FC<ModalActionProps> = ({
           <View
             style={{
               flexDirection: "row",
-              justifyContent: "space-between",
+              justifyContent: "space-evenly",
             }}
           >
             <ModalActionButton

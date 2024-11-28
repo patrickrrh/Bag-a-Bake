@@ -75,7 +75,7 @@ const RatingBakeryCustomer = () => {
 
     const { bakeryId, bakeryName } = useLocalSearchParams();
     const [rating, setRating] = useState<Rating | null>(null);
-    const [selectedStar, setSelectedStar] = useState<string | number>("all");
+    const [selectedStar, setSelectedStar] = useState<string | number>("Semua");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleGetRatings = async () => {

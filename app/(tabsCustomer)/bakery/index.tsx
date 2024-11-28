@@ -14,7 +14,7 @@ import {
   Modal,
   ActivityIndicator,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { getItemAsync } from "expo-secure-store";
 import FilterButton from "@/components/FilterButton";
@@ -35,6 +35,7 @@ import { icons } from "@/constants/icons";
 
 const Bakery = () => {
   const { userData } = useAuth();
+  const insets = useSafeAreaInsets();
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
   const [userLocationFilter, setUserLocationFilter] = useState(false);
@@ -210,7 +211,10 @@ const Bakery = () => {
   )
 
   return (
-    <SafeAreaView className="bg-background h-full flex-1">
+    <View className="bg-background h-full flex-1">
+
+<View style={{ height: insets.top }} />
+
       <View className="mx-5 mb-5">
         <View className="flex-row align-center justify-between">
           <TextHeader label="BAKERI" />
@@ -386,7 +390,7 @@ const Bakery = () => {
           />
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
