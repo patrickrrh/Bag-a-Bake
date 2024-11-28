@@ -113,7 +113,7 @@ const Home = () => {
 
         {/* Header */}
         <View
-          className='bg-brown px-5 mx-5 mt-3 rounded-xl'
+          className='bg-brown px-5 mx-5 mt-3 rounded-xl shadow-sm'
         >
           <View className='flex-row justify-between w-full my-8'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">
@@ -224,7 +224,7 @@ const Home = () => {
                           />
                         )}
                         keyExtractor={(item) => item.productId.toString()}
-                        className='mt-3 pb-2 pl-2'
+                        className='mt-3 pb-2'
                         showsHorizontalScrollIndicator={false}
                       />
                     )
@@ -283,7 +283,7 @@ const Home = () => {
                           />
                         )}
                         keyExtractor={(item) => item.productId.toString()}
-                        className='mt-3 pb-2 pl-2'
+                        className='mt-3 pb-2'
                         showsHorizontalScrollIndicator={false}
                       />
                     )

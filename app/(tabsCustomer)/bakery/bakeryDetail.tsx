@@ -32,11 +32,15 @@ import OpenCartButton from '@/components/OpenCartButton';
 import TextEllipsis from '@/components/TextEllipsis';
 import { icons } from "@/constants/icons";
 import { BakeryType, OrderItemType } from '@/types/types';
+import favoriteApi from "@/api/favoriteApi";
+import { useAuth } from '@/app/context/AuthContext';
+import TextTitle4 from '@/components/texts/TextTitle4';
 
 const BakeryDetail = () => {
 
     const insets = useSafeAreaInsets();
 
+    const { userData } = useAuth();
     const { bakeryId } = useLocalSearchParams();
     const [bakeryDetail, setBakeryDetail] = useState<BakeryType | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
@@ -50,8 +54,6 @@ const BakeryDetail = () => {
             const jsonValue = await getLocalStorage('orderData');
             const data: OrderItemType = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
-
-            console.log("Data: ", orderData);
 
             const mappedOrderDetail = data?.items.map((item: any) => {
                 const product = bakeryDetail?.bakery.product.find(prod => prod.productId === item.productId);
@@ -91,6 +93,13 @@ const BakeryDetail = () => {
         if (bakeryDetail) {
             fetchOrderData();
         }
+
+        if (bakeryDetail?.bakery?.favorite) {
+            const isFavorited = bakeryDetail.bakery.favorite.some(
+                (fav) => fav.userId === userData?.userId
+            );
+            setShowFavorite(isFavorited);
+        }
     }, [bakeryDetail]);
 
     useFocusEffect(
@@ -114,6 +123,27 @@ const BakeryDetail = () => {
             .catch((err) => console.error('An error occurred', err));
     }
 
+    const toggleFavorite = async (bakeryId: number) => {
+        const favoriteItem = bakeryDetail?.bakery.favorite.find(
+            (fav) => fav.userId === userData?.userId
+        )
+
+        try {
+            if (favoriteItem) {
+                await favoriteApi().removeFavorite(favoriteItem.favoriteId);
+            } else {
+                await favoriteApi().addFavorite({
+                    userId: userData?.userId,
+                    bakeryId: bakeryId,
+                });
+            }
+
+            handleGetBakeryByIdApi();
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     return (
         <View className="flex-1 bg-background">
 
@@ -125,6 +155,7 @@ const BakeryDetail = () => {
                 <TouchableOpacity
                     onPress={() => {
                         setShowFavorite(!showFavorite);
+                        toggleFavorite(bakeryDetail?.bakery.bakeryId as number);
                     }}
                 >
                     {
@@ -145,118 +176,119 @@ const BakeryDetail = () => {
                 </TouchableOpacity>
             </View>
 
-            <ScrollView className="px-5">
+            <ScrollView>
 
-                <View className='rounded-lg'>
-                    <LargeImage
-                        image={{ uri: bakeryDetail?.bakery.bakeryImage as string }}
-                    />
-                </View>
+                <View className="mx-5">
 
-                <View className="mt-5">
-                    <View className='flex-row justify-between items-start w-full'>
-                        <View className='w-1/2'>
-                            <View className='flex-row mb-2'>
-                                <Ionicons name="location-sharp" size={14} style={{ marginRight: 5 }} />
-                                <View>
-                                    <TextTitle5 label={bakeryDetail?.bakery?.bakeryAddress as string} />
+                    <View className='rounded-lg'>
+                        <LargeImage
+                            image={{ uri: bakeryDetail?.bakery.bakeryImage as string }}
+                        />
+                    </View>
+
+                    <View className="mt-5">
+                        <View className='flex-row justify-between items-start w-full'>
+                            <View className='w-1/2'>
+                                <View className='flex-row mb-2'>
+                                    <Ionicons name="location-sharp" size={14} style={{ marginRight: 5 }} />
+                                    <View>
+                                        <TextTitle5 label={bakeryDetail?.bakery?.bakeryAddress as string} />
+                                    </View>
                                 </View>
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        router.push({
+                                            pathname: "/bakery/ratingBakeryCustomer" as any,
+                                            params: { bakeryId, bakeryName: bakeryDetail?.bakery.bakeryName as string },
+                                        })
+                                    }>
+                                    <TextRating
+                                        rating={bakeryDetail?.prevRating.averageRating || "0"}
+                                        reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
+                                    />
+                                </TouchableOpacity>
                             </View>
-                            <TouchableOpacity 
-                                onPress={() =>
-                                    router.push({
-                                        pathname: "/bakery/ratingBakeryCustomer" as any,
-                                        params: { bakeryId, bakeryName: bakeryDetail?.bakery.bakeryName as string },
-                                    })
-                                }>
-                                <TextRating
-                                    rating={bakeryDetail?.prevRating.averageRating || "0"}
-                                    reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
+
+                            <View>
+                                <CustomClickableButton
+                                    label={"Hubungi Bakeri"}
+                                    handlePress={() => handleContactSeller(bakeryDetail?.bakery.bakeryPhoneNumber as string)}
+                                    isLoading={isSubmitting}
+                                    icon="whatsapp"
+                                    iconColor='#25D366'
                                 />
-                            </TouchableOpacity>
+                            </View>
                         </View>
+
+                        <View className='mt-3'>
+                            <TextTitle4 label={"Deskripsi Toko"} />
+                            <TextTitle5 label={bakeryDetail?.bakery.bakeryDescription as string} />
+                        </View>
+
+                        <View className='mt-3'>
+                            <TextTitle4 label={"Jam Operasional:"} />
+                            <TextTitle5 label={`${bakeryDetail?.bakery.openingTime} - ${bakeryDetail?.bakery.closingTime}`} />
+                        </View>
+
+                        <View className="h-px bg-gray-200 my-4" />
 
                         <View>
-                            <CustomClickableButton
-                                label={"Hubungi Bakeri"}
-                                handlePress={() => handleContactSeller(bakeryDetail?.bakery.bakeryPhoneNumber as string)}
-                                isLoading={isSubmitting}
-                                icon="whatsapp"
-                                iconColor='#25D366'
-                            />
+                            <TextTitle3 label={"Produk Bakeri"} />
                         </View>
                     </View>
-
-                    <View className='mt-3'>
-                        <TextTitle3 label={"Deskripsi Toko"} />
-                        <TextTitle5 label={bakeryDetail?.bakery.bakeryDescription as string} />
-                    </View>
-
-                    <View className='mt-3'>
-                        <TextTitle5Bold label={"Jam Operasional:"} />
-                        <TextTitle5 label={`${bakeryDetail?.bakery.openingTime} - ${bakeryDetail?.bakery.closingTime}`} />
-                    </View>
-
-                    <View className="h-px bg-gray-200 my-4" />
-
-                    <View>
-                        <TextTitle3 label={"Produk Bakeri"} />
-                    </View>
-
-                    {
-                        bakeryDetail?.bakery?.product.length !== 0 ? (
-                            <View
-                                style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
-                                className='mt-3'
-                            >
-                                {bakeryDetail?.bakery?.product.map((product) => (
-                                    <View
-                                        key={product.productId}
-                                        className='pb-5 w-[50%]'
-                                    >
-                                        <ProductCardBakery
-                                            product={product}
-                                            onPress={() =>
-                                                router.push({
-                                                    pathname: '/bakery/inputOrder',
-                                                    params: {
-                                                        productId: product.productId
-                                                    }
-                                                })
-                                            }
-                                        />
-                                    </View>
-                                ))}
-                            </View>
-                        ) : (
-                            <View className="flex-1 items-center justify-center my-10">
-                                <Image
-                                    source={icons.bakeBread}
-                                    style={{
-                                        width: 60,
-                                        height: 60,
-                                        marginBottom: 10,
-                                        tintColor: "#828282",
-                                    }}
-                                    resizeMode="contain"
-                                />
-                                <Text
-                                    style={{
-                                        color: "#828282",
-                                        fontFamily: "poppinsRegular",
-                                        fontSize: 14,
-                                        textAlign: "center",
-                                        marginInline: 40
-                                    }}
-                                >
-                                    Bakeri ini sedang tidak menjual produk, silakan coba lagi nanti
-                                </Text>
-                            </View>
-                        )
-                    }
-
-
                 </View>
+
+                {
+                    bakeryDetail?.bakery?.product.length !== 0 ? (
+                        <View
+                            style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-evenly' }}
+                            className='mt-3'
+                        >
+                            {bakeryDetail?.bakery?.product.map((product) => (
+                                <View
+                                    key={product.productId}
+                                    className='pb-5'
+                                >
+                                    <ProductCardBakery
+                                        product={product}
+                                        onPress={() =>
+                                            router.push({
+                                                pathname: '/bakery/inputOrder',
+                                                params: {
+                                                    productId: product.productId
+                                                }
+                                            })
+                                        }
+                                    />
+                                </View>
+                            ))}
+                        </View>
+                    ) : (
+                        <View className="flex-1 items-center justify-center my-10">
+                            <Image
+                                source={icons.bakeBread}
+                                style={{
+                                    width: 60,
+                                    height: 60,
+                                    marginBottom: 10,
+                                    tintColor: "#828282",
+                                }}
+                                resizeMode="contain"
+                            />
+                            <Text
+                                style={{
+                                    color: "#828282",
+                                    fontFamily: "poppinsRegular",
+                                    fontSize: 14,
+                                    textAlign: "center",
+                                    marginInline: 40
+                                }}
+                            >
+                                Bakeri ini sedang tidak menjual produk, silakan coba lagi nanti
+                            </Text>
+                        </View>
+                    )
+                }
 
             </ScrollView>
 
