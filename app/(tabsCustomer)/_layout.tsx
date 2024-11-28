@@ -1,21 +1,21 @@
-import React, { useRef, useEffect } from "react";
+import React, { useState, useTransition } from "react";
 import { router, Tabs, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 const TabsCustomerLayout = () => {
   const currentPath = usePathname();
-  const lastNavigatedPath = useRef(currentPath);
-
-  useEffect(() => {
-    lastNavigatedPath.current = currentPath;
-  }, [currentPath]);
+  const [isPending, startTransition] = useTransition();
 
   const handleTabPress = (e: any, targetPath: any) => {
-    if (lastNavigatedPath.current !== targetPath) {
-      e.preventDefault();
-      lastNavigatedPath.current = targetPath;
-      router.replace(targetPath);
+    e.preventDefault();
+
+    if (currentPath === targetPath) {
+      return;
     }
+
+    startTransition(() => {
+      router.replace(targetPath);
+    });
   };
 
   return (
@@ -59,7 +59,7 @@ const TabsCustomerLayout = () => {
           ),
         }}
         listeners={{
-          tabPress: (e) => handleTabPress(e, "/(tabsCustomer)/order"),
+          tabPress: (e) => handleTabPress(e, "/order"),
         }}
       />
       <Tabs.Screen
@@ -71,7 +71,7 @@ const TabsCustomerLayout = () => {
           ),
         }}
         listeners={{
-          tabPress: (e) => handleTabPress(e, "/(tabsCustomer)/profile/profilePage"),
+          tabPress: (e) => handleTabPress(e, "/profile"),
         }}
       />
     </Tabs>

@@ -89,7 +89,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
 
     const signUp = async (data: object) => {
-        console.log("Testtttt");
         setIsLoading(true);
         try {
             const response = await authenticationApi().signUp(data);
@@ -131,7 +130,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
             const parsedUserData = JSON.parse(updatedUserData || "{}");
             if (parsedUserData) {
                 setUserData(parsedUserData);
-                console.log("PARSED USER DATA", parsedUserData);
               } else {
                 console.error("No user data found after refresh");
               }

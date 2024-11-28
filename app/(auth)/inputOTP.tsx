@@ -113,10 +113,6 @@ const InputOTP = () => {
 
                 <View style={{ height: insets.top }} />
 
-                {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
-                    <Toast topOffset={50} />
-                </View> */}
-
                 <View className="flex-row items-center justify-between w-full space-x-4">
                     <BackButton />
                     <View className="flex-1 mx-2">
