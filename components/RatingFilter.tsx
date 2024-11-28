@@ -3,8 +3,8 @@ import { View, TouchableOpacity, Text, ScrollView } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
 interface RatingFilterProps {
-  selectedStar: string | number | null;
-  setSelectedStar: React.Dispatch<React.SetStateAction<string | number | null>>;
+  selectedStar: string | number;
+  setSelectedStar: React.Dispatch<React.SetStateAction<string | number>>;
 }
 
 const RatingFilter: React.FC<RatingFilterProps> = ({
@@ -22,7 +22,7 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
       }}
     >
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {[null, 5, 4, 3, 2, 1].map((starValue) => (
+        {["all", 5, 4, 3, 2, 1].map((starValue) => (
           <TouchableOpacity
             key={starValue}
             onPress={() => {
