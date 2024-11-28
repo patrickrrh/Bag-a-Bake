@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { icons } from '@/constants/icons';
 import { images } from '@/constants/images';
 import TextEllipsis from './TextEllipsis';
+import TextRating from './texts/TextRating';
 
 interface Props {
     item: any;
@@ -24,7 +25,7 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
 
     return (
         <TouchableOpacity
-            className="bg-white rounded-lg shadow-sm mb-4 p-4"
+            className="bg-white rounded-lg shadow-sm mb-5 p-4"
             onPress={onPress}
         >
             <View className="flex-row items-start justify-between">
@@ -45,9 +46,14 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
                             </TouchableOpacity>
                         </View>
 
-                        <View className="flex-col mt-2">
+                        <TextRating
+                            rating={item.rating.averageRating || "0"}
+                            reviewCount={item.rating.reviewCount || "0"}
+                        />
+
+                        <View className="flex-col mt-1">
                             <TextTitle5Gray label={`Jarak: ${item.distanceInKm} km`} />
-                            <View className="flex-row items-start mt-2">
+                            <View className="flex-row items-start mt-1">
                                 <Ionicons name="location-sharp" size={12} color="black" style={{ marginRight: 5 }} />
                                 <View style={{ flex: 1, paddingRight: 20 }}>
                                     <TextEllipsis label={item.bakeryAddress} />

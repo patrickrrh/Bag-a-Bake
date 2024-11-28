@@ -22,7 +22,7 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
       }}
     >
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {["all", 5, 4, 3, 2, 1].map((starValue) => (
+        {["Semua", 5, 4, 3, 2, 1].map((starValue) => (
           <TouchableOpacity
             key={starValue}
             onPress={() => {

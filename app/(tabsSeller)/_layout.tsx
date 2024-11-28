@@ -19,6 +19,7 @@ const TabsSellerLayout = () => {
         name='order'
         options={{
           title: 'Pesanan',
+
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'bag' : 'bag-outline'} color={color} size={18} />
           ),

@@ -29,7 +29,7 @@ const CategoryCard: React.FC<Props> = ({ label, image, onPress }) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className={`w-20 h-28 mr-2 flex-col items-center justify-center rounded-lg bg-brown`}
+      className={`w-20 h-28 mr-2 flex-col shadow-sm items-center justify-center rounded-lg bg-brown`}
     >
       <Image
         source={getIcon()}
