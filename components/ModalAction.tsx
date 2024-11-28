@@ -22,6 +22,7 @@ const ModalAction: React.FC<ModalActionProps> = ({
   onPrimaryAction,
   onSecondaryAction,
 }) => {
+
   return (
     <Modal
       visible={modalVisible}
@@ -42,8 +43,7 @@ const ModalAction: React.FC<ModalActionProps> = ({
             width: "80%",
             paddingTop: 30,
             paddingBottom: 30,
-            paddingLeft: 20,
-            paddingRight: 20,
+            paddingInline: 20,
             backgroundColor: "#FFFFFF",
             borderRadius: 10,
             shadowColor: "#000",
@@ -68,7 +68,6 @@ const ModalAction: React.FC<ModalActionProps> = ({
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
-              paddingHorizontal: 10,
             }}
           >
             <ModalActionButton

@@ -85,24 +85,19 @@ const SignUpPaymentInfo = () => {
         setError((prevError) => ({ ...prevError, paymentMethod: null }));
 
         const updatedMethods = selectedMethods.includes(method)
-            ? selectedMethods.filter((m) => m !== method)  // Deselect if already selected
-            : [...selectedMethods, method];  // Add to selected if not selected
+            ? selectedMethods.filter((m) => m !== method)
+            : [...selectedMethods, method];
 
-        // Update the selected methods
         setSelectedMethods(updatedMethods);
 
-        // Update the payment methods form
         setForm((prevForm) => {
             const existingMethods = prevForm.paymentMethods || [];
             const updatedMethodsList = updatedMethods.map((method) => {
-                // Handle QRIS method without needing to worry about payment details here
                 if (method === 'QRIS') {
                     const existingQRIS = existingMethods.find((entry) => entry.paymentMethod === 'QRIS');
-                    // If QRIS already exists, don't reset it, else initialize it
                     return existingQRIS || { paymentMethod: 'QRIS', paymentService: 'QRIS', paymentDetail: '' };
                 }
 
-                // For other methods, find or initialize their data
                 const existing = existingMethods.find((entry) => entry.paymentMethod === method);
                 return existing || { paymentMethod: method, paymentService: '', paymentDetail: '' };
             });

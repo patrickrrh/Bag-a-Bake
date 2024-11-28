@@ -5,7 +5,7 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle5Date from '@/components/texts/TextTitle5Date';
 import BackButton from '@/components/BackButton';
 import TextTitle5 from '@/components/texts/TextTitle5';
-import { convertPhoneNumberFormat, formatDate, formatDatewithtime, formatRupiah, setLocalStorage } from '@/utils/commonFunctions';
+import { calculateValidPaymentTime, convertPhoneNumberFormat, formatDate, formatDatewithtime, formatRupiah, setLocalStorage } from '@/utils/commonFunctions';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import CustomButton from '@/components/CustomButton';
 import ContactButton from '@/components/ContactButton';
@@ -26,6 +26,8 @@ import TextDiscount from '@/components/texts/TextDiscount';
 import ImageView from "react-native-image-viewing";
 import { handleDownloadImage } from '@/utils/mediaUtils';
 import Toast from 'react-native-toast-message';
+import ModalAction from '@/components/ModalAction';
+import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
 
 const OrderDetail = () => {
 
@@ -37,6 +39,7 @@ const OrderDetail = () => {
   const [isSubmitting, setisSubmitting] = useState(false);
   const [paymentInfoModal, setPaymentInfoModal] = useState(false);
   const [isPreviewPayment, setIsPreviewPayment] = useState(false);
+  const [cancelOrderModal, setCancelOrderModal] = useState(false);
 
   const handleActionOrder = async (orderStatus: number) => {
     try {
@@ -50,9 +53,6 @@ const OrderDetail = () => {
       if (orderStatus === 2) {
         payload.paymentStartedAt = new Date().toISOString();
       }
-
-      console.log("masuk sini gak")
-      console.log("payload", payload)
 
       const response = await orderSellerApi().actionOrder(payload)
       if (response.status === 200) {
@@ -70,7 +70,7 @@ const OrderDetail = () => {
 
   const handleCancelOrder = async () => {
     try {
-      setisSubmitting(true)
+      setisSubmitting(true);
 
       const response = await orderSellerApi().cancelOrder({
         orderId: orderData.orderId
@@ -103,6 +103,8 @@ const OrderDetail = () => {
       .catch((err) => console.error('An error occurred', err));
   }
 
+  console.log("is masuk halaman")
+
   return (
     <View className='bg-background h-full flex-1'>
 
@@ -112,31 +114,32 @@ const OrderDetail = () => {
         <Toast topOffset={50} />
       </View>
 
-      <ScrollView>
-        <View className='mx-5 flex-row items-start'>
-          <TouchableOpacity
-            onPress={() => {
-              router.replace({
-                pathname: '/order',
-              })
-              setLocalStorage('orderSellerParams', JSON.stringify({ status: orderData.orderStatus }))
-            }}
-            activeOpacity={0.7}
-            style={{ width: 10, height: 24 }}
-          >
-            <FontAwesome
-              name="angle-left"
-              size={24}
-              color="#000"
-            />
-          </TouchableOpacity>
-          <View className='flex-1 items-center pr-3'>
-            <TextTitle3 label={`#${orderData.orderId}`} />
-            <TextTitle5Date label={formatDatewithtime(orderData.orderDate)} />
-          </View>
+      <View className='mx-5 mb-5 flex-row items-start'>
+        <TouchableOpacity
+          onPress={() => {
+            router.replace({
+              pathname: '/order',
+            })
+            setLocalStorage('orderSellerParams', JSON.stringify({ status: orderData.orderStatus }))
+          }}
+          activeOpacity={0.7}
+          style={{ width: 10, height: 24 }}
+        >
+          <FontAwesome
+            name="angle-left"
+            size={24}
+            color="#000"
+          />
+        </TouchableOpacity>
+        <View className='flex-1 items-center pr-3'>
+          <TextTitle3 label={`#${orderData.orderId}`} />
+          <TextTitle5Date label={formatDatewithtime(orderData.orderDate)} />
         </View>
+      </View>
 
-        <View className='p-5 gap-y-3 mt-5 bg-white'>
+      <ScrollView>
+
+        <View className='p-5 gap-y-3 bg-white'>
           <TextTitle3 label="Data Pembeli" />
           <View className='flex-row justify-between'>
             <TextTitle5 label="Nama Penerima" />
@@ -227,8 +230,11 @@ const OrderDetail = () => {
                     />
                   </View>
                 ) : (
-                  <View style={{ marginTop: 10 }}>
-                    <TextTitle5Gray label="Pembeli belum mengirimkan bukti pembayaran" />
+                  <View className='flex-row mt-3'>
+                    <View className='mr-1'>
+                      <TextTitle5Gray label={`Pembeli harus membayar sebelum`} />
+                    </View>
+                    <TextTitle5Bold label={calculateValidPaymentTime(orderData.paymentStartedAt)} color='#FA6F33' />
                   </View>
                 )
               }
@@ -246,40 +252,30 @@ const OrderDetail = () => {
               />
               <ContactButton
                 label="Tolak Pesanan"
-                handlePress={() => handleActionOrder(5)}
+                handlePress={() => setCancelOrderModal(true)}
                 buttonStyles='mt-3'
                 isLoading={isSubmitting}
               />
             </View>
-          ) : orderData.orderStatus === 2 ? (
+          ) : (orderData.orderStatus === 2 && orderData.proofOfPayment ) ? (
             <View className='mx-5 my-5'>
               <CustomButton
                 label="Konfirmasi Pembayaran"
                 handlePress={() => handleActionOrder(3)}
                 isLoading={isSubmitting}
               />
-              {
-                orderData.proofOfPayment && (
-                  <ContactButton
-                    label="Batalkan Pesanan"
-                    handlePress={() => handleCancelOrder()}
-                    buttonStyles='mt-3'
-                    isLoading={isSubmitting}
-                  />
-                )
-              }
+              <ContactButton
+                label="Batalkan Pesanan"
+                handlePress={() => setCancelOrderModal(true)}
+                buttonStyles='mt-3'
+                isLoading={isSubmitting}
+              />
             </View>
           ) : orderData.orderStatus === 3 && (
             <View className='mx-5 my-5'>
               <CustomButton
                 label="Selesaikan Pesanan"
                 handlePress={() => handleActionOrder(4)}
-                isLoading={isSubmitting}
-              />
-              <ContactButton
-                label="Hubungi Pembeli"
-                handlePress={() => handleContactBuyer(orderData.user.userPhoneNumber)}
-                buttonStyles='mt-3'
                 isLoading={isSubmitting}
               />
             </View>
@@ -296,6 +292,18 @@ const OrderDetail = () => {
             />
           )
         }
+
+        <ModalAction
+          modalVisible={cancelOrderModal}
+          setModalVisible={setCancelOrderModal}
+          title="Apakah Anda yakin ingin membatalkan pesanan ini?"
+          primaryButtonLabel="Kembali"
+          secondaryButtonLabel="Batalkan Pesanan"
+          onPrimaryAction={() => { setCancelOrderModal(false) }}
+          onSecondaryAction={() => {
+            handleCancelOrder();
+          }}
+        />
       </ScrollView>
 
     </View>

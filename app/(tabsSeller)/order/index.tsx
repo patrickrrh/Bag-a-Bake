@@ -37,6 +37,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { printPDF } from "@/utils/printUtils";
 import TextTitle3 from "@/components/texts/TextTitle3";
 import { icons } from "@/constants/icons";
+import ModalAction from "@/components/ModalAction";
 
 const Order = () => {
   const { userData } = useAuth();
@@ -46,6 +47,8 @@ const Order = () => {
   const hasManualSelection = useRef(false);
   const [order, setOrder] = useState<OrderType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [orderItemId, setOrderItemId] = useState(0);
+  const [cancelOrderModal, setCancelOrderModal] = useState(false);
 
   const handleSelectStatus = (status: number) => {
     setSelectedStatus(status);
@@ -77,6 +80,9 @@ const Order = () => {
         const data = await getLocalStorage("orderSellerParams");
         if (data) {
           const parsedData = JSON.parse(data);
+          if (parsedData.status === 5) {
+            parsedData.status = 4;
+          }
           setSelectedStatus(parsedData.status);
         }
       };
@@ -92,9 +98,11 @@ const Order = () => {
     }, [])
   );
 
-  useEffect(() => {
-    handleGetAllOrderByStatusApi();
-  }, [selectedStatus]);
+  useFocusEffect(
+    useCallback(() => {
+      handleGetAllOrderByStatusApi();
+    }, [selectedStatus])
+  )
 
   const handleActionOrder = async (orderId: number, orderStatus: number) => {
     try {
@@ -176,16 +184,16 @@ const Order = () => {
             </thead>
             <tbody>
               ${orderItem.orderDetail
-                .map(
-                  (item) => `
+        .map(
+          (item) => `
                 <tr>
                   <td>${item.product.productName}</td>
                   <td>${item.productQuantity}</td>
                   <td>${formatRupiah(item.totalDetailPrice)}</td>
                 </tr>
               `
-                )
-                .join("")}
+        )
+        .join("")}
             </tbody>
           </table>
           <div class="total-container">
@@ -258,10 +266,10 @@ const Order = () => {
                 {selectedStatus === 1
                   ? "Anda tidak memiliki pesanan baru"
                   : selectedStatus === 2
-                  ? "Anda tidak memiliki pesanan dalam proses pembayaran"
-                  : selectedStatus === 3
-                  ? "Anda tidak memiliki pesanan berlangsung"
-                  : "Anda belum memiliki riwayat pesanan"}
+                    ? "Anda tidak memiliki pesanan dalam proses pembayaran"
+                    : selectedStatus === 3
+                      ? "Anda tidak memiliki pesanan berlangsung"
+                      : "Anda belum memiliki riwayat pesanan"}
               </Text>
             </View>
           ) : (
@@ -278,7 +286,7 @@ const Order = () => {
                       });
                     }}
                     onAccept={() => handleActionOrder(item.orderId, 2)}
-                    onReject={() => handleActionOrder(item.orderId, 5)}
+                    onReject={() => { setCancelOrderModal(true); setOrderItemId(item.orderId) }}
                   />
                 ) : (
                   <SellerOrderCard
@@ -300,6 +308,16 @@ const Order = () => {
           )}
         </View>
       </View>
+
+      <ModalAction
+        modalVisible={cancelOrderModal}
+        setModalVisible={setCancelOrderModal}
+        title="Apakah Anda yakin ingin membatalkan pesanan ini?"
+        primaryButtonLabel="Kembali"
+        secondaryButtonLabel="Batalkan Pesanan"
+        onPrimaryAction={() => setCancelOrderModal(false)}
+        onSecondaryAction={() => handleActionOrder(orderItemId, 5)}
+      />
     </View>
   );
 };

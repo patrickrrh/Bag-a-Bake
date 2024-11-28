@@ -10,7 +10,7 @@ const LargeImage: React.FC<Props> = ({ image }) => {
         <Image
             source={image}
             resizeMode='cover'
-            className='w-full h-40 px-5'
+            className='w-full h-40'
         />
     )
 }

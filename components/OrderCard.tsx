@@ -8,6 +8,7 @@ import { images } from '@/constants/images';
 import TextTitle5Gray from './texts/TextTitle5Gray';
 import { icons } from '@/constants/icons';
 import { formatDate, formatRupiah } from '@/utils/commonFunctions';
+import CustomTagOrderStatus from './CustomTagOrderStatus';
 
 type Props = {
   item: any;
@@ -34,9 +35,18 @@ const OrderCard: React.FC<Props> = ({ item, onPress }) => {
             </View>
             <TextRating rating={item.prevRating.averageRating} reviewCount={item.prevRating.reviewCount} containerStyle='mb-1' />
             <TextTitle5 label={`Jumlah: ${item.totalOrderQuantity} item`} />
-            <View className='items-end'>
-              <TextTitle4 label={formatRupiah(item.totalOrderPrice)} />
-            </View>
+            {
+              item.orderStatus === 5 ? (
+                <View className="flex-row justify-between items-center">
+                  <CustomTagOrderStatus status={item.orderStatus} />
+                  <TextTitle4 label={formatRupiah(item.totalOrderPrice)} />
+                </View>
+              ) : (
+                <View className='items-end'>
+                  <TextTitle4 label={formatRupiah(item.totalOrderPrice)} />
+                </View>
+              )
+            }
           </View>
         </View>
       </View>

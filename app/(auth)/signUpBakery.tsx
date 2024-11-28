@@ -15,7 +15,6 @@ import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
 import { useAuth } from '@/app/context/AuthContext'
 import CustomDropdown from '@/components/CustomDropdown'
-import regionApi from '@/api/regionApi';
 import { checkEmptyForm } from '@/utils/commonFunctions'
 import TextAreaField from '@/components/TextAreaField'
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -41,11 +40,9 @@ type ErrorState = {
 };
 
 const SignUpBakery = () => {
-  const { signUp } = useAuth();
-  const GOOGLE_MAPS_API_KEY = process.env
-    .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
-    // const { userName, userPhoneNumber, email, password, userImage, roleId, pushToken } = useLocalSearchParams();
+  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
+
     const { prevForm } = useLocalSearchParams();
     const parsedPrevForm = prevForm && typeof prevForm === 'string' ? JSON.parse(prevForm) : {};
 
@@ -76,9 +73,7 @@ const SignUpBakery = () => {
 
   const [isSubmitting, setisSubmitting] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [timeFieldType, setTimeFieldType] = useState<
-    "openingTime" | "closingTime"
-  >("openingTime");
+  const [timeFieldType, setTimeFieldType] = useState<"openingTime" | "closingTime">("openingTime");
 
     useEffect(() => {
         setForm((prevForm) => ({

@@ -1,4 +1,4 @@
-import { View, TextInput, TouchableOpacity, Image, Text } from 'react-native'
+import { View, TextInput, TouchableOpacity, Image, Text, KeyboardAvoidingView, TouchableWithoutFeedback } from 'react-native'
 import React, { useState } from 'react'
 import TextFormLabel from './texts/TextFormLabel'
 import { images } from '@/constants/images'

@@ -34,6 +34,7 @@ import ModalAction from "@/components/ModalAction";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ModalInformation from "@/components/ModalInformation";
+import { showToast } from "@/utils/toastUtils";
 
 type ErrorState = {
   productName: string | null;
@@ -44,10 +45,6 @@ type ErrorState = {
   discount: string | null;
   productStock: string | null;
   productImage: string | null;
-};
-
-type RouteParams = {
-  productId: number;
 };
 
 type DiscountItem = {
@@ -89,7 +86,6 @@ const EditProduct = () => {
 
   const [error, setError] = useState<ErrorState>(productError);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
@@ -167,9 +163,9 @@ const EditProduct = () => {
       if (response.error) {
         throw new Error(response.error);
       }
-      setModalVisible(true);
-      console.log("Response:", response);
-      console.log("Form submitted:", formData);
+      
+      showToast("success", "Produk berhasil diperbarui!");
+      router.back();
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -381,7 +377,7 @@ const EditProduct = () => {
         }}
       />
 
-      <View className="flex-row items-center px-4 pb-2 relative">
+      <View className="flex-row items-center px-4 mb-5 relative">
         {/* Back Button */}
         <View className="pl-5">
           <BackButton />
@@ -411,7 +407,7 @@ const EditProduct = () => {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           {/* Preview Upload Photo */}
-          <View className="mt-4 items-center">
+          <View className="items-center">
             {form.productImage ? (
               <Image
                 source={{ uri: form.productImage }}
@@ -422,11 +418,11 @@ const EditProduct = () => {
               <View className="w-48 h-48 bg-gray-200 rounded-md" />
             )}
           </View>
-          <View className="mt-4 w-full items-center">
+          <View className="mb-4 w-full items-center">
             {error.productImage && <ErrorMessage label={error.productImage} />}
           </View>
           {/* Upload Photo Button */}
-          <View className="mt-4 w-full items-center">
+          <View className="w-full items-center">
             <UploadButton
               label="Unggah Foto"
               handlePress={() => {
@@ -440,7 +436,7 @@ const EditProduct = () => {
           <FormField
             label="Nama Produk"
             value={form.productName}
-            placeholder="Roti Ayam"
+            placeholder="Roti keju"
             onChangeText={(text) => {
               setForm({ ...form, productName: text });
               setError((prevError) => ({ ...prevError, productName: null }));
@@ -453,7 +449,7 @@ const EditProduct = () => {
           <TextAreaField
             label="Deskripsi Produk"
             value={form.productDescription}
-            placeholder="Roti Ayam merupakan roti lezat yang terbuat dari ayam..."
+            placeholder="Roti yang dibuat menggunakan keju premium..."
             onChangeText={(text) => {
               setForm({ ...form, productDescription: text });
               setError((prevError) => ({
@@ -507,7 +503,6 @@ const EditProduct = () => {
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "flex-start",
-                marginBottom: 10,
               }}
             >
               <TextFormLabel label="Harga Jual" />
@@ -663,22 +658,6 @@ const EditProduct = () => {
         />
       )}
 
-      {modalVisible && (
-        <ModalAction
-          setModalVisible={setModalVisible}
-          modalVisible={modalVisible}
-          title="Produk berhasil diperbarui!"
-          primaryButtonLabel="Lanjut Sunting Produk"
-          secondaryButtonLabel="Kembali ke Daftar Produk"
-          onPrimaryAction={() => {
-            console.log("Edit Product");
-          }}
-          onSecondaryAction={() => {
-            router.push("/product");
-          }}
-        />
-      )}
-
       {isDeleteModalVisible && (
         <ModalAction
           setModalVisible={setDeleteModalVisible}
@@ -689,9 +668,7 @@ const EditProduct = () => {
           onSecondaryAction={() => {
             handleDeleteProduct();
           }}
-          onPrimaryAction={() => {
-            // setDeleteModalVisible(false);
-          }}
+          onPrimaryAction={() => { }}
         />
       )}
     </View>

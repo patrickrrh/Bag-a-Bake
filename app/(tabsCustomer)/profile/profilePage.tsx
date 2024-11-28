@@ -19,7 +19,6 @@ import { router, Href } from "expo-router";
 import TextHeader from "@/components/texts/TextHeader";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
-import regionApi from "@/api/regionApi";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
 import { checkEmptyForm } from "@/utils/commonFunctions";
@@ -212,31 +211,36 @@ const ProfilePage = () => {
         }}
       />
 
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+      {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
         <Toast topOffset={50} />
+      </View> */}
+
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 20,
+          marginBottom: 20,
+          position: "relative",
+        }}
+      >
+        <TextHeader label="Profil Saya" />
+
+        <TouchableOpacity
+          style={{ position: "absolute", right: 20 }}
+          onPress={() => setLogoutModalVisible(true)}
+        >
+          <Ionicons name="log-out-outline" size={24} color="#b0795a" />
+        </TouchableOpacity>
       </View>
+
 
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
 
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <TextHeader label="Profil Saya" />
 
-            <TouchableOpacity
-              onPress={() => setLogoutModalVisible(true)}
-              style={{ position: "absolute", right: 0 }}
-            >
-              <Ionicons name="log-out-outline" size={24} color="#b0795a" />
-            </TouchableOpacity>
-          </View>
-
-          <View className="mt-4 w-full items-center" style={{ marginTop: 40 }}>
+          <View className="w-full items-center">
             <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
               <Image
                 source={{ uri: form.userImage }}

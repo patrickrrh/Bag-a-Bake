@@ -6,12 +6,10 @@ import CustomButton from '@/components/CustomButton';
 import FormField from '@/components/FormField';
 import UploadButton from '@/components/UploadButton';
 import { Picker } from '@react-native-picker/picker';
-import TabsSellerLayout from './_layout';
 import { images } from '@/constants/images';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
 import TextTitle5Gray from '@/components/texts/TextTitle5Gray';
-import { useAuth } from '../context/AuthContext';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import TextLink from '@/components/texts/TextLink';
 import SellerOrderCard from '@/components/SellerOrderCard';
@@ -21,7 +19,10 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { router, useFocusEffect } from 'expo-router';
 import { OrderType } from '@/types/types';
 import { setLocalStorage } from '@/utils/commonFunctions';
-import { sendNotification } from '@/utils/notificationUtils';
+import CustomClickableButton from '@/components/CustomClickableButton';
+import TextTitle5 from '@/components/texts/TextTitle5';
+import { useAuth } from '@/app/context/AuthContext';
+import ModalAction from '@/components/ModalAction';
 
 const Home = () => {
 
@@ -36,6 +37,8 @@ const Home = () => {
   const [latestPendingOrderCount, setLatestPendingOrderCount] = useState(null);
   const [latestPaymentOrderCount, setLatestPaymentOrderCount] = useState(null);
   const [latestOngoingOrderCount, setLatestOngoingOrderCount] = useState(null);
+
+  const [cancelOrderModal, setCancelOrderModal] = useState(false);
 
   const handleGetLatestPendingOrderApi = async () => {
     try {
@@ -134,23 +137,12 @@ const Home = () => {
         handleCountAllPendingOrderApi();
         handleCountAllPaymentOrderApi();
         handleCountAllOngoingOrderApi();
-
-        if (latestPendingOrder?.userId) {
-          const message = orderStatus === 2 
-            ? `Pesanan #${latestPendingOrder?.orderId} Anda telah diterima.` 
-            : `Pesanan #${latestPendingOrder?.orderId} Anda telah dibatalkan.`;
-          
-            sendNotification(
-              'Status Pesanan Diperbarui',
-              message
-            )
-        }
       }
     } catch (error) {
       console.log(error)
     }
   }
-  
+
   const onRefresh = () => {
     setRefreshing(true);
     setTimeout(() => {
@@ -172,7 +164,7 @@ const Home = () => {
       handleCountAllPendingOrderApi();
       handleCountAllPaymentOrderApi();
       handleCountAllOngoingOrderApi();
-  }, []))
+    }, []))
 
   return (
     <View className="flex-1 px-5 bg-background h-full">
@@ -205,6 +197,24 @@ const Home = () => {
               <TextTitle5Gray label={userData?.userName || ''} />
             </View>
           </View>
+
+          <TouchableOpacity
+            onPress={() => {
+              router.push({
+                pathname: "/home/ratingBakerySeller" as any,
+                params: { bakeryId: userData?.bakery?.bakeryId, bakeryName: userData?.bakery.bakeryName as string },
+              })
+            }}
+            className={`justify-center items-center px-2 py-1 rounded border border-orange`}
+          >
+            <View className="flex-row items-center">
+              <View className="mr-2" style={{ paddingVertical: 2 }}>
+                <FontAwesome name="star" size={14} color="#FA6F33" />
+              </View>
+              <TextTitle5 label="Penilaian Bakeri" />
+            </View>
+
+          </TouchableOpacity>
         </View>
 
         <View className='pb-5'>
@@ -237,7 +247,7 @@ const Home = () => {
                       params: { order: JSON.stringify(latestPendingOrder) }
                     })
                   }}
-                  onReject={() => handleActionOrder(5)}
+                  onReject={() => { setCancelOrderModal(true); }}
                   onAccept={() => handleActionOrder(2)}
                 />
               ) : (
@@ -326,6 +336,17 @@ const Home = () => {
           </View>
         </View>
       </ScrollView>
+
+      <ModalAction
+        modalVisible={cancelOrderModal}
+        setModalVisible={setCancelOrderModal}
+        title="Apakah Anda yakin ingin membatalkan pesanan ini?"
+        primaryButtonLabel="Kembali"
+        secondaryButtonLabel="Batalkan Pesanan"
+        onPrimaryAction={() => setCancelOrderModal(false)}
+        onSecondaryAction={() => handleActionOrder(5)}
+      />
+
     </View>
   );
 };

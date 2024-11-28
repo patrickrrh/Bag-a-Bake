@@ -5,13 +5,11 @@ import { FontAwesome } from "@expo/vector-icons";
 interface RatingFilterProps {
   selectedStar: string | number | null;
   setSelectedStar: React.Dispatch<React.SetStateAction<string | number | null>>;
-  handleGetRatings: (starValue: string | number | null) => void;
 }
 
 const RatingFilter: React.FC<RatingFilterProps> = ({
   selectedStar,
   setSelectedStar,
-  handleGetRatings,
 }) => {
   return (
     <View
@@ -24,12 +22,11 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
       }}
     >
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {["all", 5, 4, 3, 2, 1].map((starValue) => (
+        {[null, 5, 4, 3, 2, 1].map((starValue) => (
           <TouchableOpacity
             key={starValue}
             onPress={() => {
               setSelectedStar(starValue);
-              handleGetRatings(starValue === "all" ? null : starValue);
             }}
             style={{
               paddingVertical: 4,
@@ -42,11 +39,11 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
               alignItems: "center",
             }}
           >
-            {starValue === "all" ? (
+            {starValue === null ? (
               <Text
                 style={{
                   fontSize: 12,
-                  color: selectedStar === starValue ? "#f3f4f6" : "#FA6F33",
+                  color: selectedStar === starValue ? "#FFFFFF" : "#FA6F33",
                   textAlign: "center",
                   fontFamily: "poppinsRegular",
                 }}
@@ -57,16 +54,16 @@ const RatingFilter: React.FC<RatingFilterProps> = ({
               <FontAwesome
                 name="star"
                 size={14}
-                color={selectedStar === starValue ? "#f3f4f6" : "#FA6F33"}
+                color={selectedStar === starValue ? "#FFFFFF" : "#FA6F33"}
                 style={{ marginRight: 6 }}
               />
             )}
-            {starValue !== "all" && (
+            {starValue !== null && (
               <Text
                 style={{
                   fontSize: 12,
                   fontFamily: "poppinsRegular",
-                  color: selectedStar === starValue ? "#FFF2EB" : "#FA6F33",
+                  color: selectedStar === starValue ? "#FFFFFF" : "#FA6F33",
                 }}
               >
                 {starValue}

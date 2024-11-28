@@ -27,35 +27,15 @@ import TextTitle4 from "@/components/texts/TextTitle4";
 import TextTitle5Date from "@/components/texts/TextTitle5Date";
 import { router, useFocusEffect } from "expo-router";
 import ListProductCard from "@/components/ListProductCard";
-
-interface ListDiscount {
-  discountId: number;
-  productId: number;
-  discountDate: Date;
-  discountAmount: number;
-}
-
-interface Product {
-  productId: number;
-  bakeryId: number;
-  categoryId: number;
-  productName: string;
-  productPrice: number;
-  productImage: string;
-  productDescription: string;
-  productCreatedDate: Date;
-  productExpirationDate: Date;
-  productStock: number;
-  isActive: number;
-  discount: ListDiscount[];
-}
+import Toast from "react-native-toast-message";
+import { ProductType } from "@/types/types";
 
 const ListProduct = () => {
   const { userData } = useAuth();
   const insets = useSafeAreaInsets();
 
   const [selectedStatus, setSelectedStatus] = useState<number>(1);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -130,6 +110,10 @@ const ListProduct = () => {
           height: insets.top,
         }}
       />
+      
+      {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+        <Toast topOffset={50} />
+      </View> */}
 
       <View className="bg-background h-full flex-1">
         <View className="px-5 bg-white">
@@ -185,7 +169,7 @@ const ListProduct = () => {
                   <Text
                     style={{
                       color: "#828282",
-                      fontFamily: "poppinsRegular", 
+                      fontFamily: "poppinsRegular",
                       fontSize: 14,
                       textAlign: "center",
                     }}

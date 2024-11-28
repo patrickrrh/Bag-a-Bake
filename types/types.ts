@@ -36,7 +36,21 @@ export type BakeryType = {
     bakeryLatitude: number;
     bakeryLongitude: number;
     payment: PaymentType[];
+    bakery: BakeryType
 }
+
+export type BakeryDetailType = {
+    bakery: {
+        bakeryId: number;
+        bakeryName: string;
+        closingTime: string;
+    },
+    prevRating: {
+        averageRating: string;
+        reviewCount: string;
+    }
+}
+
 
 export type PaymentType = {
     paymentId: number;
@@ -100,9 +114,28 @@ export type ProductType = {
     bakery: BakeryType;
     todayPrice: number;
     discountPercentage: string;
+    discount: DiscountItemType[];
 };
 
 export type RegionType = {
     regionId: number;
     regionName: string;
 }
+
+export type OrderItemType = {
+    bakeryId: number;
+    items:
+    [
+        {
+            productQuantity: number;
+            productId: number;
+        }
+    ];
+};
+
+export type DiscountItemType = {
+    discountAmount: string;
+    discountDate: string;
+    discountId: number;
+    productId: number;
+};

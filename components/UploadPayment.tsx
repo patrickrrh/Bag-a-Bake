@@ -11,8 +11,6 @@ interface Props {
 
 const UploadPayment: React.FC<Props> = ({ handlePress, buttonStyles, proofOfPayment, isDisabled }) => {
 
-    console.log("proofojasfjaosijiasd", proofOfPayment)
-
     return (
         <TouchableOpacity
             onPress={handlePress}

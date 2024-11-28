@@ -24,6 +24,9 @@ type Props = {
 };
 
 const ListRatingCard: React.FC<Props> = ({ item }) => {
+
+  console.log("iitem here ", JSON.stringify(item, null, 2))
+
   const createdDate = new Date(item.createdDate);
   const formattedDate = createdDate.toLocaleDateString("id-ID", {
     day: "2-digit",

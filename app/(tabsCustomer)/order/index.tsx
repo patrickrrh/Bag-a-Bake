@@ -38,7 +38,6 @@ import ErrorMessage from "@/components/texts/ErrorMessage";
 import ratingApi from "@/api/ratingApi";
 import RatingInput from "@/components/RatingInput";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
-import { sendNotification, monitorChanges } from "@/utils/notificationUtils";
 import { icons } from "@/constants/icons";
 
 type RatingErrorState = {
@@ -89,11 +88,11 @@ const Order = () => {
     }, 500);
   };
 
-  useEffect(() => {
-    handleGetOrderByStatusApi();
-  }, [selectedStatus]);
-
-  console.log("Orders", JSON.stringify(orders, null, 2));
+  useFocusEffect(
+    useCallback(() => {
+      handleGetOrderByStatusApi();
+    }, [selectedStatus])
+  )
 
   const handleSubmitRatingApi = async () => {
     try {
@@ -124,10 +123,14 @@ const Order = () => {
 
   useFocusEffect(
     useCallback(() => {
+      setOrders([]);
       const fetchData = async () => {
         const data = await getLocalStorage("orderCustomerParams");
         if (data) {
           const parsedData = JSON.parse(data);
+          if (parsedData.status === 5) {
+            parsedData.status = 4;
+          }
           setSelectedStatus(parsedData.status);
         }
       };

@@ -72,9 +72,9 @@ const ForgotPassword = () => {
         <View className='bg-background px-5 flex-1'>
             <View style={{ height: insets.top }} />
 
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+            {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
                 <Toast topOffset={50} />
-            </View>
+            </View> */}
 
             <View className="flex-row items-center justify-between w-full space-x-4">
                 <BackButton />

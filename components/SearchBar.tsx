@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // or any icon library
+import { Ionicons } from '@expo/vector-icons';
 
-// Define the props with TypeScript
 interface SearchBarProps {
   value: string;
   placeholder: string;
@@ -12,17 +11,23 @@ interface SearchBarProps {
 const SearchBar: React.FC<SearchBarProps> = ({ value, placeholder, onChange }) => {
   return (
     <View
-      className="flex-row items-center bg-white rounded-lg shadow-md px-4 py-2"
-      // style={{ elevation: 3, borderRadius: 2 }}
+      className="flex-row items-center bg-white rounded-lg shadow-md px-4"
+      style={{ height: 46, alignItems: 'center' }}
     >
       <Ionicons name="search" size={20} color="#BDBDBD" />
       <TextInput
-        className='ml-2 flex-1 text-black text-base'
+        className="ml-2 text-black"
         placeholder={placeholder}
         placeholderTextColor="#828282"
         value={value}
         onChangeText={onChange}
-        style={{ fontFamily: "poppinsRegular", fontSize: 12 }}
+        style={{
+          fontFamily: 'poppinsRegular',
+          fontSize: 12,
+          flex: 1,
+          height: '100%',
+          paddingVertical: 0,
+        }}
       />
     </View>
   );

@@ -37,37 +37,35 @@ export const setupNotificationListeners = () => {
     })
 }
 
-// Set Notification Display
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-    }),
-});
+// Notifications.setNotificationHandler({
+//     handleNotification: async () => ({
+//         shouldShowAlert: true,
+//         shouldPlaySound: true,
+//         shouldSetBadge: false,
+//     }),
+// });
 
 
-// Send Notification
-export const sendNotification = async (title: string, body: string) => {
-    await Notifications.scheduleNotificationAsync({
-        content: {
-            title,
-            body,
-        },
-        trigger: null,
-    });
-};
+// export const sendNotification = async (title: string, body: string) => {
+//     await Notifications.scheduleNotificationAsync({
+//         content: {
+//             title,
+//             body,
+//         },
+//         trigger: null,
+//     });
+// };
 
-export const monitorChanges = (orders: any[], favoriteProducts: any[]) => {
-    orders.forEach(order => {
-        if (order.status === 'updated') {
-            sendNotification('Order Status Updated', `Your order #{order.id} has been updated.`)
-        }
-    });
+// export const monitorChanges = (orders: any[], favoriteProducts: any[]) => {
+//     orders.forEach(order => {
+//         if (order.status === 'updated') {
+//             sendNotification('Order Status Updated', `Your order #{order.id} has been updated.`)
+//         }
+//     });
     
-    favoriteProducts.forEach(product => {
-        if (product.isNew) {
-            sendNotification('New Product Available', `${product.productName} is now available in your favorite bakery!`)
-        }
-    });
-}
+//     favoriteProducts.forEach(product => {
+//         if (product.isNew) {
+//             sendNotification('New Product Available', `${product.productName} is now available in your favorite bakery!`)
+//         }
+//     });
+// }

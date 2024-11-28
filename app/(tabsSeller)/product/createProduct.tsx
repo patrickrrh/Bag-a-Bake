@@ -31,6 +31,8 @@ import Decimal from "decimal.js";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ModalInformation from "@/components/ModalInformation";
+import { showToast } from "@/utils/toastUtils";
+import Toast from "react-native-toast-message";
 
 type ErrorState = {
   productName: string | null;
@@ -78,11 +80,9 @@ const CreateProduct = () => {
 
   const [error, setError] = useState<ErrorState>(productError);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
-  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
-    useState(false);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -188,13 +188,12 @@ const CreateProduct = () => {
         throw new Error(response.error);
       }
 
-      console.log("Response:", response);
-      console.log("Form submitted:", form);
+      showToast("success", "Produk berhasil ditambahkan!");
+      router.back();
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
       setIsConfirmationModalVisible(false);
-      setModalVisible(true);
     }
   };
 
@@ -275,7 +274,7 @@ const CreateProduct = () => {
         }}
       />
 
-      <View className="flex-row items-center px-4 pb-2 relative">
+      <View className="flex-row items-center px-4 mb-5 relative">
         {/* Back Button */}
         <View className="pl-5">
           <BackButton />
@@ -298,7 +297,7 @@ const CreateProduct = () => {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
           {/* Preview Upload Photo */}
-          <View className="mt-4 items-center">
+          <View className="items-center">
             {form.productImage ? (
               <Image
                 source={{ uri: form.productImage }}
@@ -309,11 +308,11 @@ const CreateProduct = () => {
               <View className="w-48 h-48 bg-gray-200 rounded-md" />
             )}
           </View>
-          <View className="mt-4 w-full items-center">
+          <View className="mb-4 w-full items-center">
             {error.productImage && <ErrorMessage label={error.productImage} />}
           </View>
           {/* Upload Photo Button */}
-          <View className="mt-4 w-full items-center">
+          <View className="w-full items-center">
             <UploadButton
               label="Unggah Foto"
               handlePress={() => {
@@ -327,7 +326,7 @@ const CreateProduct = () => {
           <FormField
             label="Nama Produk"
             value={form.productName}
-            placeholder="Roti Ayam"
+            placeholder="Roti keju"
             onChangeText={(text) => {
               setForm({ ...form, productName: text });
               setError((prevError) => ({ ...prevError, productName: null }));
@@ -340,7 +339,7 @@ const CreateProduct = () => {
           <TextAreaField
             label="Deskripsi Produk"
             value={form.productDescription}
-            placeholder="Roti Ayam merupakan roti lezat yang terbuat dari ayam..."
+            placeholder="Roti yang dibuat menggunakan keju premium..."
             onChangeText={(text) => {
               setForm({ ...form, productDescription: text });
               setError((prevError) => ({
@@ -381,7 +380,10 @@ const CreateProduct = () => {
           <PriceInputField
             label="Harga Awal"
             value={form.productPrice}
-            onChangeText={(text) => setForm({ ...form, productPrice: text })}
+            onChangeText={(text) => {
+              setForm({ ...form, productPrice: text });
+              setError((prevError) => ({ ...prevError, productPrice: null }));
+            }}
             placeholder="Masukkan Harga Awal"
             moreStyles="mt-7"
             error={error.productPrice}
@@ -394,7 +396,6 @@ const CreateProduct = () => {
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "flex-start",
-                marginBottom: 10,
               }}
             >
               <TextFormLabel label="Harga Jual" />
@@ -470,7 +471,6 @@ const CreateProduct = () => {
           onPrimaryAction={() => {
             handleFillMissingDiscounts();
             setIsDiscountModalVisible(false);
-            // handleAddProduct();
           }}
           onSecondaryAction={() => {
             setIsDiscountModalVisible(false);
@@ -494,17 +494,7 @@ const CreateProduct = () => {
           }}
         />
       )}
-      {modalVisible && (
-        <ModalAction
-          setModalVisible={setModalVisible}
-          modalVisible={modalVisible}
-          title="Produk berhasil ditambahkan!"
-          primaryButtonLabel="Tambah Produk Lagi"
-          secondaryButtonLabel="Kembali ke Daftar Produk"
-          onPrimaryAction={() => router.push("/product/createProduct")}
-          onSecondaryAction={() => router.push("/product")}
-        />
-      )}
+
       {isInfoModalVisible && (
         <ModalInformation
           visible={isInfoModalVisible}

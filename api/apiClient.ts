@@ -5,8 +5,6 @@ import Constants from "expo-constants";
 
 const { baseURL } = Constants.expoConfig?.extra as { baseURL: string };
 
-console.log("expo config", baseURL)
-
 const apiClient = axios.create({
     baseURL,
 })

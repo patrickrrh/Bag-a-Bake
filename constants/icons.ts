@@ -13,4 +13,5 @@ export const icons = {
     bakeBread: require('../assets/images/bakingbread.png'),
     noFile: require('../assets/images/nofile.png'),
     brokenSearch: require('../assets/images/brokensearch.png'),
+    noStar: require('../assets/images/noStar.png'),
 }

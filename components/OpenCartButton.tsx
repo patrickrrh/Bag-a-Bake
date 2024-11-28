@@ -21,7 +21,7 @@ const OpenCartButton: React.FC<Props> = ({ label, handlePress, buttonStyles, isL
         <TouchableOpacity
             onPress={handlePress}
             activeOpacity={0.7}
-            className={`bg-brown justify-center items-center px-2 py-1 h-10 rounded ${buttonStyles} ${isLoading ? "opacity-50" : ""}`}
+            className={`bg-brown justify-center items-center px-2 py-1 h-10 rounded-md ${buttonStyles} ${isLoading ? "opacity-50" : ""}`}
             disabled={isLoading}>
                 <View className="flex-row items-center">
                     <View className="mr-2">

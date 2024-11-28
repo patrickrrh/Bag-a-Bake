@@ -44,7 +44,7 @@ const SignUp = () => {
 
   return (
     <AuthLayout headerContent={headerContent} footerContent={footerContent}>
-      <View className="flex-row space-x-2 justify-between w-full mt-8">
+      <View className="flex-row space-x-2 justify-around w-full mt-8">
         <RoleCard
           label="Pembeli"
           isSelected={selectedRole === 1}

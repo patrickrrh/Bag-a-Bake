@@ -77,7 +77,7 @@ const OrderDetail = () => {
 
     const handleCancelOrderApi = async () => {
         try {
-            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId });
+            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId, bakeryId: orderData.bakery.bakeryId });
             router.push("/order");
         } catch (error) {
             console.log("Error canceling order ", error)
@@ -132,14 +132,16 @@ const OrderDetail = () => {
         try {
             const response = await orderCustomerApi().submitProofOfPayment({
                 orderId: orderData.orderId,
-                proofOfPayment: proofOfPayment
+                proofOfPayment: proofOfPayment,
+                bakeryId: orderData.bakery.bakeryId
             })
 
             if (response.status === 200) {
-                router.push({
-                    pathname: '/order',
-                })
-                setLocalStorage('orderCustomerParams', JSON.stringify({ status: 3 }))
+                // router.push({
+                //     pathname: '/order',
+                // })
+                // setLocalStorage('orderCustomerParams', JSON.stringify({ status: 2 }))
+                router.back();
             }
         } catch (error) {
             console.log(error)
@@ -151,37 +153,38 @@ const OrderDetail = () => {
 
             <View style={{ height: insets.top }} />
 
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
+            {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
                 <Toast topOffset={50} />
+            </View> */}
+
+            <View className="mx-5 mb-5">
+                <View className="flex-row">
+                    <TouchableOpacity
+                        onPress={() => {
+                            router.replace({
+                                pathname: '/order' as any,
+                            })
+                            setLocalStorage('orderCustomerParams', JSON.stringify({ status: orderData.orderStatus }))
+                        }}
+                        activeOpacity={0.7}
+                        style={{ width: 10, height: 24 }}
+                    >
+                        <FontAwesome
+                            name="angle-left"
+                            size={24}
+                            color="#000"
+                        />
+                    </TouchableOpacity>
+                    <View className="flex-1 items-center pr-3">
+                        <TextTitle3 label={orderData.bakery.bakeryName as string} />
+                        <TextTitle5Date label={formatDatewithtime(orderData.orderDate)} />
+                    </View>
+                </View>
             </View>
 
             <ScrollView>
-                <View className="mx-5">
-                    <View className="flex-row">
-                        <TouchableOpacity
-                            onPress={() => {
-                                router.replace({
-                                    pathname: '/order' as any,
-                                })
-                                setLocalStorage('orderCustomerParams', JSON.stringify({ status: orderData.orderStatus }))
-                            }}
-                            activeOpacity={0.7}
-                            style={{ width: 10, height: 24 }}
-                        >
-                            <FontAwesome
-                                name="angle-left"
-                                size={24}
-                                color="#000"
-                            />
-                        </TouchableOpacity>
-                        <View className="flex-1 items-center pr-3">
-                            <TextTitle3 label={orderData.bakery.bakeryName as string} />
-                            <TextTitle5Date label={formatDatewithtime(orderData.orderDate)} />
-                        </View>
-                    </View>
-                </View>
 
-                <View className='p-5 gap-y-3 mt-5 bg-white'>
+                <View className='p-5 gap-y-3 bg-white'>
                     <TextTitle3 label="Detail Toko" />
                     <View className='flex-row'>
                         <TextTitle5 label={`Jam pengambilan terakhir: `} />
@@ -217,7 +220,7 @@ const OrderDetail = () => {
                 <View className='p-5 mt-5 bg-white'>
                     <View className='flex-row justify-between'>
                         <TextTitle4 label="Total" />
-                        <TextTitle5 label={calculateTotalOrderPrice(orderData.orderDetail)} />
+                        <TextTitle5 label={formatRupiah(orderData.totalOrderPrice)} />
                     </View>
                 </View>
 
@@ -229,14 +232,12 @@ const OrderDetail = () => {
                                     <TextTitle4 label="Metode Pembayaran" />
                                     <Ionicons name="information-circle-outline" size={14} color="gray" onPress={() => setPaymentInfoModal(true)} />
                                 </View>
-                                {
-                                    <View className='flex-row'>
-                                        <View className='mr-1'>
-                                            <TextTitle5Gray label={`Konfirmasi sebelum`} />
-                                        </View>
-                                        <TextTitle5Bold label={calculateValidPaymentTime(orderData.paymentStartedAt)} color='#FA6F33' />
+                                <View className='flex-row'>
+                                    <View className='mr-1'>
+                                        <TextTitle5Gray label={`Konfirmasi sebelum`} />
                                     </View>
-                                }
+                                    <TextTitle5Bold label={calculateValidPaymentTime(orderData.paymentStartedAt)} color='#FA6F33' />
+                                </View>
                                 <FlatList
                                     data={paymentMethods}
                                     renderItem={({ item }) => (

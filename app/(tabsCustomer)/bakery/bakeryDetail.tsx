@@ -30,67 +30,25 @@ import { images } from '@/constants/images'
 import TextRating from '@/components/texts/TextRating';
 import OpenCartButton from '@/components/OpenCartButton';
 import TextEllipsis from '@/components/TextEllipsis';
-
-type Bakery = {
-    bakery: Bakery;
-    bakeryId: number;
-    userId: number;
-    bakeryName: string;
-    bakeryImage: string;
-    bakeryDescription: string;
-    bakeryPhoneNumber: string;
-    openingTime: string;
-    closingTime: string;
-    bakeryAddress: string;
-    bakeryLatitude: number;
-    bakeryLongitude: number;
-    product: Product[];
-    prevRating: {
-        averageRating: string;
-        reviewCount: string;
-    }
-};
-
-type Product = {
-    productId: number;
-    bakeryId: number;
-    categoryId: number;
-    productName: string;
-    productPrice: string;
-    productImage: string;
-    productDescription: string;
-    productExpirationDate: string;
-    productStock: number;
-    isActive: number;
-}
-
-type OrderItem = {
-    bakeryId: number;
-    items:
-    [
-        {
-            productQuantity: number;
-            productId: number;
-        }
-    ];
-};
+import { icons } from "@/constants/icons";
+import { BakeryType, OrderItemType } from '@/types/types';
 
 const BakeryDetail = () => {
 
     const insets = useSafeAreaInsets();
 
     const { bakeryId } = useLocalSearchParams();
-    const [bakeryDetail, setBakeryDetail] = useState<Bakery | null>(null);
+    const [bakeryDetail, setBakeryDetail] = useState<BakeryType | null>(null);
     const [isSubmitting, setisSubmitting] = useState(false);
     const [totalPrice, setTotalPrice] = useState("");
-    const [orderData, setOrderData] = useState<OrderItem | null>(null);
+    const [orderData, setOrderData] = useState<OrderItemType | null>(null);
 
     const [showFavorite, setShowFavorite] = useState(false);
 
     const fetchOrderData = async () => {
         try {
             const jsonValue = await getLocalStorage('orderData');
-            const data: OrderItem = jsonValue ? JSON.parse(jsonValue) : null;
+            const data: OrderItemType = jsonValue ? JSON.parse(jsonValue) : null;
             setOrderData(data);
 
             console.log("Data: ", orderData);
@@ -161,34 +119,35 @@ const BakeryDetail = () => {
 
             <View style={{ height: insets.top }} />
 
-            <ScrollView className="px-5">
-                <View className="flex-row w-full justify-between">
-                    <BackButton path='/(tabsCustomer)/bakery' />
-                    <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
-                    <TouchableOpacity
-                        onPress={() => {
-                            setShowFavorite(!showFavorite);
-                        }}
-                    >
-                        {
-                            showFavorite ? (
-                                <Ionicons
-                                    name="heart"
-                                    size={24}
-                                    color="red"
-                                />
-                            ) : (
-                                <Ionicons
-                                    name="heart-outline"
-                                    size={24}
-                                    color="black"
-                                />
-                            )
-                        }
-                    </TouchableOpacity>
-                </View>
+            <View className="flex-row px-5 mb-5 w-full justify-between">
+                <BackButton path='/(tabsCustomer)/bakery' />
+                <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
+                <TouchableOpacity
+                    onPress={() => {
+                        setShowFavorite(!showFavorite);
+                    }}
+                >
+                    {
+                        showFavorite ? (
+                            <Ionicons
+                                name="heart"
+                                size={24}
+                                color="red"
+                            />
+                        ) : (
+                            <Ionicons
+                                name="heart-outline"
+                                size={24}
+                                color="black"
+                            />
+                        )
+                    }
+                </TouchableOpacity>
+            </View>
 
-                <View className='mt-5 rounded-lg'>
+            <ScrollView className="px-5">
+
+                <View className='rounded-lg'>
                     <LargeImage
                         image={{ uri: bakeryDetail?.bakery.bakeryImage as string }}
                     />
@@ -206,7 +165,7 @@ const BakeryDetail = () => {
                             <TouchableOpacity 
                                 onPress={() =>
                                     router.push({
-                                        pathname: "/bakery/ratingBakery" as any,
+                                        pathname: "/bakery/ratingBakeryCustomer" as any,
                                         params: { bakeryId, bakeryName: bakeryDetail?.bakery.bakeryName as string },
                                     })
                                 }>
@@ -244,29 +203,59 @@ const BakeryDetail = () => {
                         <TextTitle3 label={"Produk Bakeri"} />
                     </View>
 
-                    <View
-                        style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
-                        className='mt-3'
-                    >
-                        {bakeryDetail?.bakery?.product.map((product) => (
+                    {
+                        bakeryDetail?.bakery?.product.length !== 0 ? (
                             <View
-                                key={product.productId}
-                                className='pb-5 w-[50%]'
+                                style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
+                                className='mt-3'
                             >
-                                <ProductCardBakery
-                                    product={product}
-                                    onPress={() =>
-                                        router.push({
-                                            pathname: '/bakery/inputOrder',
-                                            params: {
-                                                productId: product.productId
+                                {bakeryDetail?.bakery?.product.map((product) => (
+                                    <View
+                                        key={product.productId}
+                                        className='pb-5 w-[50%]'
+                                    >
+                                        <ProductCardBakery
+                                            product={product}
+                                            onPress={() =>
+                                                router.push({
+                                                    pathname: '/bakery/inputOrder',
+                                                    params: {
+                                                        productId: product.productId
+                                                    }
+                                                })
                                             }
-                                        })
-                                    }
-                                />
+                                        />
+                                    </View>
+                                ))}
                             </View>
-                        ))}
-                    </View>
+                        ) : (
+                            <View className="flex-1 items-center justify-center my-10">
+                                <Image
+                                    source={icons.bakeBread}
+                                    style={{
+                                        width: 60,
+                                        height: 60,
+                                        marginBottom: 10,
+                                        tintColor: "#828282",
+                                    }}
+                                    resizeMode="contain"
+                                />
+                                <Text
+                                    style={{
+                                        color: "#828282",
+                                        fontFamily: "poppinsRegular",
+                                        fontSize: 14,
+                                        textAlign: "center",
+                                        marginInline: 40
+                                    }}
+                                >
+                                    Bakeri ini sedang tidak menjual produk, silakan coba lagi nanti
+                                </Text>
+                            </View>
+                        )
+                    }
+
+
                 </View>
 
             </ScrollView>

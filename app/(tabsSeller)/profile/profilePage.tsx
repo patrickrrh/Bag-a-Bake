@@ -45,6 +45,7 @@ import { getLocalStorage, setLocalStorage } from "@/utils/commonFunctions";
 import Geocoder from "react-native-geocoding";
 import PaymentInput from "@/components/PaymentInput";
 import ErrorMessage from "@/components/texts/ErrorMessage";
+import { PaymentType } from "@/types/types";
 
 type ErrorState = {
   userName: string | null;
@@ -70,14 +71,6 @@ type PaymentErrorState = {
 interface PaymentMethod {
   method: string;
   serviceOptions?: string[];
-}
-
-interface PaymentType {
-  paymentId: number;
-  bakeryId: number;
-  paymentMethod: string;
-  paymentService: string;
-  paymentDetail: string;
 }
 
 interface PaymentForm {
@@ -633,41 +626,47 @@ const ProfilePage = () => {
         }}
       />
 
-      <View
+      {/* <View
         style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 100 }}
       >
         <Toast topOffset={50} />
+      </View> */}
+
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 20,
+          marginBottom: 20,
+          position: "relative",
+        }}
+      >
+        <TextHeader label="Profil Saya" />
+
+        <TouchableOpacity
+          style={{ position: "absolute", right: 20 }}
+          onPress={() => setLogoutModalVisible(true)}
+        >
+          <Ionicons name="log-out-outline" size={24} color="#b0795a" />
+        </TouchableOpacity>
       </View>
+
+      <View className="mx-5">
+        <ProfileTab
+          selectedStatus={selectedStatus}
+          onSelectStatus={(status) => {
+            setSelectedStatus(status);
+          }}
+        />
+      </View>
+
 
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <TextHeader label="Profil Saya" />
 
-            <TouchableOpacity
-              onPress={() => setLogoutModalVisible(true)}
-              style={{ position: "absolute", right: 0 }}
-            >
-              <Ionicons name="log-out-outline" size={24} color="#b0795a" />
-            </TouchableOpacity>
-          </View>
 
-          <View className="mx-5 mt-6">
-            <ProfileTab
-              selectedStatus={selectedStatus}
-              onSelectStatus={(status) => {
-                setSelectedStatus(status);
-              }}
-            />
-          </View>
-
-          <View className="mt-4 w-full items-center" style={{ marginTop: 40 }}>
+          <View className="w-full items-center" style={{ marginTop: 20 }}>
             {selectedStatus === 1 ? (
               <>
                 <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">

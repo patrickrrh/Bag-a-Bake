@@ -3,7 +3,7 @@ import React from 'react';
 import TextTag from './texts/TextTag';
 
 interface Props {
-  status: 1 | 2 | 3;
+  status: 1 | 2 | 3 | 4 | 5;
 }
 
 const CustomTagOrderStatus: React.FC<Props> = ({ status }) => {
@@ -18,7 +18,7 @@ const CustomTagOrderStatus: React.FC<Props> = ({ status }) => {
     
   return (
     <View
-      className='bg-orange px-3 justify-center items-center rounded-lg'
+      className='bg-orange px-3 py-1 justify-center items-center rounded-lg'
     >
       <TextTag label={statusMapping[status]} />
     </View>
