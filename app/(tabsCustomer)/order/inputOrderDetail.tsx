@@ -95,7 +95,7 @@ const InputOrderDetail = () => {
                 router.push('/order');
                 removeLocalStorage('orderData');
             } else if (response.status === 403) {
-                showToast('error', 'Bakery sudah tutup. Silakan coba lagi selama jam operasional.');
+                showToast('error', 'Bakeri sudah tutup. Silakan coba lagi selama jam operasional.');
             }
         } catch (error) {
             console.log(error);
