@@ -6,10 +6,13 @@ import {
   TouchableOpacity,
   ScrollView,
   Switch,
-  Keyboard
+  Keyboard,
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
 import BackButton from "@/components/BackButton";
@@ -135,7 +138,6 @@ const EditProduct = () => {
         setIsConfirmationModalVisible(true);
         return;
       }
-
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -163,7 +165,7 @@ const EditProduct = () => {
       if (response.error) {
         throw new Error(response.error);
       }
-      
+
       showToast("success", "Produk berhasil diperbarui!");
       router.back();
     } catch (error) {
@@ -213,21 +215,21 @@ const EditProduct = () => {
           discount:
             response.data.discount && response.data.discount.length > 0
               ? response.data.discount.map(
-                (discount: {
-                  discountAmount: string;
-                  discountDate: string;
-                }) => ({
-                  discountAmount: discount.discountAmount.toString(),
-                  discountDate:
-                    discount.discountDate || new Date().toISOString(),
-                })
-              )
+                  (discount: {
+                    discountAmount: string;
+                    discountDate: string;
+                  }) => ({
+                    discountAmount: discount.discountAmount.toString(),
+                    discountDate:
+                      discount.discountDate || new Date().toISOString(),
+                  })
+                )
               : [
-                {
-                  discountAmount: "",
-                  discountDate: new Date().toISOString(),
-                },
-              ],
+                  {
+                    discountAmount: "",
+                    discountDate: new Date().toISOString(),
+                  },
+                ],
           productStock: response.data.productStock,
           productImage: response.data.productImage,
           bakeryId: response.data.bakeryId,
@@ -328,9 +330,9 @@ const EditProduct = () => {
   useEffect(() => {
     if (isExpirationDateUpdated) {
       const fillDiscountFields = () => {
-        const today = dayjs().startOf("day");
-        const expirationDate = dayjs(form.productExpirationDate).startOf("day");
-        const daysToExpiration = expirationDate.diff(today, "day");
+        const today = dayjs();
+        const expirationDate = dayjs(form.productExpirationDate);
+        const daysToExpiration = expirationDate.diff(today, "day") + 1;
 
         const existingDiscounts = form.discount || [];
 
@@ -369,7 +371,6 @@ const EditProduct = () => {
 
   return (
     <View className="bg-background h-full flex-1">
-
       <View
         style={{
           backgroundColor: "#FEFAF9",
@@ -513,23 +514,8 @@ const EditProduct = () => {
                 style={{ marginLeft: 2 }}
                 onPress={() => setIsInfoModalVisible(true)}
               />
-              {/* <View
-                style={{
-                  flexDirection: "row",
-                  marginLeft: 10,
-                }}
-              >
-                <SquareButton label="-" handlePress={handleRemoveDiscount} />
-                <SquareButton label="+" handlePress={handleAddDiscount} />
-              </View> */}
             </View>
 
-            <ModalInformation
-              visible={isInfoModalVisible}
-              onClose={() => setIsInfoModalVisible(false)}
-              title="Harga Jual"
-              content="Harga Jual adalah harga produk setelah dikurangi diskon per hari, dengan hari pertama dihitung mulai dari hari ini."
-            />
             <View className="flex-col">
               {form.discount.map((discount, index) => {
                 const discountDate = dayjs(discount.discountDate);
@@ -544,7 +530,10 @@ const EditProduct = () => {
                       style={{ fontFamily: "poppinsRegular", fontSize: 14 }}
                       className="text-black"
                     >
-                      Hari ke-{index + 1}
+                      Hari ke-{index + 1}{" "}
+                      <Text style={{ fontSize: 12 }}>
+                        ({dayjs(discount.discountDate).format("D MMM")})
+                      </Text>
                     </Text>
                     <DiscountInputField
                       value={discount.discountAmount}
@@ -658,6 +647,15 @@ const EditProduct = () => {
         />
       )}
 
+      {isInfoModalVisible && (
+        <ModalInformation
+          visible={isInfoModalVisible}
+          onClose={() => setIsInfoModalVisible(false)}
+          title="Harga Jual"
+          content="Harga Jual adalah harga produk setelah dikurangi diskon per hari, dengan hari pertama dihitung mulai dari hari ini."
+        />
+      )}
+
       {isDeleteModalVisible && (
         <ModalAction
           setModalVisible={setDeleteModalVisible}
@@ -668,7 +666,7 @@ const EditProduct = () => {
           onSecondaryAction={() => {
             handleDeleteProduct();
           }}
-          onPrimaryAction={() => { }}
+          onPrimaryAction={() => {}}
         />
       )}
     </View>

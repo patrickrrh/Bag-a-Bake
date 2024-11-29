@@ -60,13 +60,12 @@ const PriceInputField: React.FC<Props> = ({
 
   return (
     <View className={`space-y-1 ${moreStyles}`}>
-      {/* <TextFormLabel label={label} /> */}
       <View className="flex-row items-center">
         <TextFormLabel label={label} />
         <Ionicons
           name="information-circle-outline"
           size={18}
-          color="gray"
+          color="black"
           style={{ marginLeft: 2 }}
           onPress={() => setIsModalVisible(true)}
         />

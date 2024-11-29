@@ -227,9 +227,9 @@ const CreateProduct = () => {
 
   useEffect(() => {
     const fillDiscountFields = () => {
-      const today = dayjs().startOf("day");
-      const expirationDate = dayjs(form.productExpirationDate).startOf("day");
-      const daysToExpiration = expirationDate.diff(today, "day");
+      const today = dayjs();
+      const expirationDate = dayjs(form.productExpirationDate);
+      const daysToExpiration = expirationDate.diff(today, "day") + 1;
 
       const existingDiscounts = form.discount || [];
 
@@ -254,7 +254,7 @@ const CreateProduct = () => {
       }
 
       const updatedDiscounts = newDiscounts;
-
+      console.log(updatedDiscounts);
       setForm((prevForm) => ({
         ...prevForm,
         discount: updatedDiscounts,
