@@ -135,7 +135,7 @@ const ListProduct = () => {
           </View>
         </View>
 
-        <View className="mx-5 mt-4">
+        <View className="mx-5 mt-4" style={{ position: 'relative', zIndex: 2 }}>
           <SearchBar
             value={searchQuery}
             placeholder="Roti coklat, roti keju..."
@@ -143,7 +143,7 @@ const ListProduct = () => {
           />
         </View>
 
-        <View className="flex-1 mx-5">
+        <View className="flex-1 mx-5" style={{ position: 'relative', zIndex: 1 }}>
           {isLoading ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="small" color="#828282" />

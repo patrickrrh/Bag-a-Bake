@@ -14,7 +14,11 @@ interface Props {
 const ExpirationDatePicker: React.FC<Props> = ({ label, expirationDate, onConfirm, error }) => {
   const [open, setOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
+  const getMaxDate = () => {
+    const today = new Date();
+    today.setDate(today.getDate() + 6);
+    return today;
+  };
   const handleConfirm = (date: Date) => {
     setSelectedDate(date);
     onConfirm(date);
@@ -28,12 +32,12 @@ const ExpirationDatePicker: React.FC<Props> = ({ label, expirationDate, onConfir
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: 'white',
-          borderColor: error ? 'red' : (expirationDate ? '#ccc' : '#d1d5db'),
+          borderColor: error ? 'red' : (expirationDate ? '#e5e7eb' : '#d1d5db'),
           borderWidth: 1,
           borderRadius: 8,
           paddingVertical: 10,
           paddingHorizontal: 16,
-          height: 40,
+          height: 46,
         }}
         onPress={() => setOpen(true)}
       >
@@ -69,6 +73,7 @@ const ExpirationDatePicker: React.FC<Props> = ({ label, expirationDate, onConfir
             setOpen(false);
           }}
           minimumDate={new Date()}
+          maximumDate={getMaxDate()}
         />
       )}
 
