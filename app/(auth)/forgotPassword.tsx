@@ -53,6 +53,8 @@ const ForgotPassword = () => {
             const res = await authenticationApi().sendOTP({
                 email: form.email.toLowerCase()
             })
+
+            console.log("res ", res)
             if (res.status === 200) {
                 router.push({
                     pathname: '/(auth)/inputOTP',
