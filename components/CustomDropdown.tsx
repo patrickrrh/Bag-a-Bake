@@ -21,7 +21,7 @@ const CustomDropdown: React.FC<Props> = ({ label, data, value, placeholder, labe
     return (
         <View className={`space-y-1 ${moreStyles}`}>
             <TextFormLabel label={label} />
-            <View className={`w-full h-[40px] bg-white rounded-[8px] border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex justify-center`}>
+            <View className={`w-full h-[46px] bg-white rounded-[8px] border ${error ? 'border-red-500' : 'border-gray-200'} focus:border-primary flex justify-center`}>
                 <Dropdown
                     data={data}
                     value={value}
@@ -38,7 +38,7 @@ const CustomDropdown: React.FC<Props> = ({ label, data, value, placeholder, labe
                     }}
                     inputSearchStyle={{
                         height: 40,
-                        fontSize: 16,
+                        fontSize: 14,
                         fontFamily: "poppinsRegular",
                     }}
                     selectedTextStyle={{
@@ -51,6 +51,7 @@ const CustomDropdown: React.FC<Props> = ({ label, data, value, placeholder, labe
                         fontFamily: "poppinsRegular",
                         color: '#828282',
                         textAlignVertical: 'center',
+                        flex: 1
                     }}
                     itemTextStyle={{
                         fontSize: 14,
