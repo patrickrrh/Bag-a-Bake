@@ -22,6 +22,7 @@ import TextAfterPrice from '@/components/texts/TextAfterPrice';
 import { FontAwesome } from '@expo/vector-icons';
 import TextEllipsis from '@/components/TextEllipsis';
 import ContactButton from '@/components/ContactButton';
+import { showToast } from '@/utils/toastUtils';
 
 const InputOrderDetail = () => {
 
@@ -89,9 +90,12 @@ const InputOrderDetail = () => {
             };
 
             const response = await orderCustomerApi().createOrder(formData);
+
             if (response.status === 200) {
                 router.push('/order');
                 removeLocalStorage('orderData');
+            } else if (response.status === 403) {
+                showToast('error', 'Bakeri sudah tutup. Silakan coba lagi selama jam operasional.');
             }
         } catch (error) {
             console.log(error);

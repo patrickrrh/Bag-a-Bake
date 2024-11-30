@@ -22,11 +22,13 @@ type Favorite = {
 }
 
 const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
+    const isClosed = item.isClosed;
 
     return (
         <TouchableOpacity
             className="bg-white rounded-lg shadow-sm mb-5 p-4"
             onPress={onPress}
+            style={{ opacity: isClosed ? 0.2 : 1 }}
         >
             <View className="flex-row items-start justify-between">
                 <View className="flex-row p-1">
@@ -56,7 +58,7 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
                             <View className="flex-row items-start mt-1">
                                 <Ionicons name="location-sharp" size={12} color="black" style={{ marginRight: 5 }} />
                                 <View style={{ flex: 1, paddingRight: 20 }}>
-                                    <TextEllipsis label={item.bakeryAddress} />
+                                    <TextEllipsis label={item.bakeryAddress} line={1} />
                                 </View>
                             </View>
                         </View>
@@ -66,7 +68,5 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
         </TouchableOpacity>
     );
 };
-
-
 
 export default BakeryCard;

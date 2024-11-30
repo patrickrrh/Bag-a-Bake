@@ -14,7 +14,10 @@ import {
   Modal,
   ActivityIndicator,
 } from "react-native";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { getItemAsync } from "expo-secure-store";
 import FilterButton from "@/components/FilterButton";
@@ -36,7 +39,9 @@ import { icons } from "@/constants/icons";
 const Bakery = () => {
   const { userData } = useAuth();
   const insets = useSafeAreaInsets();
-  const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>([]);
+  const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>(
+    []
+  );
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
   const [userLocationFilter, setUserLocationFilter] = useState(false);
   const [isExpiringFilter, setIsExpiringFilter] = useState(false);
@@ -60,7 +65,6 @@ const Bakery = () => {
       const jsonValue = await getLocalStorage("orderData");
       const data: OrderItemType = jsonValue ? JSON.parse(jsonValue) : null;
       setOrderData(data);
-
     } catch (error) {
       console.log(error);
     }
@@ -95,7 +99,6 @@ const Bakery = () => {
       if (response.status === 200) {
         setBakery(response.data ? response.data : []);
       }
-
     } catch (error) {
       console.log(error);
     }
@@ -116,9 +119,10 @@ const Bakery = () => {
       );
     }
 
-    return bakery.filter((item) =>
-      item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    return bakery.sort((a, b) => (a.isClosed === b.isClosed ? 0 : a.isClosed ? 1 : -1));
+    // return bakery.filter((item) =>
+    //   item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
+    // );
   };
 
   const toggleFavorite = async (bakeryId: number) => {
@@ -208,12 +212,11 @@ const Bakery = () => {
     useCallback(() => {
       handleGetBakeryApi();
     }, [checkedCategories, userLocationFilter, isExpiringFilter])
-  )
+  );
 
   return (
     <View className="bg-background h-full flex-1">
-
-<View style={{ height: insets.top }} />
+      <View style={{ height: insets.top }} />
 
       <View className="mx-5 mb-5">
         <View className="flex-row align-center justify-between">
@@ -310,7 +313,7 @@ const Bakery = () => {
                 onPress={() =>
                   router.push({
                     pathname: "/bakery/bakeryDetail" as any,
-                    params: { bakeryId: item.bakeryId },
+                    params: { bakeryId: item.bakeryId, isClosed: item.isClosed.toString() },
                   })
                 }
                 onFavorite={() => toggleFavorite(item.bakeryId)}

@@ -36,7 +36,8 @@ export type BakeryType = {
     bakeryLatitude: number;
     bakeryLongitude: number;
     payment: PaymentType[];
-    bakery: BakeryType
+    bakery: BakeryType;
+    isClosed: boolean;
 }
 
 export type BakeryDetailType = {

@@ -11,15 +11,17 @@ import { formatRupiah } from '@/utils/commonFunctions';
 
 interface Props {
     product: any;
+    isClosed: boolean;
     onPress: () => void;
 }
 
-const ProductCardBakery: React.FC<Props> = ({ product, onPress }) => {
+const ProductCardBakery: React.FC<Props> = ({ product, isClosed, onPress }) => {
 
     return (
         <TouchableOpacity
             onPress={onPress}
-            style={{ width: 170 }}
+            disabled={isClosed}
+            style={{ width: 170, opacity: isClosed ? 0.5 : 1 }}
             className='bg-white rounded-lg shadow-sm mb-1'
         >
             <View className='p-4'>
