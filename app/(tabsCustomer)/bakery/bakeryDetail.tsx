@@ -199,7 +199,24 @@ const BakeryDetail = () => {
                     />
                   </View>
                 </View>
-                <TouchableOpacity
+              </View>
+
+              <View>
+                <CustomClickableButton
+                  label={"Hubungi Bakeri"}
+                  handlePress={() =>
+                    handleContactSeller(
+                      bakeryDetail?.bakery.bakeryPhoneNumber as string
+                    )
+                  }
+                  isLoading={isSubmitting}
+                  icon="whatsapp"
+                  iconColor="#25D366"
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
                   onPress={() =>
                     router.push({
                       pathname: "/bakery/ratingBakeryCustomer" as any,
@@ -218,26 +235,9 @@ const BakeryDetail = () => {
                     />
 
                     {/* Chevron di Kanan */}
-                    <Ionicons name="chevron-forward" size={20} color="gray" />
+                    <Ionicons name="chevron-forward" size={14} color="gray" />
                   </View>
                 </TouchableOpacity>
-
-              </View>
-
-              <View>
-                <CustomClickableButton
-                  label={"Hubungi Bakeri"}
-                  handlePress={() =>
-                    handleContactSeller(
-                      bakeryDetail?.bakery.bakeryPhoneNumber as string
-                    )
-                  }
-                  isLoading={isSubmitting}
-                  icon="whatsapp"
-                  iconColor="#25D366"
-                />
-              </View>
-            </View>
 
             <View className="mt-3">
               <TextTitle4 label={"Deskripsi Toko"} />
