@@ -38,12 +38,14 @@ import { printPDF } from "@/utils/printUtils";
 import TextTitle3 from "@/components/texts/TextTitle3";
 import { icons } from "@/constants/icons";
 import ModalAction from "@/components/ModalAction";
+import FilterButton from "@/components/FilterButton";
 
 const Order = () => {
   const { userData } = useAuth();
   const insets = useSafeAreaInsets();
 
   const [selectedStatus, setSelectedStatus] = useState(1);
+  const [selectedFilter, setSelectedFilter] = useState("All"); 
   const hasManualSelection = useRef(false);
   const [order, setOrder] = useState<OrderType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -214,6 +216,12 @@ const Order = () => {
     }
   };
 
+  const filteredOrders = order.filter((item) => {
+    if (selectedFilter === "Selesai") return item.orderStatus === 4;
+    if (selectedFilter === "Dibatalkan") return item.orderStatus === 5;
+    return true;
+  });
+
   console.log("order", JSON.stringify(order, null, 2));
 
   return (
@@ -238,12 +246,25 @@ const Order = () => {
           </View>
         </View>
 
+        {![1, 2, 3].includes(selectedStatus) && (
+          <View className="flex-row mt-5 mb-2 mx-5">
+            {["All", "Selesai", "Dibatalkan"].map((filter) => (
+              <FilterButton
+                key={filter}
+                label={filter}
+                isSelected={selectedFilter === filter}
+                onPress={() => setSelectedFilter(filter)}
+              />
+            ))}
+          </View>
+        )}
+
         <View className="flex-1 mx-5">
           {isLoading ? (
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="small" color="#828282" />
             </View>
-          ) : order.length === 0 ? (
+          ) : filteredOrders.length === 0 ? (
             <View className="flex-1 items-center justify-center">
               <Image
                 source={icons.noFile}
@@ -274,7 +295,7 @@ const Order = () => {
             </View>
           ) : (
             <FlatList
-              data={order}
+              data={filteredOrders}
               renderItem={({ item }) =>
                 item.orderStatus === 1 ? (
                   <SellerOrderCardPending
