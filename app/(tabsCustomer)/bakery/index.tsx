@@ -109,17 +109,19 @@ const Bakery = () => {
   };
 
   const filterBakeries = () => {
-    if (showFavorite) {
-      const favoriteBakeries = bakery.filter((item) =>
-        item.favorite.some((fav) => fav.userId === userData?.userId)
-      );
+    const filtered = bakery.filter((item) =>
+      item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-      return favoriteBakeries.filter((item) =>
-        item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+    if (showFavorite) {
+      return filtered
+        .filter((item) =>
+          item.favorite.some((fav) => fav.userId === userData?.userId)
+        )
+        .sort((a, b) => (a.isClosed === b.isClosed ? 0 : a.isClosed ? 1 : -1));
     }
 
-    return bakery.sort((a, b) => (a.isClosed === b.isClosed ? 0 : a.isClosed ? 1 : -1));
+    return filtered.sort((a, b) => (a.isClosed === b.isClosed ? 0 : a.isClosed ? 1 : -1));
     // return bakery.filter((item) =>
     //   item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
     // );
@@ -243,7 +245,7 @@ const Bakery = () => {
         <View className="mt-5">
           <SearchBar
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(text) => setSearchQuery(text)}
             placeholder="Cari bakeri"
           />
         </View>

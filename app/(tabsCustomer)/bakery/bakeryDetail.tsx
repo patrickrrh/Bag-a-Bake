@@ -210,19 +210,18 @@ const BakeryDetail = () => {
                     })
                   }
                 >
-                  <View className="flex-row items-center">
+                  <View className="flex-row justify-between items-start">
+                    {/* Informasi Rating di Kiri */}
                     <TextRating
                       rating={bakeryDetail?.prevRating.averageRating || "0"}
                       reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
                     />
-                    <FontAwesome
-                      name="hand-o-left"
-                      size={14}
-                      color="#FA6F33"
-                      style={{ marginLeft: 5 }}
-                    />
+
+                    {/* Chevron di Kanan */}
+                    <Ionicons name="chevron-forward" size={20} color="gray" />
                   </View>
                 </TouchableOpacity>
+
               </View>
 
               <View>
