@@ -221,7 +221,6 @@ const Order = () => {
     if (selectedFilter === "Dibatalkan") return item.orderStatus === 5;
     return true;
   })
-  .slice(0, ![1, 2, 3].includes(selectedStatus) && order.length > 100 ? 100 : order.length);
 
   console.log("order", JSON.stringify(order, null, 2));
 
