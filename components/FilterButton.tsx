@@ -17,11 +17,11 @@ const FilterButton: React.FC<Props> = ({ label, isSelected, onPress, isDropdown 
     return (
         <TouchableOpacity
             onPress={onPress}
-            className={`rounded-xl py-1 px-3 mr-3 ${isSelected ? 'bg-[#FFF2EB]' : 'bg-gray-100'}`}
+            className={`rounded-xl py-1 px-3 mr-3 ${isSelected ? 'bg-brown' : 'bg-gray-100'}`}
         >
             <View className="flex-row items-center">
                 {isSelected ? (
-                    <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12 }} className="text-primary">
+                    <Text style={{ fontFamily: "poppinsSemiBold", fontSize: 12 }} className="text-white">
                         {label}
                     </Text>
                 ) : (

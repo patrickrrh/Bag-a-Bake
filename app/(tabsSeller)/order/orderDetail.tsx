@@ -174,20 +174,7 @@ const OrderDetail = () => {
           {orderData.orderDetail.map((item: OrderDetailType) => (
             <View key={item.orderDetailId} className='flex-row justify-between'>
               <View style={{ flexDirection: 'row', columnGap: 8 }}>
-                <TextTitle5 label={item.productQuantity} />
-                <TextTitle5 label={item.product.productName} />
-              </View>
-              <TextTitle5 label={formatRupiah(item.totalDetailPrice)} />
-            </View>
-          ))}
-        </View>
-
-        <View className='p-5 gap-y-3 mt-5 bg-white'>
-          <TextTitle3 label="Ringkasan Pesanan" />
-          {orderData.orderDetail.map((item: OrderDetailType) => (
-            <View key={item.orderDetailId} className='flex-row justify-between'>
-              <View style={{ flexDirection: 'row', columnGap: 8 }}>
-                <TextTitle5 label={item.productQuantity} />
+                <TextTitle5 label={`${item.productQuantity}x`} />
                 <TextTitle5 label={item.product.productName} />
               </View>
               <View className='flex-col items-end'>

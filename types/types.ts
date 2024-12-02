@@ -13,6 +13,7 @@ export type UserType = {
     address: string;
     latitude: number;
     longitude: number;
+    isCancelled: number;
 };
 
 

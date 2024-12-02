@@ -80,6 +80,7 @@ const InputOrderDetail = () => {
     }
 
     const handleCreateOrder = async () => {
+        setIsSubmitting(true);
         try {
             if (!orderData || !userData?.userId) return;
 
@@ -94,11 +95,15 @@ const InputOrderDetail = () => {
             if (response.status === 200) {
                 router.push('/order');
                 removeLocalStorage('orderData');
-            } else if (response.status === 403) {
+            } else if (response.status === 404) {
                 showToast('error', 'Bakeri sudah tutup. Silakan coba lagi selama jam operasional.');
+            } else if (response.status === 403) {
+                showToast('error', 'Akun Anda sedang diblokir karena telah membatalkan lebih dari 3 kali.');
             }
         } catch (error) {
             console.log(error);
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -196,7 +201,10 @@ const InputOrderDetail = () => {
                         label="Hapus Keranjang"
                         handlePress={() => {
                             removeLocalStorage('orderData');
-                            router.replace('/order')
+                            router.replace({
+                                pathname: '/(tabsCustomer)/bakery/bakeryDetail' as any,
+                                params: { bakeryId: bakeryDetail?.bakery.bakeryId }
+                            })
                         }}
                         buttonStyles='mt-3'
                         isLoading={isSubmitting}

@@ -213,7 +213,7 @@ const Home = () => {
               <View className="mr-2" style={{ paddingVertical: 2 }}>
                 <FontAwesome name="star" size={14} color="#FA6F33" />
               </View>
-              <TextTitle5 label="Penilaian Bakeri" />
+              <TextTitle5 label="Penilaian Bakeri" color="#FA6F33"/>
             </View>
 
           </TouchableOpacity>

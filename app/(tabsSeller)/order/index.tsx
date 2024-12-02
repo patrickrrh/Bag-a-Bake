@@ -193,7 +193,7 @@ const Order = () => {
             <View className="flex-1 items-center justify-center">
               <ActivityIndicator size="small" color="#828282" />
             </View>
-          ) : order.length === 0 ? (
+          ) : filteredOrders.length === 0 ? (
             <View className="flex-1 items-center justify-center">
               <Image
                 source={icons.noFile}
