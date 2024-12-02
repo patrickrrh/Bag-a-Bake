@@ -24,6 +24,7 @@ export default function registerApi() {
         isEmailRegistered: createApiFunction("post", "is_email_registered"),
         checkAccount: createApiFunction("post", "check_account"),
         sendOTP: createApiFunction("post", "send/otp"),
+        signUpOTP: createApiFunction("post", "send/sign_up/otp"),
         verifyOTP: createApiFunction("post", "verify/otp"),
         changePassword: createApiFunction("put", "change/password"),
         updateUser: createApiFunction("put", "update/user"),

@@ -124,11 +124,13 @@ const InputOrderDetail = () => {
                     <TouchableOpacity
                         onPress={() => {
                             router.replace({
-                                pathname: '/order',
-                            });
+                                pathname: '/(tabsCustomer)/bakery/bakeryDetail' as any,
+                                params: { bakeryId: bakeryDetail?.bakery.bakeryId }
+                            })
                         }}
                         activeOpacity={0.7}
                         style={{ width: 10, height: 24 }}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
                         <FontAwesome
                             name="angle-left"

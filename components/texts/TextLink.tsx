@@ -6,12 +6,13 @@ interface Props {
     label: string
     size?: number
     onPress: () => void
+    isUnderline?: boolean
 }
 
-const TextLink: React.FC<Props> = ({ label, size, onPress }) => {
+const TextLink: React.FC<Props> = ({ label, size, onPress, isUnderline }) => {
   return (
       <Text
-        style={{ fontFamily: "poppinsMedium", fontSize: size, color: "#B0795A", textDecorationLine: "underline" }}
+        style={{ fontFamily: "poppinsMedium", fontSize: size, color: "#B0795A", textDecorationLine: isUnderline ? "underline" : "none" }}
         onPress={onPress}
       >
         {label}
