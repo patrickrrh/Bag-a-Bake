@@ -18,7 +18,7 @@ import orderSellerApi from '@/api/orderSellerApi';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { OrderDetailType } from '@/types/types';
+import { OrderDetailType, OrderType } from '@/types/types';
 import TextTitle5Gray from '@/components/texts/TextTitle5Gray';
 import ModalInformation from '@/components/ModalInformation';
 import CustomClickableButton from '@/components/CustomClickableButton';
@@ -28,9 +28,13 @@ import { handleDownloadImage } from '@/utils/mediaUtils';
 import Toast from 'react-native-toast-message';
 import ModalAction from '@/components/ModalAction';
 import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
+import { generateInvoice, printPDF } from '@/utils/printUtils';
+import { useAuth } from '@/app/context/AuthContext';
+import FilterButton from '@/components/FilterButton';
 
 const OrderDetail = () => {
 
+  const { userData } = useAuth();
   const insets = useSafeAreaInsets();
 
   const { order } = useLocalSearchParams();
@@ -103,7 +107,15 @@ const OrderDetail = () => {
       .catch((err) => console.error('An error occurred', err));
   }
 
-  console.log("is masuk halaman")
+  const handlePrintPDF = async (orderItem: OrderType) => {
+    const invoiceHtml = generateInvoice(orderItem, userData);
+
+    try {
+      await printPDF(invoiceHtml, `${userData?.bakery.bakeryName}_Invoice_Order${orderItem.orderId}_${formatDate(orderItem.orderDate)}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <View className='bg-background h-full flex-1'>
@@ -114,27 +126,33 @@ const OrderDetail = () => {
         <Toast topOffset={50} />
       </View>
 
-      <View className='mx-5 mb-5 flex-row items-start'>
+      <View className="mx-5 mb-5 flex-row items-center justify-between">
         <TouchableOpacity
           onPress={() => {
             router.replace({
               pathname: '/order',
-            })
-            setLocalStorage('orderSellerParams', JSON.stringify({ status: orderData.orderStatus }))
+            });
+            setLocalStorage('orderSellerParams', JSON.stringify({ status: orderData.orderStatus }));
           }}
           activeOpacity={0.7}
           style={{ width: 10, height: 24 }}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <FontAwesome
-            name="angle-left"
-            size={24}
-            color="#000"
-          />
+          <FontAwesome name="angle-left" size={24} color="#000" />
         </TouchableOpacity>
-        <View className='flex-1 items-center pr-3'>
+
+        <View style={{ flex: 1, alignItems: 'center' }}>
           <TextTitle3 label={`#${orderData.orderId}`} />
           <TextTitle5Date label={formatDatewithtime(orderData.orderDate)} />
         </View>
+
+        {orderData.orderStatus === 4 ? (
+          <TouchableOpacity onPress={() => handlePrintPDF(orderData)} activeOpacity={0.7}>
+            <Ionicons name="share-outline" size={20} color="#B0795A" />
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 24 }} />
+        )}
       </View>
 
       <ScrollView>
@@ -230,6 +248,30 @@ const OrderDetail = () => {
         }
 
         {
+          paymentInfoModal && (
+            <ModalInformation
+              visible={paymentInfoModal}
+              onClose={() => setPaymentInfoModal(false)}
+              title='Informasi Pembayaran'
+              content='Diharapkan jangan melakukan konfirmasi pembayaran sebelum pembeli mengirimkan bukti pembayaran.'
+            />
+          )
+        }
+
+        <ModalAction
+          modalVisible={cancelOrderModal}
+          setModalVisible={setCancelOrderModal}
+          title="Apakah Anda yakin ingin membatalkan pesanan ini?"
+          primaryButtonLabel="Kembali"
+          secondaryButtonLabel="Batalkan Pesanan"
+          onPrimaryAction={() => { setCancelOrderModal(false) }}
+          onSecondaryAction={() => {
+            handleCancelOrder();
+          }}
+        />
+      </ScrollView>
+
+      {
           orderData.orderStatus === 1 ? (
             <View className='mx-5 my-5'>
               <CustomButton
@@ -244,7 +286,7 @@ const OrderDetail = () => {
                 isLoading={isSubmitting}
               />
             </View>
-          ) : (orderData.orderStatus === 2 && orderData.proofOfPayment ) ? (
+          ) : (orderData.orderStatus === 2 && orderData.proofOfPayment) ? (
             <View className='mx-5 my-5'>
               <CustomButton
                 label="Konfirmasi Pembayaran"
@@ -268,30 +310,6 @@ const OrderDetail = () => {
             </View>
           )
         }
-
-        {
-          paymentInfoModal && (
-            <ModalInformation
-              visible={paymentInfoModal}
-              onClose={() => setPaymentInfoModal(false)}
-              title='Informasi Pembayaran'
-              content='Diharapkan jangan melakukan konfirmasi pembayaran sebelum pembeli mengirimkan bukti pembayaran.'
-            />
-          )
-        }
-
-        <ModalAction
-          modalVisible={cancelOrderModal}
-          setModalVisible={setCancelOrderModal}
-          title="Apakah Anda yakin ingin membatalkan pesanan ini?"
-          primaryButtonLabel="Kembali"
-          secondaryButtonLabel="Batalkan Pesanan"
-          onPrimaryAction={() => { setCancelOrderModal(false) }}
-          onSecondaryAction={() => {
-            handleCancelOrder();
-          }}
-        />
-      </ScrollView>
 
     </View>
 

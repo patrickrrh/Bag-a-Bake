@@ -185,7 +185,9 @@ const Home = () => {
 
         {/* Header */}
         <View className='flex-row justify-between items-center w-full'>
-          <View className='flex-row items-center gap-x-3'>
+          <TouchableOpacity 
+          onPress={() => router.replace("/(tabsSeller)/profile" as any)}
+          className='flex-row items-center gap-x-3'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">
               <Image
                 source={userData?.userImage ? { uri: userData?.userImage } : images.profile}
@@ -196,7 +198,7 @@ const Home = () => {
               <TextTitle4 label="Halo" />
               <TextTitle5Gray label={userData?.userName || ''} />
             </View>
-          </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => {

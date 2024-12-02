@@ -79,14 +79,18 @@ const SignUpBakeryOwner = () => {
                 return
             } else {
                 const token = await requestNotificationPermission();
-                console.log("push token", token)
                 if (token) {
                     form.pushToken = token.data
                 }
-                router.push({
-                    pathname: '/(auth)/signUpBakery' as any,
-                    params: { prevForm: JSON.stringify(form) },
+                const otp = await authenticationApi().signUpOTP({
+                    email: form.email,
                 })
+                if (otp.status === 200) {
+                    router.push({
+                        pathname: '/(auth)/signUpOTP' as any,
+                        params: { email: form.email, userDataForm: JSON.stringify(form) },
+                    })
+                }
             }
         } catch (error) {
             console.log(error);

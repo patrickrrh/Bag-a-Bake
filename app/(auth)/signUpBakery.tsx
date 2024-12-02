@@ -219,8 +219,6 @@ const SignUpBakery = () => {
     </>
   );
 
-  console.log("Form at bakery: ", JSON.stringify(form, null, 2));
-
   return (
     <AuthLayout headerContent={headerContent} footerContent={footerContent} isScrollable>
       <FormField

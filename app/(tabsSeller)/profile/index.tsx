@@ -324,6 +324,9 @@ const ProfilePage = () => {
 
   const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
   const [hasAutoSelected, setHasAutoSelected] = useState(false);
+  const [isDisabledUser, setIsDisabledUser] = useState(false);
+  const [isDisabledBakery, setIsDisabledBakery] = useState(false);
+  const [isDisabledPayment, setIsDisabledPayment] = useState(false);
 
   const handlePaymentMethodSelect = (method: string) => {
     setPaymentError((prevPaymentError) => ({
@@ -616,6 +619,18 @@ const ProfilePage = () => {
     }
   };
 
+  useEffect(() => {
+    setIsDisabledUser(!hasUnsavedChanges());
+  }, [form, userData]);
+
+  useEffect(() => {
+    setIsDisabledBakery(!hasBakeryUnsavedChanges());
+  }, [bakeryForm, userData]);
+
+  useEffect(() => {
+    setIsDisabledPayment(!hasPaymentUnsavedChanges());
+  }, [paymentForm, userData]);
+
   return (
     <View className="bg-background h-full flex-1">
 
@@ -716,6 +731,7 @@ const ProfilePage = () => {
                   handlePress={handleSubmitChange}
                   buttonStyles="my-3 w-full"
                   isLoading={isSubmitting}
+                  disabled={isDisabledUser}
                 />
               </>
             ) : selectedStatus === 2 ? (
@@ -815,6 +831,7 @@ const ProfilePage = () => {
                   handlePress={handleSubmitChange}
                   buttonStyles="mt-10 w-full"
                   isLoading={isSubmitting}
+                  disabled={isDisabledBakery}
                 />
 
                 <DateTimePickerModal
@@ -845,6 +862,7 @@ const ProfilePage = () => {
                   handlePress={handleSubmitChange}
                   buttonStyles="mt-10 w-full"
                   isLoading={isSubmitting}
+                  disabled={isDisabledPayment}
                 />
               </>
             )}

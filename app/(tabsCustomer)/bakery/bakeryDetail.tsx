@@ -361,7 +361,7 @@ const BakeryDetail = () => {
               label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
               handlePress={() => {
                 router.push({
-                  pathname: "/order/inputOrderDetail" as any,
+                  pathname: "/inputOrderDetail" as any,
                   params: {
                     bakeryId: bakeryId,
                   },

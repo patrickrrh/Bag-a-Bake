@@ -52,6 +52,7 @@ const InputOrder = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [changeOrderModal, setChangeOrderModal] = useState(false);
   const [isProduct, setIsProduct] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   // New
@@ -144,8 +145,8 @@ const InputOrder = () => {
   }
 
   const handleAddOrder = async () => {
+    setIsSubmitting(true);
     try {
-      // Retrieve the current order data from AsyncStorage
       const jsonValue = await AsyncStorage.getItem('orderData');
       const orderData = jsonValue ? JSON.parse(jsonValue) : [];
 
@@ -154,25 +155,20 @@ const InputOrder = () => {
         return;
       }
 
-      // Check if no order exists
       if (orderData.length === 0) {
-        // Insert the bakeryId outside the array if no order data exists
         const newOrder = {
-          bakeryId: bakery?.bakery.bakeryId, // Assuming bakeryId comes from bakery object
+          bakeryId: bakery?.bakery.bakeryId,
           items: [form]
         };
 
-        // Save the new order with bakeryId
         await AsyncStorage.setItem('orderData', JSON.stringify(newOrder));
       } else {
-        // If an order exists, check if bakeryId matches
         const currentBakeryId = orderData.bakeryId;
 
         if (currentBakeryId !== bakery?.bakery.bakeryId) {
           setChangeOrderModal(true);
           return;
         } else {
-          // If bakeryId matches, update the order items
           const updatedItems = updateOrderData(orderData.items, {
             productId: parseInt(productId as string),
             productQuantity: form.productQuantity
@@ -188,13 +184,14 @@ const InputOrder = () => {
           }
         }
       }
-
       router.push({
         pathname: '/bakery/bakeryDetail' as any,
         params: { bakeryId: bakery?.bakery.bakeryId },
       })
     } catch (error) {
       console.log('Error handling the order:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -215,15 +212,13 @@ const InputOrder = () => {
   const handleCalculateTotalPrice = (productQuantity: number) => {
     const total = product?.todayPrice as number * productQuantity;
     console.log("Product Quantity: ", product?.todayPrice);
-    // console.log("Total: ", total);
     setTotalPrice(total);
-    // console.log("Total Price: ", totalPrice);
   }
 
   console.log("Error: ", error)
 
   return (
-    <ScrollView className='bg-background'>
+    <ScrollView className='bg-background' contentContainerStyle={{ flexGrow: 1 }}>
       <View>
         <Image
           source={{ uri: product?.productImage as string }}
@@ -235,7 +230,7 @@ const InputOrder = () => {
               router.push({
                 pathname: "/bakery/bakeryDetail",
                 params: { bakeryId: bakery?.bakery.bakeryId },
-              })
+              });
             }}
             style={{
               backgroundColor: "white",
@@ -286,7 +281,9 @@ const InputOrder = () => {
           </View>
           <TextAfterPrice label={formatRupiah(Number(product?.todayPrice))} size={20} />
         </View>
+      </View>
 
+      <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20 }}>
         <View className="flex-row items-center justify-between mt-5">
           <TextTitle3 label="Jumlah Pembelian" />
           <StockInput
@@ -299,11 +296,9 @@ const InputOrder = () => {
             error={error.productQuantity}
           />
         </View>
-        {
-          error.productQuantity && (
-            <ErrorMessage label={error.productQuantity} />
-          )
-        }
+        {error.productQuantity && (
+          <ErrorMessage label={error.productQuantity} />
+        )}
 
         <View className='my-5'>
           <AddOrderProductButton
@@ -314,11 +309,11 @@ const InputOrder = () => {
             }
             handlePress={
               form.productQuantity === 0 && !isProduct
-                ? () => { } // Disable jika tidak ada produk & jumlah 0
+                ? () => { }
                 : handleAddOrder
             }
-            isLoading={false}
-            disabled={form.productQuantity === 0 && !isProduct && !hasExistingOrder} // Disable jika kondisi terpenuhi
+            isLoading={isSubmitting}
+            disabled={form.productQuantity === 0 && !isProduct && !hasExistingOrder}
           />
         </View>
       </View>
@@ -332,9 +327,9 @@ const InputOrder = () => {
         onPrimaryAction={() => handleCreateNewOrder()}
         onSecondaryAction={() => setChangeOrderModal(false)}
       />
-    </ScrollView >
+    </ScrollView>
+  );
 
-  )
 }
 
 export default InputOrder

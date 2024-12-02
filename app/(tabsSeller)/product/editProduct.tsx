@@ -310,7 +310,7 @@ const EditProduct = () => {
   const handleDeleteProduct = async () => {
     try {
       await productApi().deleteProductById({ productId });
-      router.push("/product");
+      router.back();
     } catch (error) {
       console.error("Error deleting product", error);
     }

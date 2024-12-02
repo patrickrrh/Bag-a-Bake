@@ -37,7 +37,6 @@ type ErrorState = {
 const ChangePassword = () => {
   const insets = useSafeAreaInsets();
   const { userData } = useAuth();
-  const { email } = useLocalSearchParams();
 
   const emptyForm = {
     oldPassword: "",

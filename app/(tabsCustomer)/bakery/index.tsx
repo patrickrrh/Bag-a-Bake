@@ -29,7 +29,7 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/app/context/AuthContext";
 import TextTitle1 from "@/components/texts/TextTitle1";
 import categoryApi from "@/api/categoryApi";
-import CheckBox from "react-native-check-box";
+import Checkbox from 'expo-checkbox';
 import CustomButton from "@/components/CustomButton";
 import { BakeryType, CategoryType, OrderItemType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -37,6 +37,7 @@ import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { set } from "date-fns";
 import { icons } from "@/constants/icons";
 import Announcement from '@/components/Announcement';
+import TextLink from "@/components/texts/TextLink";
 
 const Bakery = () => {
   const { userData } = useAuth();
@@ -226,9 +227,6 @@ const Bakery = () => {
       return () => {
         removeLocalStorage("filter");
         setLocalStorageData(null);
-        setCheckedCategories([]);
-        setUserLocationFilter(false);
-        setIsExpiringFilter(false);
       };
     }, [])
   );
@@ -289,31 +287,47 @@ const Bakery = () => {
           />
         </View>
 
-        <View className="mt-5 flex-row">
-          <FilterButton
-            label="Dekat saya"
-            isSelected={userLocationFilter}
-            onPress={() => {
-              userLocationFilter
-                ? setUserLocationFilter(false)
-                : setUserLocationFilter(true);
-            }}
-          />
-          <FilterButton
-            label="Jangan lewatkan"
-            isSelected={isExpiringFilter}
-            onPress={() => {
-              isExpiringFilter
-                ? setIsExpiringFilter(false)
-                : setIsExpiringFilter(true);
-            }}
-          />
-          <FilterButton
-            label="Kategori"
-            isSelected={checkedCategories.length > 0}
-            onPress={() => setCategoryModal(true)}
-          />
-        </View>
+        <ScrollView
+          horizontal={true} // Enables horizontal scrolling
+          showsHorizontalScrollIndicator={false} // Hides the scrollbar (optional)
+          contentContainerStyle={{ flexGrow: 1, alignItems: "center" }} // Ensures proper alignment
+        >
+          <View className="mt-5 flex-row items-center">
+            <FilterButton
+              label="Dekat saya"
+              isSelected={userLocationFilter}
+              onPress={() => {
+                userLocationFilter
+                  ? setUserLocationFilter(false)
+                  : setUserLocationFilter(true);
+              }}
+            />
+            <FilterButton
+              label="Jangan lewatkan"
+              isSelected={isExpiringFilter}
+              onPress={() => {
+                isExpiringFilter
+                  ? setIsExpiringFilter(false)
+                  : setIsExpiringFilter(true);
+              }}
+            />
+            <FilterButton
+              label="Kategori"
+              isSelected={checkedCategories.length > 0}
+              onPress={() => setCategoryModal(true)}
+              isDropdown={true}
+            />
+            <TextLink
+              label="Reset"
+              onPress={() => {
+                setCheckedCategories([]);
+                setUserLocationFilter(false);
+                setIsExpiringFilter(false);
+              }}
+              isUnderline={false}
+            />
+          </View>
+        </ScrollView>
       </View>
 
       <View className="flex-1 mx-5">
@@ -416,10 +430,10 @@ const Bakery = () => {
             renderItem={({ item }) => (
               <View className="flex-row items-center w-full justify-between border-b border-gray-200 py-4">
                 <TextTitle3 label={item.categoryName} />
-                <CheckBox
-                  isChecked={tempCheckedCategories.includes(item.categoryId)}
-                  onClick={() => handleTempCheckboxClick(item.categoryId)}
-                  checkBoxColor="#B0795A"
+                <Checkbox
+                  value={tempCheckedCategories.includes(item.categoryId)}
+                  onValueChange={() => handleTempCheckboxClick(item.categoryId)}
+                  color={"#B0795A"}
                 />
               </View>
             )}

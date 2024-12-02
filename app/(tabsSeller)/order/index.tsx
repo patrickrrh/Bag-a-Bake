@@ -27,6 +27,7 @@ import { RouteProp } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { OrderType } from "@/types/types";
 import {
+  formatDate,
   formatDatewithtime,
   formatRupiah,
   getLocalStorage,
@@ -34,7 +35,7 @@ import {
 } from "@/utils/commonFunctions";
 import LoaderKit from "react-native-loader-kit";
 import { useAuth } from "@/app/context/AuthContext";
-import { printPDF } from "@/utils/printUtils";
+import { generateInvoice, printPDF } from "@/utils/printUtils";
 import TextTitle3 from "@/components/texts/TextTitle3";
 import { icons } from "@/constants/icons";
 import ModalAction from "@/components/ModalAction";
@@ -45,7 +46,7 @@ const Order = () => {
   const insets = useSafeAreaInsets();
 
   const [selectedStatus, setSelectedStatus] = useState(1);
-  const [selectedFilter, setSelectedFilter] = useState("All"); 
+  const [filterStatus, setFilterStatus] = useState<number | null>(null);
   const hasManualSelection = useRef(false);
   const [order, setOrder] = useState<OrderType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,6 +55,7 @@ const Order = () => {
 
   const handleSelectStatus = (status: number) => {
     setSelectedStatus(status);
+    setFilterStatus(null);
     hasManualSelection.current = true;
   };
 
@@ -75,6 +77,15 @@ const Order = () => {
       setIsLoading(false);
     }, 300);
   };
+
+  const handleFilter = (status: number) => {
+    setFilterStatus((prev) => (prev === status ? null : status));
+  };
+
+  const filteredOrders = filterStatus
+    ? order.filter((item) => item.orderStatus === filterStatus)
+    : order;
+
 
   useFocusEffect(
     useCallback(() => {
@@ -126,101 +137,15 @@ const Order = () => {
     }
   };
 
-  const generateInvoice = (orderItem: OrderType) => {
-    return `
-      <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
-          <style>
-            body { font-family: Arial, sans-serif; background-color: #FEFAF9; margin: 30px auto; padding: 0; }
-            h1, h2 { text-align: center; margin: 10px 0; }
-            .details-container {
-              width: 90%; 
-              margin: 20px auto;
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-start;
-              gap: 20px; /* Ensures some spacing between left and right sections */
-            }
-            .details-left, .details-right {
-              display: flex;
-              flex-direction: column;
-            }
-            .details-left p, .details-right p {
-              margin: 5px 0;
-            }
-            table { width: 90%; margin: 30px auto; border-collapse: collapse; background-color: #fff; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f4f4f4; }
-            tr:nth-child(even) { background-color: #f9f9f9; }
-            .total-container { 
-              width: 90%; 
-              margin: 20px auto; 
-              display: flex; 
-              justify-content: flex-end; 
-              font-weight: bold; 
-            }
-            .total-container span { margin-left: 10px; }
-          </style>
-        </head>
-        <body>
-          <h1>Invoice</h1>
-          <h2>ID Pesanan: ${orderItem.orderId}</h2>
-          <div class="details-container">
-            <div class="details-left">
-              <p><strong>${userData?.bakery?.bakeryName}</strong></p>
-              <p>Tanggal Pesanan: ${formatDatewithtime(orderItem.orderDate)}</p>
-            </div>
-            <div class="details-right">
-              <p>Pembeli: ${orderItem.user.userName}</p>
-              <p>No Telepon: ${orderItem.user.userPhoneNumber}</p>
-            </div>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Produk</th>
-                <th>Jumlah</th>
-                <th>Harga</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${orderItem.orderDetail
-        .map(
-          (item) => `
-                <tr>
-                  <td>${item.product.productName}</td>
-                  <td>${item.productQuantity}</td>
-                  <td>${formatRupiah(item.totalDetailPrice)}</td>
-                </tr>
-              `
-        )
-        .join("")}
-            </tbody>
-          </table>
-          <div class="total-container">
-            <p>Total: ${formatRupiah(orderItem.totalOrderPrice)}</p>
-          </div>
-        </body>
-      </html>
-    `;
-  };
-
   const handlePrintPDF = async (orderItem: OrderType) => {
-    const invoiceHtml = generateInvoice(orderItem);
+    const invoiceHtml = generateInvoice(orderItem, userData);
 
     try {
-      await printPDF(invoiceHtml);
+      await printPDF(invoiceHtml, `${userData?.bakery.bakeryName}_Invoice_Order${orderItem.orderId}_${formatDate(orderItem.orderDate)}`);
     } catch (error) {
       console.log(error);
     }
   };
-
-  const filteredOrders = order.filter((item) => {
-    if (selectedFilter === "Selesai") return item.orderStatus === 4;
-    if (selectedFilter === "Dibatalkan") return item.orderStatus === 5;
-    return true;
-  })
 
   console.log("order", JSON.stringify(order, null, 2));
 
@@ -246,18 +171,22 @@ const Order = () => {
           </View>
         </View>
 
-        {![1, 2, 3].includes(selectedStatus) && (
-          <View className="flex-row mt-5 mb-2 mx-5">
-            {["All", "Selesai", "Dibatalkan"].map((filter) => (
+        {
+          selectedStatus === 4 && (
+            <View className="mt-5 mb-3 ml-5 flex-row items-center">
               <FilterButton
-                key={filter}
-                label={filter}
-                isSelected={selectedFilter === filter}
-                onPress={() => setSelectedFilter(filter)}
-              />
-            ))}
-          </View>
-        )}
+              label="Selesai"
+              isSelected={filterStatus === 4}
+              onPress={() => handleFilter(4)}
+            />
+            <FilterButton
+              label="Dibatalkan"
+              isSelected={filterStatus === 5}
+              onPress={() => handleFilter(5)}
+            />
+            </View>
+          )
+        }
 
         <View className="flex-1 mx-5">
           {isLoading ? (

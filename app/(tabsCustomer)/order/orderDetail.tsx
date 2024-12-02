@@ -77,8 +77,8 @@ const OrderDetail = () => {
 
     const handleCancelOrderApi = async () => {
         try {
-            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId, bakeryId: orderData.bakery.bakeryId });
-            
+            const isUpdateStock = orderData.orderStatus === 2 ? true : false
+            await orderCustomerApi().cancelOrder({ orderId: orderData.orderId, bakeryId: orderData.bakery.bakeryId, isUpdateStock: isUpdateStock });
             router.push("/order");
         } catch (error) {
             console.log("Error canceling order ", error)
@@ -153,10 +153,6 @@ const OrderDetail = () => {
         <View className="bg-background h-full flex-1">
 
             <View style={{ height: insets.top }} />
-
-            {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
-                <Toast topOffset={50} />
-            </View> */}
 
             <View className="mx-5 mb-5">
                 <View className="flex-row">
@@ -296,55 +292,6 @@ const OrderDetail = () => {
                     )
                 }
 
-                {
-                    orderData.orderStatus === 1 ? (
-                        <View className='mx-5 my-5'>
-                            <CustomButton
-                                label="Hubungi Penjual"
-                                handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
-                                isLoading={isSubmitting}
-                            />
-                            <ContactButton
-                                label="Batalkan Pesanan"
-                                handlePress={() =>{
-                                    console.log("Button Clicked")
-                                    setCancelModalVisible(true)
-                                }}
-                                buttonStyles='mt-3'
-                                isLoading={isSubmitting}
-                            />
-                        </View>
-                    ) : orderData.orderStatus === 2 ? (
-                        <View className='mx-5 my-5'>
-                            {
-                                isShowPayment === false && (
-                                    <CustomButton
-                                        label="Konfirmasi Pembayaran"
-                                        handlePress={() => handleSubmitProofOfPaymentAPI()}
-                                        isLoading={isSubmitting}
-                                        disabled={proofOfPayment === ''}
-                                    />
-                                )
-                            }
-                            <ContactButton
-                                label="Hubungi Penjual"
-                                handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
-                                buttonStyles='mt-3'
-                                isLoading={isSubmitting}
-                            />
-                        </View>
-                    ) : orderData.orderStatus === 3 && (
-                        <View className='mx-5 my-5'>
-                            <ContactButton
-                                label="Hubungi Penjual"
-                                handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
-                                buttonStyles='mt-3'
-                                isLoading={isSubmitting}
-                            />
-                        </View>
-                    )
-                }
-
                 <ModalAction
                     setModalVisible={setCancelModalVisible}
                     modalVisible={isCancelModalVisible}
@@ -363,6 +310,59 @@ const OrderDetail = () => {
                 />
 
             </ScrollView>
+
+            {
+                orderData.orderStatus === 1 ? (
+                    <View className='mx-5 my-5'>
+                        <CustomButton
+                            label="Hubungi Penjual"
+                            handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
+                            isLoading={isSubmitting}
+                        />
+                        <ContactButton
+                            label="Batalkan Pesanan"
+                            handlePress={() => setCancelModalVisible(true)}
+                            buttonStyles='mt-3'
+                            isLoading={isSubmitting}
+                        />
+                    </View>
+                ) : orderData.orderStatus === 2 ? (
+                    <View className='mx-5 my-5'>
+                        {
+                            isShowPayment === false && (
+                                <CustomButton
+                                    label="Konfirmasi Pembayaran"
+                                    handlePress={() => handleSubmitProofOfPaymentAPI()}
+                                    isLoading={isSubmitting}
+                                    disabled={proofOfPayment === ''}
+                                />
+                            )
+                        }
+                        <ContactButton
+                            label="Batalkan Pesanan"
+                            handlePress={() => setCancelModalVisible(true)}
+                            buttonStyles='mt-3'
+                            isLoading={isSubmitting}
+                        />
+                        <ContactButton
+                            label="Hubungi Penjual"
+                            handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
+                            buttonStyles='mt-3'
+                            isLoading={isSubmitting}
+                        />
+                    </View>
+                ) : orderData.orderStatus === 3 && (
+                    <View className='mx-5 my-5'>
+                        <ContactButton
+                            label="Hubungi Penjual"
+                            handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
+                            buttonStyles='mt-3'
+                            isLoading={isSubmitting}
+                        />
+                    </View>
+                )
+            }
+
         </View>
 
     )
