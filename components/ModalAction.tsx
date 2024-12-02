@@ -43,7 +43,7 @@ const ModalAction: React.FC<ModalActionProps> = ({
             width: "80%",
             paddingTop: 30,
             paddingBottom: 30,
-            paddingInline: 20,
+            paddingInline: 10,
             backgroundColor: "#FFFFFF",
             borderRadius: 10,
             shadowColor: "#000",

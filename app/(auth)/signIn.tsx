@@ -18,6 +18,7 @@ import SplashScreen from '@/components/SplashScreen';
 import { checkEmptyForm } from '@/utils/commonFunctions';
 import Toast from 'react-native-toast-message';
 import { showToast } from '@/utils/toastUtils';
+import { requestNotificationPermission } from '@/utils/notificationUtils';
 
 type ErrorState = {
   email: string | null;
@@ -61,9 +62,13 @@ const SignIn = () => {
         showToast('error', res.error);
         return;
       } else {
-        signIn({
-          userId: res.data.userId
-        });
+        const token = await requestNotificationPermission();
+        if (token) {
+          signIn({
+            userId: res.data.userId,
+            pushToken: token.data
+          });
+        }
       }
 
     } catch (error) {

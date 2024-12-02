@@ -112,8 +112,9 @@ const Home = () => {
       >
 
         {/* Header */}
-        <View
+        <TouchableOpacity
           className='bg-brown px-5 mx-5 mt-3 rounded-xl shadow-sm'
+          onPress={() => router.replace('/(tabsCustomer)/profile')}
         >
           <View className='flex-row justify-between w-full my-8'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">
@@ -139,7 +140,7 @@ const Home = () => {
             </View>
             <View className="w-10 h-10" />
           </View>
-        </View>
+        </TouchableOpacity>
 
         <View className='bg-background px-5 pb-5'>
           <View className='mt-6'>
@@ -202,7 +203,7 @@ const Home = () => {
                             fontFamily: "poppinsRegular",
                             fontSize: 14,
                             textAlign: "center",
-                            marginInline: 50
+                            marginInline: 40
                           }}
                         >
                           Tidak ada produk rekomendasi saat ini
@@ -261,7 +262,7 @@ const Home = () => {
                             fontFamily: "poppinsRegular",
                             fontSize: 14,
                             textAlign: "center",
-                            marginInline: 50
+                            marginInline: 40
                           }}
                         >
                           Promo produk ini sedang tidak tersedia

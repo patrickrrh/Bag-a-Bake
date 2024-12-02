@@ -40,6 +40,7 @@ const ProfilePage = () => {
   const insets = useSafeAreaInsets();
   const { userData, refreshUserData, signOut } = useAuth();
   const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const [form, setForm] = useState({
     userName: userData?.userName || "",
@@ -159,6 +160,10 @@ const ProfilePage = () => {
   const [userAddress, setUserAddress] = useState(userData?.address || "");
   const [suggestions, setSuggestions] = useState([]);
   const [isSubmitting, setisSubmitting] = useState(false);
+
+  useEffect(() => {
+    setIsDisabled(!hasUnsavedChanges());
+  }, [form, userData]);
 
   const handleGeocoding = (address: string) => {
     Geocoder.from(address)
@@ -303,6 +308,7 @@ const ProfilePage = () => {
             handlePress={handleSubmitChange}
             buttonStyles="mt-3"
             isLoading={isSubmitting}
+            disabled={isDisabled}
           />
 
         </View>

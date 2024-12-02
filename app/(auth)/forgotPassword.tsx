@@ -54,10 +54,9 @@ const ForgotPassword = () => {
                 email: form.email.toLowerCase()
             })
 
-            console.log("res ", res)
             if (res.status === 200) {
                 router.push({
-                    pathname: '/(auth)/inputOTP',
+                    pathname: '/(auth)/inputOTP' as any,
                     params: { email: form.email.toLowerCase() }
                 })
             } else if (res.status === 404) {

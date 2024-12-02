@@ -100,7 +100,15 @@ const SignUpCustomer = () => {
                 if (token) {
                     form.pushToken = token.data
                 }
-                signUp(form);
+                const otp = await authenticationApi().signUpOTP({
+                    email: form.email,
+                })
+                if (otp.status === 200) {
+                    router.push({
+                        pathname: '/(auth)/signUpOTP',
+                        params: { email: form.email, userDataForm: JSON.stringify(form) },
+                    })
+                }
             }
         } catch {
             console.log(error);

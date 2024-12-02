@@ -171,8 +171,6 @@ const SignUpPaymentInfo = () => {
         }
     }
 
-    console.log("Form at payment: ", JSON.stringify(form, null, 2));
-
     const headerContent = (
         <>
             <View className="flex-row items-center justify-between w-full space-x-4">
