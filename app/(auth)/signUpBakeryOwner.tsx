@@ -81,7 +81,6 @@ const SignUpBakeryOwner = () => {
                 const token = await requestNotificationPermission();
                 console.log("push token", token)
                 if (token) {
-                    console.log("masuk gak oi")
                     form.pushToken = token.data
                 }
                 router.push({

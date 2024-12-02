@@ -20,6 +20,9 @@ import { getLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { CategoryType, ProductType } from '@/types/types';
 import getDistance from 'geolib/es/getDistance';
 import TextEllipsis from '@/components/TextEllipsis';
+import { showToast } from '@/utils/toastUtils';
+import Announcement from '@/components/Announcement';
+import bakeryApi from '@/api/bakeryApi';
 
 const Home = () => {
 
@@ -32,6 +35,18 @@ const Home = () => {
   const [expiringProducts, setExpiringProducts] = useState<ProductType[]>([]);
   const [isSubmitting, setisSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCancelledToastVisible, setIsCancelledToastVisible] = useState(false);
+  const[isCancelled, setIsCancelled] = useState(0);
+  const [announcementVisible, setAnnouncementVisible] = useState(false);
+
+  useEffect(() => {
+    // Check if userData is available and contains the isCancelled property
+    if (isCancelled > 2) {
+      setAnnouncementVisible(true);
+    } else {
+      setAnnouncementVisible(false);
+    }
+  }, [isCancelled]);
 
   const handleGetCategoryApi = async () => {
     try {
@@ -62,6 +77,25 @@ const Home = () => {
       setIsLoading(false);
     }, 300);
   }
+
+  const handleGetUserById = async () => {
+    try {
+      const response = await bakeryApi().getUserById({ userId: userData?.userId });
+      if (response.status === 200) {
+        setIsCancelled(response.data.isCancelled);
+      } else {
+        console.log("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error('Error fetching user data', error);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetUserById();
+    }, [userData?.userId])
+  );
 
   const handleGetExpiringProducts = async () => {
     setIsLoading(true);
@@ -110,6 +144,16 @@ const Home = () => {
         }
         showsVerticalScrollIndicator={false}
       >
+        <View style={{ flex: 1, backgroundColor: '#fff' }}>
+          <ScrollView>
+            <Announcement
+              message="Akun Anda diblokir karena telah membatalkan pesanan lebih dari 3 kali."
+              visible={announcementVisible}
+              onClose={() => setAnnouncementVisible(false)} // Menyembunyikan pengumuman saat ditutup
+            />
+            {/* Konten lainnya */}
+          </ScrollView>
+        </View>
 
         {/* Header */}
         <View
@@ -215,6 +259,7 @@ const Home = () => {
                         renderItem={({ item }) => (
                           <ProductCard
                             product={item}
+                            isCancelled={isCancelled}
                             onPress={() => {
                               router.replace({
                                 pathname: '/bakery/bakeryDetail' as any,
@@ -274,6 +319,7 @@ const Home = () => {
                         renderItem={({ item }) => (
                           <ProductCard
                             product={item}
+                            isCancelled={isCancelled}
                             onPress={() => {
                               router.replace({
                                 pathname: '/bakery/bakeryDetail' as any,

@@ -78,6 +78,7 @@ const OrderDetail = () => {
     const handleCancelOrderApi = async () => {
         try {
             await orderCustomerApi().cancelOrder({ orderId: orderData.orderId, bakeryId: orderData.bakery.bakeryId });
+            
             router.push("/order");
         } catch (error) {
             console.log("Error canceling order ", error)
@@ -305,7 +306,10 @@ const OrderDetail = () => {
                             />
                             <ContactButton
                                 label="Batalkan Pesanan"
-                                handlePress={() => setCancelModalVisible(true)}
+                                handlePress={() =>{
+                                    console.log("Button Clicked")
+                                    setCancelModalVisible(true)
+                                }}
                                 buttonStyles='mt-3'
                                 isLoading={isSubmitting}
                             />

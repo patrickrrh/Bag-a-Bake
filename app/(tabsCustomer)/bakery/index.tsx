@@ -13,6 +13,7 @@ import {
   Button,
   Modal,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import {
   SafeAreaView,
@@ -35,6 +36,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { set } from "date-fns";
 import { icons } from "@/constants/icons";
+import Announcement from '@/components/Announcement';
 
 const Bakery = () => {
   const { userData } = useAuth();
@@ -42,6 +44,7 @@ const Bakery = () => {
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>(
     []
   );
+
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
   const [userLocationFilter, setUserLocationFilter] = useState(false);
   const [isExpiringFilter, setIsExpiringFilter] = useState(false);
@@ -59,6 +62,18 @@ const Bakery = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [orderData, setOrderData] = useState<OrderItemType | null>(null);
+
+  const [announcementVisible, setAnnouncementVisible] = useState(false);
+
+  const [isCancelled, setIsCancelled] = useState(0);
+
+  useEffect(() => {
+    if (isCancelled > 2) {
+      setAnnouncementVisible(true);
+    } else {
+      setAnnouncementVisible(false);
+    }
+  }, [isCancelled]);
 
   const fetchOrderData = async () => {
     try {
@@ -80,6 +95,26 @@ const Bakery = () => {
       console.log(error);
     }
   };
+
+  const handleGetUserById = async () => {
+    try {
+      const response = await bakeryApi().getUserById({ userId: userData?.userId });
+      if (response.status === 200) {
+        setIsCancelled(response.data.isCancelled);
+      } else {
+        console.log("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error('Error fetching user data', error);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetUserById();
+    }, [userData?.userId])
+  );
+  
 
   useEffect(() => {
     handleGetCategoryApi();
@@ -219,7 +254,11 @@ const Bakery = () => {
   return (
     <View className="bg-background h-full flex-1">
       <View style={{ height: insets.top }} />
-
+      <Announcement
+        message="Akun Anda diblokir karena telah membatalkan pesanan lebih dari 3 kali."
+        visible={announcementVisible}
+        onClose={() => setAnnouncementVisible(false)} // Menyembunyikan pengumuman saat ditutup
+      />
       <View className="mx-5 mb-5">
         <View className="flex-row align-center justify-between">
           <TextHeader label="BAKERI" />
@@ -312,6 +351,8 @@ const Bakery = () => {
             renderItem={({ item }) => (
               <BakeryCard
                 item={item}
+                userId={userData?.userId}       // Pass userId to BakeryCard
+                isCancelled={isCancelled} // Pass isCancelled to BakeryCard
                 onPress={() =>
                   router.push({
                     pathname: "/bakery/bakeryDetail" as any,

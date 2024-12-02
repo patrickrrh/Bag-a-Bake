@@ -23,5 +23,6 @@ export default function bakeryApi() {
         getBakeryWithFilters: createApiFunction("post", "get/bakery/with-filters"),
         getBakeryById: createApiFunction("post", "get/bakery/by-id"),
         updateBakery: createApiFunction("put", "update/bakery"),
+        getUserById: createApiFunction("post", "get/user/by-id"),
     }
 }
