@@ -8,6 +8,7 @@ import {
   ScrollView,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -103,6 +104,10 @@ const Order = () => {
       handleGetAllOrderByStatusApi();
     }, [selectedStatus])
   )
+
+  const handleRefresh = () => {
+    handleGetAllOrderByStatusApi();
+  };
 
   const handleActionOrder = async (orderId: number, orderStatus: number) => {
     try {
@@ -304,6 +309,12 @@ const Order = () => {
               keyExtractor={(item) => item.orderId.toString()}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 20 }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isLoading}
+                  onRefresh={handleRefresh}
+                />
+              }
             />
           )}
         </View>

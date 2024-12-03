@@ -27,7 +27,7 @@ import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
 import PriceInputField from "@/components/PriceInputField";
 import DiscountInputField from "@/components/DiscountInputField";
-import { checkProductForm } from "@/utils/commonFunctions";
+import { checkProductForm, formatDate } from "@/utils/commonFunctions";
 import ErrorMessage from "@/components/texts/ErrorMessage";
 import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
@@ -48,6 +48,7 @@ type ErrorState = {
   discount: string | null;
   productStock: string | null;
   productImage: string | null;
+  productStatus: string | null;
 };
 
 type DiscountItem = {
@@ -85,6 +86,7 @@ const EditProduct = () => {
     discount: null,
     productStock: null,
     productImage: null,
+    productStatus: null,
   };
 
   const [error, setError] = useState<ErrorState>(productError);
@@ -295,7 +297,17 @@ const EditProduct = () => {
     const expirationDate = dayjs(form.productExpirationDate).startOf("day");
 
     if (expirationDate.isBefore(today)) {
+      setError((prevError) => ({
+        ...prevError,
+        productStatus: "Harap ubah tanggal kedaluwarsa terlebih dahulu",
+      }));
+      setIsSwitchEnabled(false);
       return;
+    } else {
+      setError((prevError) => ({
+        ...prevError,
+        productStatus: null,
+      }));
     }
 
     setIsSwitchEnabled((previousState) => !previousState);
@@ -480,9 +492,7 @@ const EditProduct = () => {
           {/* Date Picker Input */}
           <ExpirationDatePicker
             label="Tanggal Kedaluwarsa"
-            expirationDate={dayjs(form.productExpirationDate).format(
-              "DD MMMM YYYY"
-            )}
+            expirationDate={formatDate(form.productExpirationDate.toString())}
             onConfirm={handleDateConfirm}
             error={error.productExpirationDate}
           />
@@ -532,7 +542,7 @@ const EditProduct = () => {
                     >
                       Hari ke-{index + 1}{" "}
                       <Text style={{ fontSize: 12 }}>
-                        ({dayjs(discount.discountDate).format("D MMM")})
+                        ({formatDate(discount.discountDate.toString())})
                       </Text>
                     </Text>
                     <DiscountInputField
@@ -603,11 +613,17 @@ const EditProduct = () => {
             </View>
           </View>
 
+          <View className="mb-4 flex-col justify-center w-full">
+            {error.productStatus && (
+              <ErrorMessage label={error.productStatus} />
+            )}
+          </View>
+
           {/* Add Product Button */}
           <CustomButton
             label="Perbarui"
             handlePress={handleEditProduct}
-            buttonStyles="mt-10 mb-5"
+            buttonStyles="mt-5 mb-5"
             isLoading={isSubmitting}
           />
         </View>

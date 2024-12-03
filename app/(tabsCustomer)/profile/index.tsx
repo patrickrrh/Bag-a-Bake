@@ -8,14 +8,14 @@ import {
   TouchableOpacity,
   Keyboard
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import UploadButton from "@/components/UploadButton";
 import CustomButton from "@/components/CustomButton";
 import CustomButtonOutline from "@/components/CustomButtonOutline";
 import * as ImagePicker from "expo-image-picker";
-import { router, Href } from "expo-router";
+import { router, Href, useFocusEffect } from "expo-router";
 import TextHeader from "@/components/texts/TextHeader";
 import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
@@ -76,6 +76,8 @@ const ProfilePage = () => {
   };
 
   const hasUnsavedChanges = () => {
+    console.log("form", form.userName)
+    console.log("form", userData?.userName)
     return (
       form.userName !== userData?.userName ||
       form.userPhoneNumber !== userData?.userPhoneNumber ||

@@ -46,6 +46,12 @@ export const checkEmptyForm = (
       } else if (value === "userName") {
         if ((form[value] as string).length < 3) {
           errors[value] = `${fieldLabel} tidak boleh kurang dari 3 huruf`;
+        } else if ((form[value] as string).length > 20) {
+          errors[value] = `${fieldLabel} tidak boleh lebih dari 20 huruf`;
+        } else if (!/^[a-zA-Z\s]+$/.test(form[value] as string)) {
+          errors[value] = `${fieldLabel} hanya boleh terdiri dari huruf`;
+        } else if (/\s{2,}/.test(form[value] as string)) {
+          errors[value] = `${fieldLabel} tidak boleh mengandung spasi ganda`;
         } else {
           errors[value] = null;
         }
@@ -179,8 +185,16 @@ export const checkProductForm = (form: Record<string, unknown>) => {
       parseFloat(d.discountAmount)
     );
 
-    if (discountAmounts[0] >= (form.productPrice as number)) {
+    if (!discountAmounts[0] || discountAmounts[0] == null) {
+      errors.discount = `Diskon 1 tidak boleh kosong`;
+    } else if (discountAmounts[0] >= (form.productPrice as number)) {
       errors.discount = `Diskon 1 tidak boleh lebih besar atau sama dengan Harga Awal`;
+    } else {
+      const discountPercentage = (((form.productPrice as number) - discountAmounts[0]) / (form.productPrice as number)) * 100;
+ 
+      if (discountPercentage < 10) {
+        errors.discount = `Diskon 1 harus minimal 10% dari Harga Awal`;
+      }
     }
 
     discountAmounts.forEach((amount, index) => {
@@ -190,6 +204,11 @@ export const checkProductForm = (form: Record<string, unknown>) => {
         } harus lebih kecil atau sama dengan Diskon ${index}`;
       }
     });
+
+    if (!errors.discount) {
+      errors.discount = null;
+    }
+    
   } else {
     errors.discount = "Diskon tidak valid";
   }
@@ -275,7 +294,6 @@ export const calculateValidPaymentTime = (date: string) => {
 
   return dateObj.toLocaleString("id-ID", options);
 };
-
 
 export const setLocalStorage = async (key: string, value: string) => {
   try {

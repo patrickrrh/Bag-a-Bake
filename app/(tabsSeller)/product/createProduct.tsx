@@ -1,12 +1,9 @@
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  Keyboard
-} from "react-native";
+import { View, Text, Image, ScrollView, Keyboard } from "react-native";
 import React, { useState, useEffect } from "react";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
 import BackButton from "@/components/BackButton";
@@ -22,7 +19,7 @@ import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
 import PriceInputField from "@/components/PriceInputField";
 import DiscountInputField from "@/components/DiscountInputField";
-import { checkProductForm } from "@/utils/commonFunctions";
+import { checkProductForm, formatDate } from "@/utils/commonFunctions";
 import ErrorMessage from "@/components/texts/ErrorMessage";
 import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
@@ -82,7 +79,8 @@ const CreateProduct = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
-  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
+    useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -264,11 +262,10 @@ const CreateProduct = () => {
     fillDiscountFields();
   }, [form.productExpirationDate]);
 
-  console.log("prodyct form", JSON.stringify(form, null, 2))
+  console.log("prodyct form", JSON.stringify(form, null, 2));
 
   return (
     <View className="bg-background h-full flex-1">
-
       <View
         style={{
           backgroundColor: "#FEFAF9",
@@ -371,9 +368,7 @@ const CreateProduct = () => {
           {/* Date Picker Input */}
           <ExpirationDatePicker
             label="Tanggal Kedaluwarsa"
-            expirationDate={dayjs(form.productExpirationDate).format(
-              "DD MMMM YYYY"
-            )}
+            expirationDate={formatDate(form.productExpirationDate.toString())}
             onConfirm={handleDateConfirm}
             error={error.productExpirationDate}
           />
@@ -408,7 +403,6 @@ const CreateProduct = () => {
                 style={{ marginLeft: 2 }}
                 onPress={() => setIsInfoModalVisible(true)}
               />
-
             </View>
 
             <View className="flex-col">
@@ -423,7 +417,7 @@ const CreateProduct = () => {
                   >
                     Hari ke-{index + 1}{" "}
                     <Text style={{ fontSize: 12 }}>
-                      ({dayjs(discount.discountDate).format("D MMM")})
+                      ({formatDate(discount.discountDate.toString())})
                     </Text>
                   </Text>
                   <DiscountInputField
@@ -435,7 +429,7 @@ const CreateProduct = () => {
               ))}
             </View>
 
-            <View className="mt-4 flex-col justify-center w-full">
+            <View className="mb-4 flex-col justify-center w-full">
               {error.discount && <ErrorMessage label={error.discount} />}
             </View>
           </View>
