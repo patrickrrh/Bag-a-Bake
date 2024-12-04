@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomLogo from '@/components/CustomLogo';
 import TextHeader from '@/components/texts/TextHeader';
 import TextHeadline from '@/components/texts/TextHeadline';
@@ -14,6 +14,8 @@ import AuthLayout from './authLayout';
 import BackButton from '@/components/BackButton';
 
 const SignUp = () => {
+
+  const insets = useSafeAreaInsets();
 
   const [selectedRole, setSelectedRole] = useState(0)
 
@@ -44,6 +46,7 @@ const SignUp = () => {
 
   return (
     <AuthLayout headerContent={headerContent} footerContent={footerContent}>
+
       <View className="flex-row space-x-2 justify-around w-full mt-8">
         <RoleCard
           label="Pembeli"

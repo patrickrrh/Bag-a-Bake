@@ -28,6 +28,9 @@ import axios from 'axios'
 import { add } from 'date-fns'
 import Geocoder from 'react-native-geocoding';
 import { requestNotificationPermission } from '@/utils/notificationUtils'
+import { TouchableOpacity } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import ModalAction from '@/components/ModalAction'
 
 type ErrorState = {
   bakeryName: string | null;
@@ -41,10 +44,9 @@ type ErrorState = {
 
 const SignUpBakery = () => {
 
-  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
+  const { signOut } = useAuth();
 
-  const { prevForm } = useLocalSearchParams();
-  const parsedPrevForm = prevForm && typeof prevForm === 'string' ? JSON.parse(prevForm) : {};
+  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
   const [form, setForm] = useState({
     bakeryName: '',
@@ -74,14 +76,7 @@ const SignUpBakery = () => {
   const [isSubmitting, setisSubmitting] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [timeFieldType, setTimeFieldType] = useState<"openingTime" | "closingTime">("openingTime");
-
-  useEffect(() => {
-    setForm((prevForm) => ({
-      ...prevForm,
-      ...parsedPrevForm,
-      roleId: parseInt(parsedPrevForm.roleId),
-    }));
-  }, [prevForm]);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -163,7 +158,6 @@ const SignUpBakery = () => {
       })
       .then((response) => {
         setSuggestions(response.data.predictions);
-        console.log("reponse", response);
       })
       .catch((error) => console.error(error));
   };
@@ -199,28 +193,23 @@ const SignUpBakery = () => {
   const headerContent = (
     <>
       <View className="flex-row items-center justify-between w-full space-x-4">
-        <BackButton />
         <View className="flex-1 mx-2">
-          <ProgressBar progress={0.4} />
+          <ProgressBar progress={0.1} />
         </View>
+        <TouchableOpacity
+          onPress={() => setLogoutModalVisible(true)}
+        >
+          <Ionicons name="log-out-outline" size={24} color="#000" />
+        </TouchableOpacity>
       </View>
       <View className='items-center pb-5'>
-        <TextHeader label="Daftar Akun" />
+        <TextHeader label="Daftar Bakeri" />
       </View>
     </>
   )
 
-  const footerContent = (
-    <>
-      <View className='mr-1'>
-        <TextHeadline label='Sudah memiliki akun?' />
-      </View>
-      <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
-    </>
-  );
-
   return (
-    <AuthLayout headerContent={headerContent} footerContent={footerContent} isScrollable>
+    <AuthLayout headerContent={headerContent} isScrollable>
       <FormField
         label="Nama Toko"
         value={form.bakeryName}
@@ -324,6 +313,16 @@ const SignUpBakery = () => {
         mode="time"
         onConfirm={handleSelectTime}
         onCancel={hideDatePicker}
+      />
+
+      <ModalAction
+        setModalVisible={setLogoutModalVisible}
+        modalVisible={logoutModalVisible}
+        title="Apakah Anda yakin ingin keluar?"
+        secondaryButtonLabel="Iya"
+        primaryButtonLabel="Tidak"
+        onSecondaryAction={() => signOut()}
+        onPrimaryAction={() => setLogoutModalVisible(false)}
       />
     </AuthLayout>
   );

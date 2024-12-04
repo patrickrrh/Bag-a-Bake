@@ -65,14 +65,7 @@ const SignUpOTP = () => {
             })
 
             if (res.status === 200) {
-                if (parsedUserDataForm.roleId === 1) {
-                    signUp(parsedUserDataForm);
-                } else if (parsedUserDataForm.roleId === 2) {
-                    router.push({
-                        pathname: '/(auth)/signUpBakery' as any,
-                        params: { prevForm: JSON.stringify(parsedUserDataForm) }
-                    })
-                }
+                signUp(parsedUserDataForm);
             } else {
                 showToast('error', res.error)
             }
@@ -99,7 +92,8 @@ const SignUpOTP = () => {
     const handleResendOTP = async () => {
         try {
             const res = await authenticationApi().signUpOTP({ 
-                email: parsedUserDataForm.email
+                email: parsedUserDataForm.email,
+                userName: parsedUserDataForm.userName
             })
 
             if (res.status === 200) {

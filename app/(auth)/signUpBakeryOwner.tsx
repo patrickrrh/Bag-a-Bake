@@ -52,7 +52,7 @@ const SignUpBakeryOwner = () => {
 
     const [isSubmitting, setisSubmitting] = useState(false);
 
-    const checkForm = async () => {
+    const handleSignUpAPI = async () => {
         try {
             setisSubmitting(true);
             const errors = checkEmptyForm(form, confirmPassword);
@@ -69,7 +69,7 @@ const SignUpBakeryOwner = () => {
                 setisSubmitting(false);
                 return;
             }
-            console.log("Errors:", error);
+
             const res = await authenticationApi().isEmailRegistered({
                 email: form.email,
             })
@@ -113,17 +113,12 @@ const SignUpBakeryOwner = () => {
     };
 
     const headerContent = (
-        <>
-            <View className="flex-row items-center justify-between w-full space-x-4">
-                <BackButton />
-                <View className="flex-1 mx-2">
-                    <ProgressBar progress={0.1} />
-                </View>
-            </View>
-            <View className='items-center pb-5'>
+        <View className="flex-row">
+            <BackButton />
+            <View className="flex-1 items-center pr-3 pb-5">
                 <TextHeader label="Daftar Akun" />
             </View>
-        </>
+        </View>
     )
 
     const footerContent = (
@@ -219,8 +214,8 @@ const SignUpBakeryOwner = () => {
             />
 
             <CustomButton
-                label='Lanjut'
-                handlePress={() => checkForm()}
+                label='Daftar'
+                handlePress={() => handleSignUpAPI()}
                 buttonStyles='mt-10 w-full'
                 isLoading={isSubmitting}
             />

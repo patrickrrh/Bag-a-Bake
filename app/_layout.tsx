@@ -7,14 +7,20 @@ import Toast from "react-native-toast-message";
 function RootLayout() {
   const { isAuthenticated, isLoading, userData, isEditProfile } = useAuth();
 
+  console.log("User data at root", JSON.stringify(userData, null, 2))
+
   useEffect(() => {
     if (!isLoading) {
       if (isAuthenticated === null) return;
 
       if (isAuthenticated === true && isEditProfile === false && userData && userData.roleId === 1) {
         router.replace("/(tabsCustomer)");
+      } else if (isAuthenticated === true && isEditProfile === false && userData && userData.roleId === 2 && userData.bakery === null) {
+        router.replace("/(auth)/signUpBakery")
+      } else if (isAuthenticated === true && isEditProfile === false && userData && userData.roleId === 2 && userData.bakery.isActive !== 1) {
+        router.replace("/(auth)/pendingApproval");
       } else if (isAuthenticated === true && isEditProfile === false && userData && userData.roleId === 2) {
-        router.replace("/(tabsSeller)/home" as any);
+        router.replace("/(tabsSeller)/home");
       } else if (isAuthenticated === false) {
         router.replace("/(auth)/signIn");
       }

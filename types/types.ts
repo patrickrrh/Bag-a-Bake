@@ -39,6 +39,7 @@ export type BakeryType = {
     payment: PaymentType[];
     bakery: BakeryType;
     isClosed: boolean;
+    isActive: number;
 }
 
 export type BakeryDetailType = {
