@@ -750,7 +750,7 @@ const ProfilePageSeller = () => {
         </View>
 
         <TouchableOpacity onPress={() => setLogoutModalVisible(true)}>
-          <Ionicons name="log-out-outline" size={24} color="#b0795a" />
+          <Ionicons name="log-out-outline" size={24} color="#000" />
         </TouchableOpacity>
       </View>
 
