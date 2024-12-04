@@ -18,6 +18,7 @@ import {
   Animated,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import {
   SafeAreaView,
@@ -72,6 +73,10 @@ const ListProduct = () => {
       };
     }, [selectedStatus])
   );
+
+  const handleRefresh = () => {
+    handleGetProductsByBakeryId(selectedStatus);
+  };
 
   const filteredProducts = products.filter((product) => {
     const matchesSearchQuery =
@@ -183,6 +188,12 @@ const ListProduct = () => {
                   )}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={{ paddingBottom: 20 }}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={isLoading}
+                      onRefresh={handleRefresh}
+                    />
+                  }
                 />
               )}
             </>
