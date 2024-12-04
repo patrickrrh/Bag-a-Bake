@@ -14,6 +14,7 @@ import {
   Modal,
   ActivityIndicator,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import {
   SafeAreaView,
@@ -249,6 +250,10 @@ const Bakery = () => {
     }, [checkedCategories, userLocationFilter, isExpiringFilter])
   );
 
+  const handleRefresh = () => {
+    handleGetBakeryApi();
+  };
+
   return (
     <View className="bg-background h-full flex-1">
       <View style={{ height: insets.top }} />
@@ -376,6 +381,12 @@ const Bakery = () => {
                 onFavorite={() => toggleFavorite(item.bakeryId)}
               />
             )}
+            refreshControl={
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={handleRefresh}
+              />
+            }
           />
         )}
       </View>

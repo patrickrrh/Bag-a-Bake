@@ -254,6 +254,7 @@ const EditProduct = () => {
   };
 
   const handleFillMissingDiscounts = () => {
+    setError((prevError) => ({ ...prevError, discount: null }));
     setForm((prevForm) => {
       if (!prevForm.discount || prevForm.discount.length === 0) {
         console.log("No discounts available to update.");
@@ -350,21 +351,22 @@ const EditProduct = () => {
   useEffect(() => {
     if (isExpirationDateUpdated) {
       const fillDiscountFields = () => {
-        const today = dayjs();
-        const expirationDate = dayjs(form.productExpirationDate);
-        const daysToExpiration = expirationDate.diff(today, "day") + 1;
+        const today = dayjs().startOf("day");
+        const expirationDate = dayjs(form.productExpirationDate).startOf("day");
+        const daysToExpiration = expirationDate.diff(today, "day");
 
         const existingDiscounts = form.discount || [];
 
         const newDiscounts: DiscountItem[] = [];
 
         for (let i = 0; i <= daysToExpiration; i++) {
-          const discountDate = today.add(i, "day").toDate();
+          const discountDate = today.add(i, "day").startOf("day");
           const discountDateString = discountDate.toISOString();
 
-          const existingDiscount = existingDiscounts.find(
-            (discount) => discount.discountDate === discountDateString
-          );
+          const existingDiscount = existingDiscounts.find((discount) => {
+            const existingDate = dayjs(discount.discountDate).startOf("day").toISOString();
+            return existingDate === discountDateString;
+          });
 
           if (existingDiscount) {
             newDiscounts.push(existingDiscount);

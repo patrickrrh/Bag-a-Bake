@@ -190,20 +190,20 @@ export const checkProductForm = (form: Record<string, unknown>) => {
     );
 
     if (!discountAmounts[0] || discountAmounts[0] == null) {
-      errors.discount = `Diskon 1 tidak boleh kosong`;
+      errors.discount = `Harga Hari ke-1 tidak boleh kosong`;
     } else if (discountAmounts[0] >= (form.productPrice as number)) {
-      errors.discount = `Diskon 1 tidak boleh lebih besar atau sama dengan Harga Awal`;
+      errors.discount = `Harga Hari ke-1 tidak boleh lebih besar atau sama dengan Harga Awal`;
     } else {
       const discountPercentage = (((form.productPrice as number) - discountAmounts[0]) / (form.productPrice as number)) * 100;
  
       if (discountPercentage < 10) {
-        errors.discount = `Diskon 1 harus minimal 10% dari Harga Awal`;
+        errors.discount = `Harga Hari ke-1 harus minimal 10% dari Harga Awal`;
       }
     }
 
     discountAmounts.forEach((amount, index) => {
       if (index > 0 && amount > discountAmounts[index - 1]) {
-        errors.discount = `Diskon ${
+        errors.discount = `Harga Hari ke-${
           index + 1
         } harus lebih kecil atau sama dengan Diskon ${index}`;
       }
