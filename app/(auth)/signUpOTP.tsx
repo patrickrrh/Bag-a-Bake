@@ -21,16 +21,19 @@ import ProgressBar from '@/components/ProgressBar'
 import { Ionicons } from '@expo/vector-icons'
 import TextTitle5 from '@/components/texts/TextTitle5'
 import { set } from 'date-fns'
+import { useAuth } from '../context/AuthContext'
 
 type ErrorState = {
     otp: string | null;
 };
 
-const InputOTP = () => {
+const SignUpOTP = () => {
 
     const insets = useSafeAreaInsets();
+    const { signUp } = useAuth();
 
-    const { email } = useLocalSearchParams();
+    const { email, userDataForm } = useLocalSearchParams();
+    const parsedUserDataForm = JSON.parse(userDataForm as string);
 
     const emptyForm = {
         otp: '',
@@ -62,10 +65,14 @@ const InputOTP = () => {
             })
 
             if (res.status === 200) {
-                router.push({
-                    pathname: '/(auth)/changePassword' as any,
-                    params: { email: email }
-                })
+                if (parsedUserDataForm.roleId === 1) {
+                    signUp(parsedUserDataForm);
+                } else if (parsedUserDataForm.roleId === 2) {
+                    router.push({
+                        pathname: '/(auth)/signUpBakery' as any,
+                        params: { prevForm: JSON.stringify(parsedUserDataForm) }
+                    })
+                }
             } else {
                 showToast('error', res.error)
             }
@@ -91,8 +98,8 @@ const InputOTP = () => {
 
     const handleResendOTP = async () => {
         try {
-            const res = await authenticationApi().sendOTP({ 
-                email: email
+            const res = await authenticationApi().signUpOTP({ 
+                email: parsedUserDataForm.email
             })
 
             if (res.status === 200) {
@@ -113,12 +120,7 @@ const InputOTP = () => {
 
                 <View style={{ height: insets.top }} />
 
-                <View className="flex-row items-center justify-between w-full space-x-4">
-                    <BackButton />
-                    <View className="flex-1 mx-2">
-                        <ProgressBar progress={0.4} />
-                    </View>
-                </View>
+                <BackButton />
 
                 <View className='justify-center flex-1 mb-16'>
                     <View className='items-center mb-7'>
@@ -167,14 +169,10 @@ const InputOTP = () => {
                         }
                     </View>
                 </View>
-                
-                <View className='flex-row items-center justify-center' style={{ marginBottom: insets.bottom }}>
-                    <TextLink label='Daftar Akun Baru' size={14} onPress={() => router.push('/(auth)/signUp')} />
-                </View>
 
             </View>
         </TouchableWithoutFeedback>
     )
 }
 
-export default InputOTP
+export default SignUpOTP

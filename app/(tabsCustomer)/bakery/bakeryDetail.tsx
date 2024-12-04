@@ -43,6 +43,8 @@ import { BakeryType, OrderItemType } from "@/types/types";
 import favoriteApi from "@/api/favoriteApi";
 import { useAuth } from "@/app/context/AuthContext";
 import TextTitle4 from "@/components/texts/TextTitle4";
+import { showToast } from '@/utils/toastUtils';
+import Announcement from "@/components/Announcement";
 
 const BakeryDetail = () => {
   const insets = useSafeAreaInsets();
@@ -55,6 +57,36 @@ const BakeryDetail = () => {
   const [orderData, setOrderData] = useState<OrderItemType | null>(null);
 
   const [showFavorite, setShowFavorite] = useState(false);
+  const [announcementVisible, setAnnouncementVisible] = useState(false);
+
+  const [isCancelled, setIsCancelled] = useState(0);
+
+  const handleGetUserById = async () => {
+    try {
+      const response = await bakeryApi().getUserById({ userId: userData?.userId });
+      if (response.status === 200) {
+        setIsCancelled(response.data.isCancelled);
+      } else {
+        console.log("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error('Error fetching user data', error);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetUserById();
+    }, [userData?.userId])
+  );
+
+  useEffect(() => {
+    if (isCancelled > 2) {
+      setAnnouncementVisible(true);
+    } else {
+      setAnnouncementVisible(false);
+    }
+  }, [isCancelled]);
 
   const fetchOrderData = async () => {
     try {
@@ -134,6 +166,8 @@ const BakeryDetail = () => {
       .catch((err) => console.error("An error occurred", err));
   };
 
+  console.log("User Data", userData);
+
   const toggleFavorite = async (bakeryId: number) => {
     const favoriteItem = bakeryDetail?.bakery.favorite.find(
       (fav) => fav.userId === userData?.userId
@@ -158,7 +192,11 @@ const BakeryDetail = () => {
   return (
     <View className="flex-1 bg-background">
       <View style={{ height: insets.top }} />
-
+      <Announcement
+        message="Akun Anda diblokir karena telah membatalkan pesanan lebih dari 3 kali."
+        visible={announcementVisible}
+        onClose={() => setAnnouncementVisible(false)} // Menyembunyikan pengumuman saat ditutup
+      />
       <View className="flex-row px-5 mb-5 w-full justify-between">
         <BackButton path="/bakery" />
         <TextTitle3 label={bakeryDetail?.bakery.bakeryName as string} />
@@ -199,30 +237,6 @@ const BakeryDetail = () => {
                     />
                   </View>
                 </View>
-                <TouchableOpacity
-                  onPress={() =>
-                    router.push({
-                      pathname: "/bakery/ratingBakeryCustomer" as any,
-                      params: {
-                        bakeryId,
-                        bakeryName: bakeryDetail?.bakery.bakeryName as string,
-                      },
-                    })
-                  }
-                >
-                  <View className="flex-row items-center">
-                    <TextRating
-                      rating={bakeryDetail?.prevRating.averageRating || "0"}
-                      reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
-                    />
-                    <FontAwesome
-                      name="hand-o-left"
-                      size={14}
-                      color="#FA6F33"
-                      style={{ marginLeft: 5 }}
-                    />
-                  </View>
-                </TouchableOpacity>
               </View>
 
               <View>
@@ -239,6 +253,29 @@ const BakeryDetail = () => {
                 />
               </View>
             </View>
+
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/bakery/ratingBakeryCustomer" as any,
+                  params: {
+                    bakeryId,
+                    bakeryName: bakeryDetail?.bakery.bakeryName as string,
+                  },
+                })
+              }
+            >
+              <View className="flex-row justify-between items-start">
+                {/* Informasi Rating di Kiri */}
+                <TextRating
+                  rating={bakeryDetail?.prevRating.averageRating || "0"}
+                  reviewCount={bakeryDetail?.prevRating.reviewCount || "0"}
+                />
+
+                {/* Chevron di Kanan */}
+                <Ionicons name="chevron-forward" size={14} color="gray" />
+              </View>
+            </TouchableOpacity>
 
             <View className="mt-3">
               <TextTitle4 label={"Deskripsi Toko"} />
@@ -276,6 +313,7 @@ const BakeryDetail = () => {
                 <ProductCardBakery
                   product={product}
                   isClosed={bakeryDetail.isClosed}
+                  isCancelled={isCancelled}
                   onPress={() =>
                     !bakeryDetail.isClosed &&
                     router.push({
@@ -317,22 +355,24 @@ const BakeryDetail = () => {
       </ScrollView>
 
       {orderData && orderData.bakeryId == bakeryDetail?.bakery.bakeryId && (
-        <View className="w-full flex justify-end p-5">
-          <OpenCartButton
-            label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
-            handlePress={() => {
-              router.push({
-                pathname: "/order/inputOrderDetail" as any,
-                params: {
-                  bakeryId: bakeryId,
-                },
-              });
-            }}
-            isLoading={isSubmitting}
-            icon="bag-outline"
-            iconColor="white"
-          />
-        </View>
+        isCancelled <= 3 && (
+          <View className="w-full flex justify-end p-5">
+            <OpenCartButton
+              label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
+              handlePress={() => {
+                router.push({
+                  pathname: "/inputOrderDetail" as any,
+                  params: {
+                    bakeryId: bakeryId,
+                  },
+                });
+              }}
+              isLoading={isSubmitting}
+              icon="bag-outline"
+              iconColor="white"
+            />
+          </View>
+        )
       )}
     </View>
   );

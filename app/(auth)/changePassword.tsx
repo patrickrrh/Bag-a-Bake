@@ -67,7 +67,6 @@ const ChangePassword = () => {
         email: email,
         password: form.password
       })
-      console.log("res", res)
       if (res.status === 200) {
         router.replace('/(auth)/signIn')
       } else {

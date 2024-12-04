@@ -178,6 +178,12 @@ const SignUpBakery = () => {
     try {
       setisSubmitting(true);
 
+      setForm((prevForm) => ({
+        ...prevForm,
+        bakeryName: prevForm.bakeryName.trim(),
+        bakeryDescription: prevForm.bakeryDescription.trim(),
+      }));
+
       const errors = checkEmptyForm(form);
       if (Object.values(errors).some(error => error !== null)) {
         setError(errors as ErrorState);
@@ -218,8 +224,6 @@ const SignUpBakery = () => {
       <TextLink label="Masuk disini" size={14} onPress={() => router.push('/(auth)/signIn')} />
     </>
   );
-
-  console.log("Form at bakery: ", JSON.stringify(form, null, 2));
 
   return (
     <AuthLayout headerContent={headerContent} footerContent={footerContent} isScrollable>

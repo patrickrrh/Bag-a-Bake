@@ -185,10 +185,12 @@ const Home = () => {
 
         {/* Header */}
         <View className='flex-row justify-between items-center w-full'>
-          <View className='flex-row items-center gap-x-3'>
+          <TouchableOpacity 
+          onPress={() => router.replace("/profilePageSeller" as any)}
+          className='flex-row items-center gap-x-3'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">
               <Image
-                source={userData?.userImage ? { uri: userData?.userImage } : images.profile}
+                source={userData?.userImage ? { uri: encodeURI(userData?.userImage) } : images.profile}
                 className="w-full h-full rounded-full"
               />
             </View>
@@ -196,7 +198,7 @@ const Home = () => {
               <TextTitle4 label="Halo" />
               <TextTitle5Gray label={userData?.userName || ''} />
             </View>
-          </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => {
@@ -211,7 +213,7 @@ const Home = () => {
               <View className="mr-2" style={{ paddingVertical: 2 }}>
                 <FontAwesome name="star" size={14} color="#FA6F33" />
               </View>
-              <TextTitle5 label="Penilaian Bakeri" />
+              <TextTitle5 label="Penilaian Bakeri" color="#FA6F33"/>
             </View>
 
           </TouchableOpacity>

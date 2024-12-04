@@ -13,6 +13,7 @@ import {
   Button,
   Modal,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import {
   SafeAreaView,
@@ -28,13 +29,15 @@ import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/app/context/AuthContext";
 import TextTitle1 from "@/components/texts/TextTitle1";
 import categoryApi from "@/api/categoryApi";
-import CheckBox from "react-native-check-box";
+import Checkbox from 'expo-checkbox';
 import CustomButton from "@/components/CustomButton";
 import { BakeryType, CategoryType, OrderItemType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { set } from "date-fns";
 import { icons } from "@/constants/icons";
+import Announcement from '@/components/Announcement';
+import TextLink from "@/components/texts/TextLink";
 
 const Bakery = () => {
   const { userData } = useAuth();
@@ -42,6 +45,7 @@ const Bakery = () => {
   const [tempCheckedCategories, setTempCheckedCategories] = useState<number[]>(
     []
   );
+
   const [checkedCategories, setCheckedCategories] = useState<number[]>([]);
   const [userLocationFilter, setUserLocationFilter] = useState(false);
   const [isExpiringFilter, setIsExpiringFilter] = useState(false);
@@ -59,6 +63,18 @@ const Bakery = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [orderData, setOrderData] = useState<OrderItemType | null>(null);
+
+  const [announcementVisible, setAnnouncementVisible] = useState(false);
+
+  const [isCancelled, setIsCancelled] = useState(0);
+
+  useEffect(() => {
+    if (isCancelled > 2) {
+      setAnnouncementVisible(true);
+    } else {
+      setAnnouncementVisible(false);
+    }
+  }, [isCancelled]);
 
   const fetchOrderData = async () => {
     try {
@@ -80,6 +96,26 @@ const Bakery = () => {
       console.log(error);
     }
   };
+
+  const handleGetUserById = async () => {
+    try {
+      const response = await bakeryApi().getUserById({ userId: userData?.userId });
+      if (response.status === 200) {
+        setIsCancelled(response.data.isCancelled);
+      } else {
+        console.log("Failed to fetch user data");
+      }
+    } catch (error) {
+      console.error('Error fetching user data', error);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGetUserById();
+    }, [userData?.userId])
+  );
+  
 
   useEffect(() => {
     handleGetCategoryApi();
@@ -109,17 +145,19 @@ const Bakery = () => {
   };
 
   const filterBakeries = () => {
-    if (showFavorite) {
-      const favoriteBakeries = bakery.filter((item) =>
-        item.favorite.some((fav) => fav.userId === userData?.userId)
-      );
+    const filtered = bakery.filter((item) =>
+      item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-      return favoriteBakeries.filter((item) =>
-        item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+    if (showFavorite) {
+      return filtered
+        .filter((item) =>
+          item.favorite.some((fav) => fav.userId === userData?.userId)
+        )
+        .sort((a, b) => (a.isClosed === b.isClosed ? 0 : a.isClosed ? 1 : -1));
     }
 
-    return bakery.sort((a, b) => (a.isClosed === b.isClosed ? 0 : a.isClosed ? 1 : -1));
+    return filtered.sort((a, b) => (a.isClosed === b.isClosed ? 0 : a.isClosed ? 1 : -1));
     // return bakery.filter((item) =>
     //   item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
     // );
@@ -189,9 +227,6 @@ const Bakery = () => {
       return () => {
         removeLocalStorage("filter");
         setLocalStorageData(null);
-        setCheckedCategories([]);
-        setUserLocationFilter(false);
-        setIsExpiringFilter(false);
       };
     }, [])
   );
@@ -217,7 +252,11 @@ const Bakery = () => {
   return (
     <View className="bg-background h-full flex-1">
       <View style={{ height: insets.top }} />
-
+      <Announcement
+        message="Akun Anda diblokir karena telah membatalkan pesanan lebih dari 3 kali."
+        visible={announcementVisible}
+        onClose={() => setAnnouncementVisible(false)} // Menyembunyikan pengumuman saat ditutup
+      />
       <View className="mx-5 mb-5">
         <View className="flex-row align-center justify-between">
           <TextHeader label="BAKERI" />
@@ -243,36 +282,52 @@ const Bakery = () => {
         <View className="mt-5">
           <SearchBar
             value={searchQuery}
-            onChange={setSearchQuery}
+            onChange={(text) => setSearchQuery(text)}
             placeholder="Cari bakeri"
           />
         </View>
 
-        <View className="mt-5 flex-row">
-          <FilterButton
-            label="Dekat saya"
-            isSelected={userLocationFilter}
-            onPress={() => {
-              userLocationFilter
-                ? setUserLocationFilter(false)
-                : setUserLocationFilter(true);
-            }}
-          />
-          <FilterButton
-            label="Jangan lewatkan"
-            isSelected={isExpiringFilter}
-            onPress={() => {
-              isExpiringFilter
-                ? setIsExpiringFilter(false)
-                : setIsExpiringFilter(true);
-            }}
-          />
-          <FilterButton
-            label="Kategori"
-            isSelected={checkedCategories.length > 0}
-            onPress={() => setCategoryModal(true)}
-          />
-        </View>
+        <ScrollView
+          horizontal={true} // Enables horizontal scrolling
+          showsHorizontalScrollIndicator={false} // Hides the scrollbar (optional)
+          contentContainerStyle={{ flexGrow: 1, alignItems: "center" }} // Ensures proper alignment
+        >
+          <View className="mt-5 flex-row items-center">
+            <FilterButton
+              label="Dekat saya"
+              isSelected={userLocationFilter}
+              onPress={() => {
+                userLocationFilter
+                  ? setUserLocationFilter(false)
+                  : setUserLocationFilter(true);
+              }}
+            />
+            <FilterButton
+              label="Jangan lewatkan"
+              isSelected={isExpiringFilter}
+              onPress={() => {
+                isExpiringFilter
+                  ? setIsExpiringFilter(false)
+                  : setIsExpiringFilter(true);
+              }}
+            />
+            <FilterButton
+              label="Kategori"
+              isSelected={checkedCategories.length > 0}
+              onPress={() => setCategoryModal(true)}
+              isDropdown={true}
+            />
+            <TextLink
+              label="Reset"
+              onPress={() => {
+                setCheckedCategories([]);
+                setUserLocationFilter(false);
+                setIsExpiringFilter(false);
+              }}
+              isUnderline={false}
+            />
+          </View>
+        </ScrollView>
       </View>
 
       <View className="flex-1 mx-5">
@@ -310,6 +365,8 @@ const Bakery = () => {
             renderItem={({ item }) => (
               <BakeryCard
                 item={item}
+                userId={userData?.userId}       // Pass userId to BakeryCard
+                isCancelled={isCancelled} // Pass isCancelled to BakeryCard
                 onPress={() =>
                   router.push({
                     pathname: "/bakery/bakeryDetail" as any,
@@ -373,10 +430,10 @@ const Bakery = () => {
             renderItem={({ item }) => (
               <View className="flex-row items-center w-full justify-between border-b border-gray-200 py-4">
                 <TextTitle3 label={item.categoryName} />
-                <CheckBox
-                  isChecked={tempCheckedCategories.includes(item.categoryId)}
-                  onClick={() => handleTempCheckboxClick(item.categoryId)}
-                  checkBoxColor="#B0795A"
+                <Checkbox
+                  value={tempCheckedCategories.includes(item.categoryId)}
+                  onValueChange={() => handleTempCheckboxClick(item.categoryId)}
+                  color={"#B0795A"}
                 />
               </View>
             )}

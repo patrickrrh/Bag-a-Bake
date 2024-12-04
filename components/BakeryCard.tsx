@@ -13,6 +13,8 @@ interface Props {
     item: any;
     onPress: () => void;
     onFavorite: () => void;
+    userId?: any;
+    isCancelled?: any;
 }
 
 type Favorite = {
@@ -21,14 +23,14 @@ type Favorite = {
     userId: number;
 }
 
-const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite }) => {
-    const isClosed = item.isClosed;
+const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite, userId, isCancelled }) => {
+    const isDisabled = item.isClosed || (isCancelled > 2);
 
     return (
         <TouchableOpacity
             className="bg-white rounded-lg shadow-sm mb-5 p-4"
             onPress={onPress}
-            style={{ opacity: isClosed ? 0.2 : 1 }}
+            style={{ opacity: isDisabled ? 0.2 : 1 }}
         >
             <View className="flex-row items-start justify-between">
                 <View className="flex-row p-1">

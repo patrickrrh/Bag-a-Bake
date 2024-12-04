@@ -13,15 +13,17 @@ interface Props {
     product: any;
     isClosed: boolean;
     onPress: () => void;
+    isCancelled?: any;
 }
 
-const ProductCardBakery: React.FC<Props> = ({ product, isClosed, onPress }) => {
+const ProductCardBakery: React.FC<Props> = ({ product, isClosed, onPress, isCancelled }) => {
+    const isDisabled = isClosed || isCancelled > 2;
 
     return (
         <TouchableOpacity
             onPress={onPress}
-            disabled={isClosed}
-            style={{ width: 170, opacity: isClosed ? 0.5 : 1 }}
+            disabled={isDisabled}
+            style={{ width: 170, opacity: isDisabled ? 0.5 : 1 }}
             className='bg-white rounded-lg shadow-sm mb-1'
         >
             <View className='p-4'>

@@ -55,6 +55,7 @@ const SignUpBakeryOwner = () => {
     const checkForm = async () => {
         try {
             setisSubmitting(true);
+            setForm((prevForm) => ({ ...prevForm, userName: prevForm.userName.trim() }));
             const errors = checkEmptyForm(form, confirmPassword);
             if (Object.values(errors).some(error => error !== null)) {
                 setError(errors as ErrorState);
@@ -79,15 +80,18 @@ const SignUpBakeryOwner = () => {
                 return
             } else {
                 const token = await requestNotificationPermission();
-                console.log("push token", token)
                 if (token) {
-                    console.log("masuk gak oi")
                     form.pushToken = token.data
                 }
-                router.push({
-                    pathname: '/(auth)/signUpBakery' as any,
-                    params: { prevForm: JSON.stringify(form) },
+                const otp = await authenticationApi().signUpOTP({
+                    email: form.email,
                 })
+                if (otp.status === 200) {
+                    router.push({
+                        pathname: '/(auth)/signUpOTP' as any,
+                        params: { email: form.email, userDataForm: JSON.stringify(form) },
+                    })
+                }
             }
         } catch (error) {
             console.log(error);

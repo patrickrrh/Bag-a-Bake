@@ -78,7 +78,9 @@ export const checkEmptyForm = (
       } else if (value === "bakeryName") {
         if ((form[value] as string).length < 3) {
           errors[value] = `${fieldLabel} tidak boleh kurang dari 3 huruf`;
-        } else {
+        }  else if ((form[value] as string).length > 50) {
+          errors[value] = `${fieldLabel} tidak boleh lebih dari 50 huruf`;
+        }else {
           errors[value] = null;
         }
       } else if (value === "bakeryImage") {
@@ -91,6 +93,8 @@ export const checkEmptyForm = (
         const wordCount = (form[value] as string).trim().split(/\s+/).length;
         if (wordCount < 5) {
           errors[value] = `${fieldLabel} harus minimal 5 kata`;
+        } else if (wordCount > 50) {
+          errors[value] = `${fieldLabel} tidak boleh lebih dari 50 kata`;
         } else {
           errors[value] = null;
         }
@@ -208,7 +212,7 @@ export const checkProductForm = (form: Record<string, unknown>) => {
     if (!errors.discount) {
       errors.discount = null;
     }
-    
+
   } else {
     errors.discount = "Diskon tidak valid";
   }

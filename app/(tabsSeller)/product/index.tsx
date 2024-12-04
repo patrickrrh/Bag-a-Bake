@@ -70,17 +70,8 @@ const ListProduct = () => {
       return () => {
         setProducts([]);
       };
-    }, [])
+    }, [selectedStatus])
   );
-
-  useEffect(() => {
-    setProducts([]);
-    if (selectedStatus === 1) {
-      handleGetProductsByBakeryId(1);
-    } else {
-      handleGetProductsByBakeryId(2);
-    }
-  }, [selectedStatus]);
 
   const filteredProducts = products.filter((product) => {
     const matchesSearchQuery =

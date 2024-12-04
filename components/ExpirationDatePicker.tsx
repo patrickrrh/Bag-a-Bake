@@ -16,7 +16,7 @@ const ExpirationDatePicker: React.FC<Props> = ({ label, expirationDate, onConfir
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const getMaxDate = () => {
     const today = new Date();
-    today.setDate(today.getDate() + 6);
+    today.setDate(today.getDate() + 2);
     return today;
   };
   const handleConfirm = (date: Date) => {

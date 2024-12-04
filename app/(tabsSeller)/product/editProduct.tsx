@@ -38,6 +38,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ModalInformation from "@/components/ModalInformation";
 import { showToast } from "@/utils/toastUtils";
+import BackButtonWithModal from "@/components/BackButtonModal";
 
 type ErrorState = {
   productName: string | null;
@@ -95,6 +96,7 @@ const EditProduct = () => {
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
     useState(false);
+  const [originalForm, setOriginalForm] = useState({ ...form });
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -122,6 +124,8 @@ const EditProduct = () => {
   const handleEditProduct = async () => {
     try {
       setIsSubmitting(true);
+      form.productName = form.productName.trim();
+      form.productDescription = form.productDescription.trim();
       form.bakeryId = userData?.bakery.bakeryId ?? 0;
       const errors = checkProductForm(form);
       if (Object.values(errors).some((error) => error !== null)) {
@@ -206,42 +210,46 @@ const EditProduct = () => {
       const response = await productApi().getProductById({ productId });
       console.log("product id", productId);
       console.log(response.data);
+
       if (response.status === 200) {
-        setForm({
+        const fetchedForm = {
           productId: response.data.productId,
           productName: response.data.productName,
           productDescription: response.data.productDescription,
           categoryId: response.data.categoryId,
           productExpirationDate: new Date(response.data.productExpirationDate),
           productPrice: response.data.productPrice.toString(),
-          discount:
-            response.data.discount && response.data.discount.length > 0
-              ? response.data.discount.map(
-                  (discount: {
-                    discountAmount: string;
-                    discountDate: string;
-                  }) => ({
-                    discountAmount: discount.discountAmount.toString(),
-                    discountDate:
-                      discount.discountDate || new Date().toISOString(),
-                  })
-                )
-              : [
-                  {
-                    discountAmount: "",
-                    discountDate: new Date().toISOString(),
-                  },
-                ],
+          discount: response.data.discount?.length
+            ? response.data.discount.map(
+                (discount: {
+                  discountAmount: string;
+                  discountDate: string;
+                }) => ({
+                  ...discount,
+                  discountAmount: discount.discountAmount.toString(),
+                  discountDate:
+                    discount.discountDate || new Date().toISOString(),
+                })
+              )
+            : [
+                {
+                  discountAmount: "",
+                  discountDate: new Date().toISOString(),
+                },
+              ],
           productStock: response.data.productStock,
           productImage: response.data.productImage,
           bakeryId: response.data.bakeryId,
           isActive: response.data.isActive,
-        });
+        };
+
+        setForm(fetchedForm);
+        setOriginalForm(fetchedForm);
+
         setIsSwitchEnabled(response.data.isActive === 1);
       }
-      console.log(form);
     } catch (error) {
-      console.log("Error fetching product by ID:", error);
+      console.error("Error fetching product by ID:", error);
     }
   };
 
@@ -322,7 +330,7 @@ const EditProduct = () => {
   const handleDeleteProduct = async () => {
     try {
       await productApi().deleteProductById({ productId });
-      router.push("/product");
+      router.back();
     } catch (error) {
       console.error("Error deleting product", error);
     }
@@ -381,6 +389,37 @@ const EditProduct = () => {
     }
   }, [form.productExpirationDate, isExpirationDateUpdated]);
 
+  const hasUnsavedChanges = () => {
+    if (form.productName !== originalForm.productName) return true;
+    if (
+      (form.productDescription || "") !==
+      (originalForm.productDescription || "")
+    ) {
+      return true;
+    }
+    if (form.categoryId !== originalForm.categoryId) return true;
+    const formDate = new Date(form.productExpirationDate)
+      .toISOString()
+      .split("T")[0];
+    const originalFormDate = new Date(originalForm.productExpirationDate)
+      .toISOString()
+      .split("T")[0];
+    if (formDate !== originalFormDate) return true;
+    if (form.productPrice !== originalForm.productPrice) return true;
+    if (form.productStock !== originalForm.productStock) return true;
+    if (form.productImage !== originalForm.productImage) return true;
+    if (form.discount.length !== originalForm.discount.length) return true;
+    for (let i = 0; i < form.discount.length; i++) {
+      if (
+        form.discount[i].discountAmount !==
+        originalForm.discount[i].discountAmount
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   return (
     <View className="bg-background h-full flex-1">
       <View
@@ -393,7 +432,7 @@ const EditProduct = () => {
       <View className="flex-row items-center px-4 mb-5 relative">
         {/* Back Button */}
         <View className="pl-5">
-          <BackButton />
+          <BackButtonWithModal hasUnsavedChanges={hasUnsavedChanges} />
         </View>
 
         {/* Title */}

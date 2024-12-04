@@ -28,6 +28,8 @@
     "dayjs": "^1.11.13",
     "email-validator": "^2.0.4",
     "expo": "^52.0.9",
+    "expo-checkbox": "^4.0.0",
+    "expo-clipboard": "^7.0.0",
     "expo-constants": "~17.0.3",
     "expo-env": "^1.1.1",
     "expo-file-system": "^18.0.3",

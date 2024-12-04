@@ -6,10 +6,13 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
-  Keyboard
+  Keyboard,
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import UploadButton from "@/components/UploadButton";
 import CustomButton from "@/components/CustomButton";
@@ -28,7 +31,9 @@ import ModalAction from "@/components/ModalAction";
 import Toast from "react-native-toast-message";
 import InputLocationField from "@/components/InputLocationField";
 import axios from "axios";
-import Geocoder from 'react-native-geocoding';
+import Geocoder from "react-native-geocoding";
+import BackButton from "@/components/BackButton";
+import BackButtonWithModal from "@/components/BackButtonModal";
 
 type ErrorState = {
   userName: string | null;
@@ -36,10 +41,12 @@ type ErrorState = {
   address: string | null;
 };
 
-const ProfilePage = () => {
+const ProfilePageCustomer = () => {
   const insets = useSafeAreaInsets();
   const { userData, refreshUserData, signOut } = useAuth();
-  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string
+  const GOOGLE_MAPS_API_KEY = process.env
+    .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
+  const [isDisabled, setIsDisabled] = useState(false);
 
   const [form, setForm] = useState({
     userName: userData?.userName || "",
@@ -76,8 +83,8 @@ const ProfilePage = () => {
   };
 
   const hasUnsavedChanges = () => {
-    console.log("form", form.userName)
-    console.log("form", userData?.userName)
+    console.log("form", form.userName);
+    console.log("form", userData?.userName);
     return (
       form.userName !== userData?.userName ||
       form.userPhoneNumber !== userData?.userPhoneNumber ||
@@ -99,19 +106,19 @@ const ProfilePage = () => {
 
   const handlePasswordChange = () => {
     if (hasUnsavedChanges()) {
-      setNextRoute("/(tabsCustomer)/profile/changePassword");
+      setNextRoute("/changePassword");
       setModalVisible(true);
     } else {
-      router.push("/(tabsCustomer)/profile/changePassword");
+      router.push("/changePassword");
     }
   };
 
   const handleSubmitChange = () => {
     if (hasUnsavedChanges()) {
-      setNextRoute("/(tabsCustomer)/profile" as Href);
+      setNextRoute("/profilePageCustomer" as Href);
       setModalVisible(true);
     } else {
-      router.push("/(tabsCustomer)/profile" as Href);
+      router.push("/profilePageCustomer" as Href);
     }
   };
 
@@ -133,14 +140,14 @@ const ProfilePage = () => {
         userImage: form.userImage,
         address: form.address,
         latitude: form.latitude,
-        longitude: form.longitude
+        longitude: form.longitude,
       });
 
       showToast("success", "Data pengguna berhasil diperbarui");
 
       const userDataToStore = {
         ...form,
-        userId: userData?.userId
+        userId: userData?.userId,
       };
 
       await SecureStore.setItemAsync(
@@ -149,7 +156,6 @@ const ProfilePage = () => {
       );
 
       await refreshUserData();
-
     } catch (error) {
       console.log(error);
       showToast("error", "An unexpected error occurred");
@@ -162,37 +168,48 @@ const ProfilePage = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [isSubmitting, setisSubmitting] = useState(false);
 
+  useEffect(() => {
+    setIsDisabled(!hasUnsavedChanges());
+  }, [form, userData]);
+
   const handleGeocoding = (address: string) => {
     Geocoder.from(address)
-      .then(json => {
+      .then((json) => {
         const location = json.results[0].geometry.location;
-        setForm({ ...form, latitude: location.lat, longitude: location.lng, address: address });
+        setForm({
+          ...form,
+          latitude: location.lat,
+          longitude: location.lng,
+          address: address,
+        });
       })
-      .catch(error => console.warn(error));
-  }
+      .catch((error) => console.warn(error));
+  };
 
   const handleGetLocationSuggestionsAPI = () => {
-
-    if (userAddress === '') {
-      setError((prevError) => ({ ...prevError, address: 'Alamat tidak boleh kosong' }));
+    if (userAddress === "") {
+      setError((prevError) => ({
+        ...prevError,
+        address: "Alamat tidak boleh kosong",
+      }));
       return;
     }
 
     axios
-      .get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
+      .get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
         params: {
           input: userAddress,
           key: GOOGLE_MAPS_API_KEY,
-          language: 'id',
-          location: '-6.222941492431385, 106.64889532527259',
+          language: "id",
+          location: "-6.222941492431385, 106.64889532527259",
           radius: 5000,
-          types: 'establishment',
+          types: "establishment",
         },
       })
-      .then(response => {
+      .then((response) => {
         setSuggestions(response.data.predictions);
       })
-      .catch(error => console.error(error));
+      .catch((error) => console.error(error));
   };
 
   const handleSelectSuggestion = (item: any) => {
@@ -205,7 +222,6 @@ const ProfilePage = () => {
 
   return (
     <View className="bg-background h-full flex-1">
-
       <View
         style={{
           backgroundColor: "#FEFAF9",
@@ -221,27 +237,34 @@ const ProfilePage = () => {
         style={{
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           paddingHorizontal: 20,
           marginBottom: 20,
-          position: "relative",
         }}
       >
-        <TextHeader label="Profil Saya" />
+        <BackButtonWithModal
+          path="/(tabsCustomer)"
+          hasUnsavedChanges={hasUnsavedChanges}
+        />
 
-        <TouchableOpacity
-          style={{ position: "absolute", right: 20 }}
-          onPress={() => setLogoutModalVisible(true)}
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            alignItems: "center",
+          }}
         >
+          <TextHeader label="Profil Saya" />
+        </View>
+
+        <TouchableOpacity onPress={() => setLogoutModalVisible(true)}>
           <Ionicons name="log-out-outline" size={24} color="#b0795a" />
         </TouchableOpacity>
       </View>
 
-
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
-
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
-
           <View className="w-full items-center">
             <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
               <Image
@@ -264,14 +287,14 @@ const ProfilePage = () => {
             error={error.userName}
           />
           <InputLocationField
-            label='Alamat'
+            label="Alamat"
             value={userAddress}
-            placeholder='Cari lokasi Anda'
+            placeholder="Cari lokasi Anda"
             onChangeText={(text) => {
               setUserAddress(text);
               setError((prevError) => ({ ...prevError, address: null }));
             }}
-            moreStyles='mt-7'
+            moreStyles="mt-7"
             suggestions={suggestions}
             error={error.address}
             onSearch={() => handleGetLocationSuggestionsAPI()}
@@ -305,8 +328,8 @@ const ProfilePage = () => {
             handlePress={handleSubmitChange}
             buttonStyles="mt-3"
             isLoading={isSubmitting}
+            disabled={isDisabled}
           />
-
         </View>
       </ScrollView>
 
@@ -342,4 +365,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default ProfilePageCustomer;

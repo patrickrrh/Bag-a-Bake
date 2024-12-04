@@ -74,7 +74,7 @@ const SignUpCustomer = () => {
     const handleSignUpAPI = async () => {
         try {
             setisSubmitting(true);
-
+            setForm((prevForm) => ({ ...prevForm, userName: prevForm.userName.trim() }));
             const errors = checkEmptyForm(form, confirmPassword);
             if (Object.values(errors).some(error => error !== null)) {
                 setError(errors as ErrorState);
@@ -100,7 +100,15 @@ const SignUpCustomer = () => {
                 if (token) {
                     form.pushToken = token.data
                 }
-                signUp(form);
+                const otp = await authenticationApi().signUpOTP({
+                    email: form.email,
+                })
+                if (otp.status === 200) {
+                    router.push({
+                        pathname: '/(auth)/signUpOTP',
+                        params: { email: form.email, userDataForm: JSON.stringify(form) },
+                    })
+                }
             }
         } catch {
             console.log(error);

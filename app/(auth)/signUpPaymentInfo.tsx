@@ -139,6 +139,10 @@ const SignUpPaymentInfo = () => {
         try {
             setisSubmitting(true);
 
+            form.paymentMethods.forEach((method) => {
+                method.paymentDetail = method.paymentDetail.trim();
+            });
+
             if (form.paymentMethods.length === 0) {
                 setError((prevError) => ({
                     ...prevError,
@@ -170,8 +174,6 @@ const SignUpPaymentInfo = () => {
             setisSubmitting(false);
         }
     }
-
-    console.log("Form at payment: ", JSON.stringify(form, null, 2));
 
     const headerContent = (
         <>

@@ -60,7 +60,7 @@ const TabsSellerLayout = () => {
           tabPress: (e) => handleTabPress(e, "/product"),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name='profile'
         options={{
           title: 'Profil',
@@ -71,7 +71,7 @@ const TabsSellerLayout = () => {
         listeners={{
           tabPress: (e) => handleTabPress(e, "/profile"),
         }}
-      />
+      /> */}
     </Tabs>
   );
 };

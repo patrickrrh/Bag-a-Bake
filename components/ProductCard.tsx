@@ -13,14 +13,18 @@ import TextTitle5Gray from './texts/TextTitle5Gray';
 interface Props {
     product: any;
     onPress: () => void;
+    isCancelled: number;
 }
 
-const ProductCard: React.FC<Props> = ({ product, onPress }) => {
+const ProductCard: React.FC<Props> = ({ product, onPress, isCancelled }) => {
+
+    const isDisabled = isCancelled > 2;
 
     return (
         <TouchableOpacity
             onPress={onPress}
-            style={{ width: 170 }}
+            style={{ width: 170, opacity: isDisabled ? 0.5 : 1 }}
+            disabled={isDisabled}
             className='bg-white rounded-lg shadow-sm mr-4 mb-1'
         >
             <View className='p-4'>
