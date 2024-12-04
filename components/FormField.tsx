@@ -19,6 +19,20 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
 
   const [showPassword, setShowPassword] = useState(false)
 
+  const handleTextChange = (text: string) => {
+    if (
+      label === "Kata Sandi" || 
+      label === "Konfirmasi Kata Sandi" || 
+      label === "Kata Sandi Lama" || 
+      label === "Kata Sandi Baru" || 
+      label === "Konfirmasi Kata Sandi Baru"
+    ) {
+      onChangeText(text.replace(/\s+/g, ''));
+    } else {
+      onChangeText(text);
+    }
+  };
+
   return (
     <View className={`space-y-1 ${moreStyles}`}>
       <TextFormLabel label={label} />
@@ -29,7 +43,7 @@ const FormField: React.FC<Props> = ({ label, value, placeholder, onChangeText, m
           value={value as any}
           placeholder={placeholder}
           placeholderTextColor={"#828282"}
-          onChangeText={onChangeText}
+          onChangeText={handleTextChange}
           secureTextEntry={(label === "Kata Sandi" || label === "Konfirmasi Kata Sandi" || label === "Kata Sandi Lama" || label === "Kata Sandi Baru" || label === "Konfirmasi Kata Sandi Baru") && !showPassword}
           keyboardType={keyboardType}
           textAlignVertical='center'

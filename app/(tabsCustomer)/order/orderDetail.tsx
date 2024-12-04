@@ -5,7 +5,7 @@ import TextTitle3 from '@/components/texts/TextTitle3';
 import TextTitle4 from '@/components/texts/TextTitle4';
 import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Image, FlatList, Animated, TouchableOpacity, Linking, ScrollView } from 'react-native'
+import { View, Text, Image, FlatList, Animated, TouchableOpacity, Linking, ScrollView, Alert } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { calculateTotalOrderPrice, calculateValidPaymentTime, convertPhoneNumberFormat, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
@@ -33,7 +33,9 @@ import * as ImagePicker from 'expo-image-picker';
 import TextTitle5Gray from '@/components/texts/TextTitle5Gray';
 import ImageView from "react-native-image-viewing";
 import { handleDownloadImage } from '@/utils/mediaUtils';
+import * as Clipboard from 'expo-clipboard';
 import Toast from 'react-native-toast-message';
+import { showToast } from '@/utils/toastUtils';
 
 type ErrorState = {
     proofOfPayment: string | null;
@@ -74,6 +76,11 @@ const OrderDetail = () => {
             })
             .catch((err) => console.error('An error occurred', err));
     }
+
+    const handleCopyToClipboard = async (text: string) => {
+        await Clipboard.setStringAsync(text);
+        showToast('success', 'Nomor berhasil disalin');
+      };
 
     const handleCancelOrderApi = async () => {
         try {
@@ -271,6 +278,9 @@ const OrderDetail = () => {
                                                         <View className='flex-row ml-2 mt-1'>
                                                             <TextTitle5 label={`${item.paymentService}: `} />
                                                             <TextTitle5 label={item.paymentDetail} />
+                                                            <TouchableOpacity className='ml-1'>
+                                                                <Ionicons name='copy-outline' size={14} color="gray" onPress={() => handleCopyToClipboard(item.paymentDetail as string)} />
+                                                            </TouchableOpacity>
                                                         </View>
                                                     </View>
                                                 )

@@ -1,12 +1,9 @@
-import {
-  View,
-  Text,
-  Image,
-  ScrollView,
-  Keyboard
-} from "react-native";
+import { View, Text, Image, ScrollView, Keyboard } from "react-native";
 import React, { useState, useEffect } from "react";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
 import BackButton from "@/components/BackButton";
@@ -22,7 +19,7 @@ import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
 import PriceInputField from "@/components/PriceInputField";
 import DiscountInputField from "@/components/DiscountInputField";
-import { checkProductForm } from "@/utils/commonFunctions";
+import { checkProductForm, formatDate } from "@/utils/commonFunctions";
 import ErrorMessage from "@/components/texts/ErrorMessage";
 import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
@@ -33,6 +30,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ModalInformation from "@/components/ModalInformation";
 import { showToast } from "@/utils/toastUtils";
 import Toast from "react-native-toast-message";
+import BackButtonWithModal from "@/components/BackButtonModal";
 
 type ErrorState = {
   productName: string | null;
@@ -66,7 +64,30 @@ const CreateProduct = () => {
     productImage: "",
     bakeryId: 0,
   });
+  const [originalForm] = useState(JSON.parse(JSON.stringify(form)));
 
+  const hasUnsavedChanges = () => {
+    if (form.productName !== originalForm.productName) return true;
+    if (form.productDescription !== originalForm.productDescription) return true;
+    if (form.categoryId !== originalForm.categoryId) return true;
+    if (form.category !== originalForm.category) return true;
+    const formDate = new Date(form.productExpirationDate).toISOString().split('T')[0];
+    const originalFormDate = new Date(originalForm.productExpirationDate).toISOString().split('T')[0];
+    if (formDate !== originalFormDate) return true;
+    if (form.productPrice !== originalForm.productPrice) return true;
+    if (form.productStock !== originalForm.productStock) return true;
+    if (form.productImage !== originalForm.productImage) return true;
+    if (form.bakeryId !== originalForm.bakeryId) return true;
+    if (form.discount.length !== originalForm.discount.length) return true;
+    for (let i = 0; i < form.discount.length; i++) {
+      if (form.discount[i].discountAmount !== originalForm.discount[i].discountAmount) {
+        return true;
+      }
+    }
+  
+    return false;
+  };
+  
   const productError: ErrorState = {
     productName: null,
     productDescription: null,
@@ -82,7 +103,8 @@ const CreateProduct = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
-  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
+    useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -143,7 +165,8 @@ const CreateProduct = () => {
   const handleAddProduct = async () => {
     try {
       setIsSubmitting(true);
-
+      form.productName = form.productName.trim();
+      form.productDescription = form.productDescription.trim();
       form.bakeryId = userData?.bakery.bakeryId ?? 0;
       const errors = checkProductForm(form);
       if (Object.values(errors).some((error) => error !== null)) {
@@ -264,11 +287,8 @@ const CreateProduct = () => {
     fillDiscountFields();
   }, [form.productExpirationDate]);
 
-  console.log("prodyct form", JSON.stringify(form, null, 2))
-
   return (
     <View className="bg-background h-full flex-1">
-
       <View
         style={{
           backgroundColor: "#FEFAF9",
@@ -279,7 +299,9 @@ const CreateProduct = () => {
       <View className="flex-row items-center px-4 mb-5 relative">
         {/* Back Button */}
         <View className="pl-5">
-          <BackButton />
+          <BackButtonWithModal
+            hasUnsavedChanges={hasUnsavedChanges}
+          />
         </View>
 
         {/* Title */}
@@ -371,9 +393,7 @@ const CreateProduct = () => {
           {/* Date Picker Input */}
           <ExpirationDatePicker
             label="Tanggal Kedaluwarsa"
-            expirationDate={dayjs(form.productExpirationDate).format(
-              "DD MMMM YYYY"
-            )}
+            expirationDate={formatDate(form.productExpirationDate.toString())}
             onConfirm={handleDateConfirm}
             error={error.productExpirationDate}
           />
@@ -408,7 +428,6 @@ const CreateProduct = () => {
                 style={{ marginLeft: 2 }}
                 onPress={() => setIsInfoModalVisible(true)}
               />
-
             </View>
 
             <View className="flex-col">
@@ -423,7 +442,7 @@ const CreateProduct = () => {
                   >
                     Hari ke-{index + 1}{" "}
                     <Text style={{ fontSize: 12 }}>
-                      ({dayjs(discount.discountDate).format("D MMM")})
+                      ({formatDate(discount.discountDate.toString())})
                     </Text>
                   </Text>
                   <DiscountInputField
@@ -435,7 +454,7 @@ const CreateProduct = () => {
               ))}
             </View>
 
-            <View className="mt-4 flex-col justify-center w-full">
+            <View className="mb-4 flex-col justify-center w-full">
               {error.discount && <ErrorMessage label={error.discount} />}
             </View>
           </View>

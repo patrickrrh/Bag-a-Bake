@@ -62,7 +62,7 @@ const TabsCustomerLayout = () => {
           tabPress: (e) => handleTabPress(e, "/order"),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="profile"
         options={{
           title: "Profil",
@@ -73,7 +73,7 @@ const TabsCustomerLayout = () => {
         listeners={{
           tabPress: (e) => handleTabPress(e, "/profile"),
         }}
-      />
+      /> */}
     </Tabs>
   );
 };

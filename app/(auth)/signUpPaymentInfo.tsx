@@ -139,6 +139,10 @@ const SignUpPaymentInfo = () => {
         try {
             setisSubmitting(true);
 
+            form.paymentMethods.forEach((method) => {
+                method.paymentDetail = method.paymentDetail.trim();
+            });
+
             if (form.paymentMethods.length === 0) {
                 setError((prevError) => ({
                     ...prevError,

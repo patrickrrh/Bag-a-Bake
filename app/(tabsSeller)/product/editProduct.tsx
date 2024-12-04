@@ -27,7 +27,7 @@ import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
 import PriceInputField from "@/components/PriceInputField";
 import DiscountInputField from "@/components/DiscountInputField";
-import { checkProductForm } from "@/utils/commonFunctions";
+import { checkProductForm, formatDate } from "@/utils/commonFunctions";
 import ErrorMessage from "@/components/texts/ErrorMessage";
 import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
@@ -38,6 +38,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import ModalInformation from "@/components/ModalInformation";
 import { showToast } from "@/utils/toastUtils";
+import BackButtonWithModal from "@/components/BackButtonModal";
 
 type ErrorState = {
   productName: string | null;
@@ -48,6 +49,7 @@ type ErrorState = {
   discount: string | null;
   productStock: string | null;
   productImage: string | null;
+  productStatus: string | null;
 };
 
 type DiscountItem = {
@@ -85,6 +87,7 @@ const EditProduct = () => {
     discount: null,
     productStock: null,
     productImage: null,
+    productStatus: null,
   };
 
   const [error, setError] = useState<ErrorState>(productError);
@@ -93,6 +96,7 @@ const EditProduct = () => {
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
     useState(false);
+  const [originalForm, setOriginalForm] = useState({ ...form });
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -120,6 +124,8 @@ const EditProduct = () => {
   const handleEditProduct = async () => {
     try {
       setIsSubmitting(true);
+      form.productName = form.productName.trim();
+      form.productDescription = form.productDescription.trim();
       form.bakeryId = userData?.bakery.bakeryId ?? 0;
       const errors = checkProductForm(form);
       if (Object.values(errors).some((error) => error !== null)) {
@@ -204,42 +210,46 @@ const EditProduct = () => {
       const response = await productApi().getProductById({ productId });
       console.log("product id", productId);
       console.log(response.data);
+
       if (response.status === 200) {
-        setForm({
+        const fetchedForm = {
           productId: response.data.productId,
           productName: response.data.productName,
           productDescription: response.data.productDescription,
           categoryId: response.data.categoryId,
           productExpirationDate: new Date(response.data.productExpirationDate),
           productPrice: response.data.productPrice.toString(),
-          discount:
-            response.data.discount && response.data.discount.length > 0
-              ? response.data.discount.map(
-                  (discount: {
-                    discountAmount: string;
-                    discountDate: string;
-                  }) => ({
-                    discountAmount: discount.discountAmount.toString(),
-                    discountDate:
-                      discount.discountDate || new Date().toISOString(),
-                  })
-                )
-              : [
-                  {
-                    discountAmount: "",
-                    discountDate: new Date().toISOString(),
-                  },
-                ],
+          discount: response.data.discount?.length
+            ? response.data.discount.map(
+                (discount: {
+                  discountAmount: string;
+                  discountDate: string;
+                }) => ({
+                  ...discount,
+                  discountAmount: discount.discountAmount.toString(),
+                  discountDate:
+                    discount.discountDate || new Date().toISOString(),
+                })
+              )
+            : [
+                {
+                  discountAmount: "",
+                  discountDate: new Date().toISOString(),
+                },
+              ],
           productStock: response.data.productStock,
           productImage: response.data.productImage,
           bakeryId: response.data.bakeryId,
           isActive: response.data.isActive,
-        });
+        };
+
+        setForm(fetchedForm);
+        setOriginalForm(fetchedForm);
+
         setIsSwitchEnabled(response.data.isActive === 1);
       }
-      console.log(form);
     } catch (error) {
-      console.log("Error fetching product by ID:", error);
+      console.error("Error fetching product by ID:", error);
     }
   };
 
@@ -295,7 +305,17 @@ const EditProduct = () => {
     const expirationDate = dayjs(form.productExpirationDate).startOf("day");
 
     if (expirationDate.isBefore(today)) {
+      setError((prevError) => ({
+        ...prevError,
+        productStatus: "Harap ubah tanggal kedaluwarsa terlebih dahulu",
+      }));
+      setIsSwitchEnabled(false);
       return;
+    } else {
+      setError((prevError) => ({
+        ...prevError,
+        productStatus: null,
+      }));
     }
 
     setIsSwitchEnabled((previousState) => !previousState);
@@ -369,6 +389,37 @@ const EditProduct = () => {
     }
   }, [form.productExpirationDate, isExpirationDateUpdated]);
 
+  const hasUnsavedChanges = () => {
+    if (form.productName !== originalForm.productName) return true;
+    if (
+      (form.productDescription || "") !==
+      (originalForm.productDescription || "")
+    ) {
+      return true;
+    }
+    if (form.categoryId !== originalForm.categoryId) return true;
+    const formDate = new Date(form.productExpirationDate)
+      .toISOString()
+      .split("T")[0];
+    const originalFormDate = new Date(originalForm.productExpirationDate)
+      .toISOString()
+      .split("T")[0];
+    if (formDate !== originalFormDate) return true;
+    if (form.productPrice !== originalForm.productPrice) return true;
+    if (form.productStock !== originalForm.productStock) return true;
+    if (form.productImage !== originalForm.productImage) return true;
+    if (form.discount.length !== originalForm.discount.length) return true;
+    for (let i = 0; i < form.discount.length; i++) {
+      if (
+        form.discount[i].discountAmount !==
+        originalForm.discount[i].discountAmount
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   return (
     <View className="bg-background h-full flex-1">
       <View
@@ -381,7 +432,7 @@ const EditProduct = () => {
       <View className="flex-row items-center px-4 mb-5 relative">
         {/* Back Button */}
         <View className="pl-5">
-          <BackButton />
+          <BackButtonWithModal hasUnsavedChanges={hasUnsavedChanges} />
         </View>
 
         {/* Title */}
@@ -480,9 +531,7 @@ const EditProduct = () => {
           {/* Date Picker Input */}
           <ExpirationDatePicker
             label="Tanggal Kedaluwarsa"
-            expirationDate={dayjs(form.productExpirationDate).format(
-              "DD MMMM YYYY"
-            )}
+            expirationDate={formatDate(form.productExpirationDate.toString())}
             onConfirm={handleDateConfirm}
             error={error.productExpirationDate}
           />
@@ -532,7 +581,7 @@ const EditProduct = () => {
                     >
                       Hari ke-{index + 1}{" "}
                       <Text style={{ fontSize: 12 }}>
-                        ({dayjs(discount.discountDate).format("D MMM")})
+                        ({formatDate(discount.discountDate.toString())})
                       </Text>
                     </Text>
                     <DiscountInputField
@@ -603,11 +652,17 @@ const EditProduct = () => {
             </View>
           </View>
 
+          <View className="mb-4 flex-col justify-center w-full">
+            {error.productStatus && (
+              <ErrorMessage label={error.productStatus} />
+            )}
+          </View>
+
           {/* Add Product Button */}
           <CustomButton
             label="Perbarui"
             handlePress={handleEditProduct}
-            buttonStyles="mt-10 mb-5"
+            buttonStyles="mt-5 mb-5"
             isLoading={isSubmitting}
           />
         </View>

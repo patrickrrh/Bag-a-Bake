@@ -55,6 +55,7 @@ const SignUpBakeryOwner = () => {
     const checkForm = async () => {
         try {
             setisSubmitting(true);
+            setForm((prevForm) => ({ ...prevForm, userName: prevForm.userName.trim() }));
             const errors = checkEmptyForm(form, confirmPassword);
             if (Object.values(errors).some(error => error !== null)) {
                 setError(errors as ErrorState);

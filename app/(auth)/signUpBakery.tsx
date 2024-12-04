@@ -178,6 +178,12 @@ const SignUpBakery = () => {
     try {
       setisSubmitting(true);
 
+      setForm((prevForm) => ({
+        ...prevForm,
+        bakeryName: prevForm.bakeryName.trim(),
+        bakeryDescription: prevForm.bakeryDescription.trim(),
+      }));
+
       const errors = checkEmptyForm(form);
       if (Object.values(errors).some(error => error !== null)) {
         setError(errors as ErrorState);
