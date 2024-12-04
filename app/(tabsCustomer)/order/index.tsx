@@ -18,6 +18,8 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 import {
   SafeAreaView,
@@ -96,6 +98,10 @@ const Order = () => {
       handleGetOrderByStatusApi();
     }, [selectedStatus])
   )
+
+  const handleRefresh = () => {
+    handleGetOrderByStatusApi();
+  };
 
   const handleSubmitRatingApi = async () => {
     try {
@@ -235,6 +241,12 @@ const Order = () => {
               keyExtractor={(item) => item.orderId.toString()}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 20 }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isLoading}
+                  onRefresh={handleRefresh}
+                />
+              }
             />
           )}
         </View>

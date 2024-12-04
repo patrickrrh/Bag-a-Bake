@@ -55,6 +55,7 @@ const SignUpBakeryOwner = () => {
     const handleSignUpAPI = async () => {
         try {
             setisSubmitting(true);
+            setForm((prevForm) => ({ ...prevForm, userName: prevForm.userName.trim() }));
             const errors = checkEmptyForm(form, confirmPassword);
             if (Object.values(errors).some(error => error !== null)) {
                 setError(errors as ErrorState);
@@ -84,6 +85,7 @@ const SignUpBakeryOwner = () => {
                 }
                 const otp = await authenticationApi().signUpOTP({
                     email: form.email,
+                    userName: form.userName
                 })
                 if (otp.status === 200) {
                     router.push({

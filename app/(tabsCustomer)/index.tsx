@@ -158,7 +158,7 @@ const Home = () => {
         {/* Header */}
         <TouchableOpacity
           className='bg-brown px-5 mx-5 mt-3 rounded-xl shadow-sm'
-          onPress={() => router.replace('/(tabsCustomer)/profile')}
+          onPress={() => router.replace('/profilePageCustomer' as any)}
         >
           <View className='flex-row justify-between w-full my-8'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">

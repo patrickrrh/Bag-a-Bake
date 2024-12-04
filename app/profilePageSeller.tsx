@@ -10,7 +10,10 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import FormField from "@/components/FormField";
 import UploadButton from "@/components/UploadButton";
 import CustomButton from "@/components/CustomButton";
@@ -46,6 +49,8 @@ import Geocoder from "react-native-geocoding";
 import PaymentInput from "@/components/PaymentInput";
 import ErrorMessage from "@/components/texts/ErrorMessage";
 import { PaymentType } from "@/types/types";
+import BackButton from "@/components/BackButton";
+import BackButtonWithModal from "@/components/BackButtonModal";
 
 type ErrorState = {
   userName: string | null;
@@ -77,7 +82,7 @@ interface PaymentForm {
   paymentMethods: PaymentType[];
 }
 
-const ProfilePage = () => {
+const ProfilePageSeller = () => {
   const insets = useSafeAreaInsets();
   const { userData, refreshUserData, signOut } = useAuth();
   const GOOGLE_MAPS_API_KEY = process.env
@@ -86,6 +91,7 @@ const ProfilePage = () => {
   const [nextRoute, setNextRoute] = useState<Href | null>(null);
   const [isSubmitting, setisSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalTabVisible, setModalTabVisible] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
   const [selectedStatus, setSelectedStatus] = useState<number>(1);
@@ -167,10 +173,10 @@ const ProfilePage = () => {
 
   const handlePasswordChange = () => {
     if (hasUnsavedChanges()) {
-      setNextRoute("/(tabsSeller)/profile/changePassword" as Href);
+      setNextRoute("/changePassword" as Href);
       setModalVisible(true);
     } else {
-      router.push("/(tabsSeller)/profile/changePassword" as Href);
+      router.push("/changePassword" as Href);
     }
   };
 
@@ -537,7 +543,7 @@ const ProfilePage = () => {
     ) {
       setModalVisible(true);
     } else {
-      router.push("/(tabsSeller)/profile" as Href);
+      router.push("/profilePageSeller" as Href);
     }
   };
 
@@ -547,7 +553,7 @@ const ProfilePage = () => {
       if (selectedStatus === 1) {
         await authenticationApi().updateUser({
           userId: userData?.userId,
-          userName: form.userName,
+          userName: form.userName.trim(),
           userPhoneNumber: form.userPhoneNumber,
           userImage: form.userImage,
         });
@@ -556,9 +562,9 @@ const ProfilePage = () => {
       } else if (selectedStatus === 2) {
         await bakeryApi().updateBakery({
           bakeryId: userData?.bakery.bakeryId,
-          bakeryName: bakeryForm.bakeryName,
+          bakeryName: bakeryForm.bakeryName.trim(),
           bakeryImage: bakeryForm.bakeryImage,
-          bakeryDescription: bakeryForm.bakeryDescription,
+          bakeryDescription: bakeryForm.bakeryDescription.trim(),
           bakeryPhoneNumber: bakeryForm.bakeryPhoneNumber,
           openingTime: bakeryForm.openingTime,
           closingTime: bakeryForm.closingTime,
@@ -574,7 +580,7 @@ const ProfilePage = () => {
           bakeryId: userData?.bakery.bakeryId,
           paymentMethod: payment.paymentMethod,
           paymentService: payment.paymentService,
-          paymentDetail: payment.paymentDetail,
+          paymentDetail: payment.paymentDetail.trim(),
         }));
 
         await paymentApi().updatePayments(paymentUpdates);
@@ -631,9 +637,72 @@ const ProfilePage = () => {
     setIsDisabledPayment(!hasPaymentUnsavedChanges());
   }, [paymentForm, userData]);
 
+  const resetForms = () => {
+    
+    setForm({
+      userName: userData?.userName || "",
+      userPhoneNumber: userData?.userPhoneNumber || "",
+      userImage: userData?.userImage || "",
+      roleId: 2,
+    });
+  
+    setBakeryForm({
+      bakeryName: userData?.bakery?.bakeryName || "",
+      bakeryImage: userData?.bakery?.bakeryImage || "",
+      bakeryDescription: userData?.bakery?.bakeryDescription || "",
+      bakeryPhoneNumber: userData?.bakery?.bakeryPhoneNumber || "",
+      openingTime: userData?.bakery?.openingTime || "",
+      closingTime: userData?.bakery?.closingTime || "",
+      bakeryAddress: userData?.bakery?.bakeryAddress || "",
+      bakeryLatitude: userData?.bakery?.bakeryLatitude || 0,
+      bakeryLongitude: userData?.bakery?.bakeryLongitude || 0,
+    });
+  
+    setPaymentForm({
+      paymentMethods:
+        userData?.bakery?.payment?.map((payment: any) => ({
+          paymentId: payment.paymentId || 0,
+          bakeryId: payment.bakeryId || 0,
+          paymentMethod: payment.paymentMethod || "",
+          paymentService: payment.paymentService || "",
+          paymentDetail: payment.paymentDetail || "",
+        })) || [],
+    });
+  
+    setTimeout(() => {
+      console.log(form);
+      console.log(bakeryForm);
+      console.log(paymentForm);
+    }, 0);
+  };
+  
+  const [tempStatus, setTempStatus] = useState<number>(0);
+
+  const handleStatusChange = (status: number) => {
+    let unsavedChanges: boolean;
+    unsavedChanges = hasUnsavedChanges() || hasBakeryUnsavedChanges() || hasPaymentUnsavedChanges();
+    if (unsavedChanges) {
+      setTempStatus(status);
+      setModalTabVisible(true);
+    } else {
+      setSelectedStatus(status);
+      setLocalStorage("selectedStatusProfile", String(status));
+      resetForms();
+    }
+  };
+  
+  const handleNavigateStatus = () => {
+    if (tempStatus !== null) {
+      setSelectedStatus(tempStatus);
+      setLocalStorage("selectedStatusProfile", String(tempStatus));
+    }
+    setTempStatus(0);
+    resetForms();
+    setModalTabVisible(false);
+  };
+  
   return (
     <View className="bg-background h-full flex-1">
-
       <View
         style={{
           backgroundColor: "#FEFAF9",
@@ -641,46 +710,53 @@ const ProfilePage = () => {
         }}
       />
 
-      {/* <View
-        style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 100 }}
-      >
-        <Toast topOffset={50} />
-      </View> */}
-
       <View
         style={{
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "space-between",
           paddingHorizontal: 20,
           marginBottom: 20,
-          position: "relative",
         }}
       >
-        <TextHeader label="Profil Saya" />
+        <BackButtonWithModal
+          path="/(tabsSeller)/home"
+          hasUnsavedChanges={
+            selectedStatus === 1
+              ? () => hasUnsavedChanges()
+              : selectedStatus === 2
+              ? () => hasBakeryUnsavedChanges()
+              : selectedStatus === 3
+              ? () => hasPaymentUnsavedChanges()
+              : () => false
+          }
+        />
 
-        <TouchableOpacity
-          style={{ position: "absolute", right: 20 }}
-          onPress={() => setLogoutModalVisible(true)}
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            alignItems: "center",
+          }}
         >
-          <Ionicons name="log-out-outline" size={24} color="#b0795a" />
+          <TextHeader label="Profil Saya" />
+        </View>
+
+        <TouchableOpacity onPress={() => setLogoutModalVisible(true)}>
+          <Ionicons name="log-out-outline" size={24} color="#000" />
         </TouchableOpacity>
       </View>
 
       <View className="mx-5">
         <ProfileTab
-          selectedStatus={selectedStatus}
-          onSelectStatus={(status) => {
-            setSelectedStatus(status);
-          }}
+          selectedStatus={modalTabVisible ? tempStatus : selectedStatus}
+          onSelectStatus={handleStatusChange}
         />
       </View>
 
-
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
-        <View style={{ paddingHorizontal: 20, flex: 1 }}>
-
-
+        <View style={{ paddingHorizontal: 20, flex: 1, paddingTop: 20 }}>
           <View className="w-full items-center" style={{ marginTop: 20 }}>
             {selectedStatus === 1 ? (
               <>
@@ -887,6 +963,24 @@ const ProfilePage = () => {
         />
       )}
 
+      {modalTabVisible && (
+        <ModalAction
+          setModalVisible={setModalTabVisible}
+          modalVisible={modalTabVisible}
+          title="Anda memiliki perubahan yang belum disimpan"
+          primaryButtonLabel="Lanjutkan"
+          secondaryButtonLabel="Keluar"
+          onPrimaryAction={() => {
+            setModalTabVisible(false);
+          }}
+          onSecondaryAction={() => {
+            resetForms();
+            handleNavigateStatus();
+            resetForms();
+          }}
+        />
+      )}
+
       {logoutModalVisible && (
         <ModalAction
           setModalVisible={setLogoutModalVisible}
@@ -902,4 +996,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default ProfilePageSeller;

@@ -59,7 +59,7 @@ const ChangePassword = () => {
     try {
       setIsSubmitting(true);
       const email = userData?.email || "";
-
+      console.log("email user data", email);
       const errors = await checkPasswordErrors(
         form,
         confirmPassword,
