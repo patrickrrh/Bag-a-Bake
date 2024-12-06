@@ -433,7 +433,7 @@ const EditProduct = () => {
 
       <View className="flex-row items-center px-4 mb-5 relative">
         {/* Back Button */}
-        <View className="pl-5">
+        <View>
           <BackButtonWithModal hasUnsavedChanges={hasUnsavedChanges} />
         </View>
 

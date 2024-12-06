@@ -27,7 +27,7 @@ type ErrorState = {
 
 const SignIn = () => {
 
-  const { signIn, justSignedIn } = useAuth();
+  const { signIn, justSignedIn, signOut } = useAuth();
 
   const emptyForm = {
     email: '',

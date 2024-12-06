@@ -30,7 +30,7 @@ const FilterButton: React.FC<Props> = ({ label, isSelected, onPress, isDropdown 
                     </Text>
                 )}
                 { isDropdown && (
-                    <Ionicons name="chevron-down" size={12} color="#331612" style={{ marginLeft: 4 }} />
+                    <Ionicons name="chevron-down" size={12} color={isSelected ? "white" : "#331612"} style={{ marginLeft: 4 }} />
                 )}
             </View>
         </TouchableOpacity>

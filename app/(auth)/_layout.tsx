@@ -16,6 +16,7 @@ const AuthLayout = () => {
         <Stack.Screen name='forgotPassword'/>
         <Stack.Screen name='inputOTP'/>
         <Stack.Screen name='changePassword'/>
+        <Stack.Screen name='pendingApproval'/>
       </Stack>
     </>
   )

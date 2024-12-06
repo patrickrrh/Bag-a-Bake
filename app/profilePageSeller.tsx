@@ -710,12 +710,6 @@ const ProfilePageSeller = () => {
         }}
       />
 
-      {/* <View
-        style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 100 }}
-      >
-        <Toast topOffset={50} />
-      </View> */}
-
       <View
         style={{
           flexDirection: "row",
@@ -762,7 +756,7 @@ const ProfilePageSeller = () => {
       </View>
 
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
-        <View style={{ paddingHorizontal: 20, flex: 1 }}>
+        <View style={{ paddingHorizontal: 20, flex: 1, paddingTop: 20 }}>
           <View className="w-full items-center" style={{ marginTop: 20 }}>
             {selectedStatus === 1 ? (
               <>

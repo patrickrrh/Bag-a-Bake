@@ -175,7 +175,7 @@ export const checkProductForm = (form: Record<string, unknown>) => {
 
   // Initial Price
   if (form.productPrice === "" || (form.productPrice as number) < 1000) {
-    errors.productPrice = `${fieldLabels.productPrice} harus minimal 1.000`;
+    errors.productPrice = `${fieldLabels.productPrice} harus minimal Rp1.000`;
   } else {
     errors.productPrice = null;
   }

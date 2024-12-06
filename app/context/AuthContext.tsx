@@ -4,6 +4,7 @@ import * as SecureStore from "expo-secure-store";
 import { ActivityIndicator, View } from "react-native";
 import Toast from 'react-native-toast-message';
 import { UserType } from "@/types/types";
+import { showToast } from "@/utils/toastUtils";
 
 const AuthContext = createContext<{
     signIn: (data: object) => void;
@@ -15,6 +16,7 @@ const AuthContext = createContext<{
     justSignedIn: boolean;
     userData: UserType | null;
     refreshUserData: () => Promise<void>;
+        refreshUserStatus: () => Promise<void>;
 }>({
     signIn: (data: object) => null,
     signUp: (data: object) => null,
@@ -24,7 +26,8 @@ const AuthContext = createContext<{
     isLoading: false,
     justSignedIn: false,
     userData: null,
-    refreshUserData: async () => {}
+    refreshUserData: async () => {},
+    refreshUserStatus: async () => {},
 })
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -91,7 +94,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     const signUp = async (data: object) => {
         setIsLoading(true);
         try {
-            const response = await authenticationApi().signUp(data);
+            const response = await authenticationApi().signUpUser(data);
             if (response.error) {
                 throw new Error(response.error);
             } else {
@@ -137,9 +140,30 @@ export function AuthProvider({ children }: PropsWithChildren) {
             console.error("Error refreshing user data:", error);
         }
     };
+
+    const refreshUserStatus = async () => {
+        try {
+            const refreshToken = await SecureStore.getItemAsync("refreshToken");
+            const userData = await authenticationApi().refreshUserStatus({ refreshToken: refreshToken })
+
+            if (userData.status === 200) {
+                await SecureStore.setItemAsync("userData", JSON.stringify(userData.user));
+                setUserData(userData.user);
+            } else {
+                await SecureStore.deleteItemAsync("accessToken");
+                await SecureStore.deleteItemAsync("refreshToken");
+                await SecureStore.deleteItemAsync("userData");
+                setIsAuthenticated(false);
+                setUserData(null);
+                showToast('error', 'Sesi Anda telah berakhir');
+            }
+        } catch (error) {
+            console.error("Error refreshing user status:", error);
+        }
+    }
     
     return (
-        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData, refreshUserData, isEditProfile }}>
+        <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData, refreshUserData, isEditProfile, refreshUserStatus }}>
             {children}
         </AuthContext.Provider>
     )

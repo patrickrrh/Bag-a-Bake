@@ -229,10 +229,6 @@ const ProfilePageCustomer = () => {
         }}
       />
 
-      {/* <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }}>
-        <Toast topOffset={50} />
-      </View> */}
-
       <View
         style={{
           flexDirection: "row",
@@ -264,7 +260,7 @@ const ProfilePageCustomer = () => {
       </View>
 
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}>
-        <View style={{ paddingHorizontal: 20, flex: 1 }}>
+        <View style={{ paddingHorizontal: 20, flex: 1, paddingTop: 20 }}>
           <View className="w-full items-center">
             <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
               <Image

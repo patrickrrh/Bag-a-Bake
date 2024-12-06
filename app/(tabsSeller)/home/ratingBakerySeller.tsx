@@ -10,6 +10,7 @@ import {
     Button,
     Linking,
     ActivityIndicator,
+    RefreshControl,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
@@ -193,6 +194,12 @@ const RatingBakerySeller = () => {
                                 renderItem={({ item }) => <ListRatingCard item={item} />}
                                 showsVerticalScrollIndicator={false}
                                 contentContainerStyle={{ paddingBottom: 20 }}
+                                refreshControl={
+                                    <RefreshControl
+                                        refreshing={isLoading}
+                                        onRefresh={handleGetRatings}
+                                    />   
+                                }
                             />
                         )
                     )

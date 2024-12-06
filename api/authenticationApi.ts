@@ -19,7 +19,8 @@ const createApiFunction = (method: string, url: string) => async (data?: object)
 
 export default function registerApi() {
     return {
-        signUp: createApiFunction("post", "sign_up"),
+        signUpUser: createApiFunction("post", "sign_up_user"),
+        signUpBakery: createApiFunction("post", "sign_up_bakery"),
         signIn: createApiFunction("post", "sign_in"),
         isEmailRegistered: createApiFunction("post", "is_email_registered"),
         checkAccount: createApiFunction("post", "check_account"),
@@ -30,5 +31,6 @@ export default function registerApi() {
         updateUser: createApiFunction("put", "update/user"),
         refreshAuth: createApiFunction("post", "refresh_token"),
         revokeTokens: createApiFunction("put", "revoke/tokens"),
+        refreshUserStatus: createApiFunction("post", "refresh/user_status"),
     }
 }
