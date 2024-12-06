@@ -5,9 +5,7 @@ import { Platform, SafeAreaView, StatusBar, View, TouchableWithoutFeedback, Keyb
 import Toast from "react-native-toast-message";
 
 function RootLayout() {
-  const { isAuthenticated, isLoading, userData, isEditProfile } = useAuth();
-
-  console.log("User data at root", JSON.stringify(userData, null, 2))
+  const { isAuthenticated, isLoading, userData, isEditProfile, signOut } = useAuth();
 
   useEffect(() => {
     if (!isLoading) {

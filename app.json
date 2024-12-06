@@ -36,7 +36,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "baseURL": "http://10.233.2.14:3000/api",
+      "baseURL": "http://bagabake.com/api",
       "router": {
         "origin": false
       },
