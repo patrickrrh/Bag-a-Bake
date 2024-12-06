@@ -95,6 +95,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         try {
             const response = await authenticationApi().signUpUser(data);
+            console.log("response here", response)
             if (response.error) {
                 throw new Error(response.error);
             } else {

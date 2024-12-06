@@ -103,6 +103,7 @@ const SignUpCustomer = () => {
                 const otp = await authenticationApi().signUpOTP({
                     email: form.email,
                 })
+                console.log("otep", otp)
                 if (otp.status === 200) {
                     router.push({
                         pathname: '/(auth)/signUpOTP',
