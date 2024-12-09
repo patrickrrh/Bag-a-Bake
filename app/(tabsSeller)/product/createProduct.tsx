@@ -210,10 +210,10 @@ const CreateProduct = () => {
       const response = await productApi().createProduct(formData);
       if (response.error) {
         throw new Error(response.error);
+      } else if (response.status === 201) {
+        showToast("success", "Produk berhasil ditambahkan!");
+        router.back();
       }
-
-      showToast("success", "Produk berhasil ditambahkan!");
-      router.back();
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {

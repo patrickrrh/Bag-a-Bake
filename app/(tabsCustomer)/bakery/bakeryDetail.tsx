@@ -195,7 +195,7 @@ const BakeryDetail = () => {
       <Announcement
         message="Akun Anda diblokir karena telah membatalkan pesanan lebih dari 3 kali."
         visible={announcementVisible}
-        onClose={() => setAnnouncementVisible(false)} // Menyembunyikan pengumuman saat ditutup
+        onClose={() => setAnnouncementVisible(false)}
       />
       <View className="flex-row px-5 mb-5 w-full justify-between">
         <BackButton path="/bakery" />
@@ -284,11 +284,23 @@ const BakeryDetail = () => {
               />
             </View>
 
-            <View className="mt-3">
-              <TextTitle4 label={"Jam Operasional:"} />
-              <TextTitle5
-                label={`${bakeryDetail?.bakery.openingTime} - ${bakeryDetail?.bakery.closingTime}`}
-              />
+            <View className="flex-row justify-between items-start w-full mt-3">
+              <View>
+                <TextTitle4 label={"Jam Operasional:"} />
+                <TextTitle5
+                  label={`${bakeryDetail?.bakery.openingTime} - ${bakeryDetail?.bakery.closingTime}`}
+                />
+              </View>
+              {
+                bakeryDetail?.bakery.isHalal === 1 && (
+                  <View>
+                    <Image
+                      source={icons.halalLogo}
+                      className='w-12 h-12'
+                    />
+                  </View>
+                )
+              }
             </View>
 
             <View className="h-px bg-gray-200 my-4" />

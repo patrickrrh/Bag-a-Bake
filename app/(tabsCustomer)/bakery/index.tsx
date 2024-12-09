@@ -370,8 +370,8 @@ const Bakery = () => {
             renderItem={({ item }) => (
               <BakeryCard
                 item={item}
-                userId={userData?.userId}       // Pass userId to BakeryCard
-                isCancelled={isCancelled} // Pass isCancelled to BakeryCard
+                userId={userData?.userId}
+                isCancelled={isCancelled}
                 onPress={() =>
                   router.push({
                     pathname: "/bakery/bakeryDetail" as any,

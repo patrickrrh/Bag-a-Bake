@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, Button } from 'react-native'
+import { View, Text, ScrollView, Image, Button, Switch } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import CustomLogo from '@/components/CustomLogo'
@@ -31,6 +31,8 @@ import { requestNotificationPermission } from '@/utils/notificationUtils'
 import { TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import ModalAction from '@/components/ModalAction'
+import TextFormLabel from '@/components/texts/TextFormLabel'
+import TextTitle5 from '@/components/texts/TextTitle5'
 
 type ErrorState = {
   bakeryName: string | null;
@@ -40,6 +42,7 @@ type ErrorState = {
   openingTime: string | null;
   closingTime: string | null;
   bakeryAddress: string | null;
+  halalCertificate: string | null;
 };
 
 const SignUpBakery = () => {
@@ -58,6 +61,8 @@ const SignUpBakery = () => {
     bakeryAddress: '',
     bakeryLatitude: 0,
     bakeryLongitude: 0,
+    isHalal: 0,
+    halalCertificate: '',
   })
   const [address, setAddress] = useState('')
   const [suggestions, setSuggestions] = useState([]);
@@ -70,6 +75,7 @@ const SignUpBakery = () => {
     openingTime: null,
     closingTime: null,
     bakeryAddress: null,
+    halalCertificate: null
   };
   const [error, setError] = useState<ErrorState>(emptyError);
 
@@ -78,7 +84,7 @@ const SignUpBakery = () => {
   const [timeFieldType, setTimeFieldType] = useState<"openingTime" | "closingTime">("openingTime");
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  const pickImage = async () => {
+  const pickImage = async (input: any) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -89,12 +95,12 @@ const SignUpBakery = () => {
     if (result) {
       setError((prevError) => ({
         ...prevError,
-        bakeryImage: null,
+        [input]: null,
       }));
     }
 
     if (!result.canceled) {
-      setForm({ ...form, bakeryImage: result.assets[0].uri })
+      setForm({ ...form, [input]: result.assets[0].uri })
     }
   };
 
@@ -216,6 +222,29 @@ const SignUpBakery = () => {
 
   return (
     <AuthLayout headerContent={headerContent} isScrollable>
+      <View className="items-center">
+        {form.bakeryImage ? (
+          <Image
+            source={{ uri: form.bakeryImage }}
+            className="w-48 h-48 rounded-md"
+            resizeMode="cover"
+          />
+        ) : (
+          <View className="w-48 h-48 bg-gray-200 rounded-md" />
+        )}
+      </View>
+      <View className="mb-4 w-full items-center">
+        {error.bakeryImage && <ErrorMessage label={error.bakeryImage} />}
+      </View>
+      <View className="w-full items-center">
+        <UploadButton
+          label="Unggah Foto Toko"
+          handlePress={() => {
+            setError((prevError) => ({ ...prevError, bakeryImage: null }));
+            pickImage("bakeryImage");
+          }}
+        />
+      </View>
       <FormField
         label="Nama Toko"
         value={form.bakeryName}
@@ -224,6 +253,7 @@ const SignUpBakery = () => {
           setError((prevError) => ({ ...prevError, bakeryName: null }));
         }}
         keyboardType="default"
+        moreStyles='mt-7'
         error={error.bakeryName}
         placeholder="Masukkan nama toko"
       />
@@ -291,21 +321,44 @@ const SignUpBakery = () => {
         error={error.bakeryDescription}
         placeholder="Masukkan deskripsi toko"
       />
-
-      <View className="mt-8 w-full flex-row space-x-4">
-        <UploadButton label="Unggah Foto Toko" handlePress={pickImage} />
-        {form.bakeryImage && (
-          <View className="w-24 h-20">
-            <Image
-              source={{ uri: form.bakeryImage }}
-              className="w-full h-full rounded-md"
-            />
-          </View>
-        )}
+      <View className='mt-7 space-y-1'>
+        <TextFormLabel label="Status halal" />
+        <View className='flex-row items-center'>
+          <TextTitle5 label="Tidak" />
+          <Switch
+            value={form.isHalal === 1 ? true : false}
+            onValueChange={(value) => {
+              setForm((prevForm) => ({ ...prevForm, isHalal: value ? 1 : 0 }))
+              setForm((prevForm) => ({ ...prevForm, halalCertificate: '' }))
+              setError((prevError) => ({ ...prevError, halalCertificate: null }));
+            }}
+            trackColor={{
+              false: "#D3D3D3",
+              true: "#D6B09F",
+            }}
+            thumbColor={form.isHalal === 1 ? "#b0795a" : "gray"}
+            className='mx-2'
+          />
+          <TextTitle5 label="Ya" />
+        </View>
       </View>
-      {error.bakeryImage && (
-        <ErrorMessage label={error.bakeryImage} />
-      )}
+
+      {
+        form.isHalal === 1 && (
+          <View className="mt-7 w-full flex-row space-x-4">
+            <UploadButton label="Unggah Sertifikat Halal" handlePress={() => pickImage("halalCertificate")} />
+            {form.halalCertificate && (
+              <View className="w-24 h-20">
+                <Image
+                  source={{ uri: form.halalCertificate }}
+                  className="w-full h-full rounded-md"
+                />
+              </View>
+            )}
+          </View>
+        )
+      }
+      <ErrorMessage label={error.halalCertificate as any} />
 
       <CustomButton
         label='Lanjut'

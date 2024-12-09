@@ -40,6 +40,8 @@ export type BakeryType = {
     bakery: BakeryType;
     isClosed: boolean;
     isActive: number;
+    isHalal: number;
+    halalCertificate: string;
 }
 
 export type BakeryDetailType = {

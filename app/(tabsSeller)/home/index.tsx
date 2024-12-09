@@ -8,7 +8,7 @@ import UploadButton from '@/components/UploadButton';
 import { Picker } from '@react-native-picker/picker';
 import { images } from '@/constants/images';
 import TextTitle4 from '@/components/texts/TextTitle4';
-import { FontAwesome, FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import TextTitle5Gray from '@/components/texts/TextTitle5Gray';
 import TextTitle3 from '@/components/texts/TextTitle3';
 import TextLink from '@/components/texts/TextLink';
@@ -23,6 +23,7 @@ import CustomClickableButton from '@/components/CustomClickableButton';
 import TextTitle5 from '@/components/texts/TextTitle5';
 import { useAuth } from '@/app/context/AuthContext';
 import ModalAction from '@/components/ModalAction';
+import { icons } from '@/constants/icons';
 
 const Home = () => {
 
@@ -184,39 +185,47 @@ const Home = () => {
       >
 
         {/* Header */}
-        <View className='flex-row justify-between items-center w-full'>
-          <TouchableOpacity 
-          onPress={() => router.replace("/profilePageSeller" as any)}
-          className='flex-row items-center gap-x-3'>
+        <View className="flex-row justify-between items-center w-full">
+          <TouchableOpacity
+            onPress={() => router.replace("/profilePageSeller" as any)}
+            className="flex-row items-center gap-x-3"
+          >
             <View className="w-10 h-10 border border-gray-200 rounded-full">
               <Image
                 source={userData?.userImage ? { uri: encodeURI(userData?.userImage) } : images.profile}
                 className="w-full h-full rounded-full"
               />
             </View>
-            <View className='flex-col'>
+            <View className="flex-col">
               <TextTitle4 label="Halo" />
-              <TextTitle5Gray label={userData?.userName || ''} />
+              <TextTitle5Gray label={userData?.userName || ""} />
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => {
-              router.push({
-                pathname: "/home/ratingBakerySeller" as any,
-                params: { bakeryId: userData?.bakery?.bakeryId, bakeryName: userData?.bakery.bakeryName as string },
-              })
-            }}
-            className={`justify-center items-center px-2 py-1 rounded border border-orange`}
-          >
-            <View className="flex-row items-center">
-              <View className="mr-2" style={{ paddingVertical: 2 }}>
-                <FontAwesome name="star" size={14} color="#FA6F33" />
+          <View className="flex-row items-center gap-x-1">
+            {userData?.bakery.isHalal && (
+              <Image source={icons.halalLogo} className="w-10 h-10" />
+            )}
+            <TouchableOpacity
+              onPress={() => {
+                router.push({
+                  pathname: "/home/ratingBakerySeller" as any,
+                  params: {
+                    bakeryId: userData?.bakery?.bakeryId,
+                    bakeryName: userData?.bakery.bakeryName as string,
+                  },
+                });
+              }}
+              className="justify-center items-center px-2 py-1 rounded border border-orange"
+            >
+              <View className="flex-row items-center">
+                <View className="mr-2" style={{ paddingVertical: 2 }}>
+                  <FontAwesome name="star" size={14} color="#FA6F33" />
+                </View>
+                <TextTitle5 label="Penilaian Bakeri" color="#FA6F33" />
               </View>
-              <TextTitle5 label="Penilaian Bakeri" color="#FA6F33"/>
-            </View>
-
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View className='pb-5'>
