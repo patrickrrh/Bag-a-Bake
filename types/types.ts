@@ -16,6 +16,11 @@ export type UserType = {
     isCancelled: number;
 };
 
+export type UserImageType = {
+    uri: string;
+    name: string | null | undefined;
+    type: "video" | "image" | "livePhoto" | "pairedVideo" | undefined;
+};
 
 export type BakeryType = {
     bakeryId: number;

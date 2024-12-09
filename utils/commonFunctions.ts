@@ -1,9 +1,10 @@
+import { UserImageType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as EmailValidator from "email-validator";
 import { ExpoPushToken } from "expo-notifications";
 
 export const checkEmptyForm = (
-  form: Record<string, string | number | ExpoPushToken | null>,
+  form: Record<string, string | number | ExpoPushToken | null | UserImageType>,
   confirmPassword?: string
 ) => {
   const errors: Record<string, string | null> = {};

@@ -26,6 +26,8 @@ import axios from 'axios'
 import InputLocationField from '@/components/InputLocationField'
 import { requestNotificationPermission } from '@/utils/notificationUtils'
 import { ExpoPushToken } from 'expo-notifications'
+import * as FileSystem from 'expo-file-system';
+import { UserImageType } from '@/types/types'
 
 type ErrorState = {
     userName: string | null;
@@ -92,24 +94,42 @@ const SignUpCustomer = () => {
                 email: form.email,
             })
 
+            
             if (res.error) {
                 showToast('error', res.error);
                 return
             } else {
+                
+                let base64Image = null;
+
+                if (form.userImage) {
+                    try {
+                        base64Image = await FileSystem.readAsStringAsync(form.userImage, {
+                            encoding: FileSystem.EncodingType.Base64
+                        })
+                    } catch (error) {
+                        console.log(error);
+                        return;
+                    }
+                }
+
                 const token = await requestNotificationPermission();
                 if (token) {
                     form.pushToken = token.data
                 }
-                const otp = await authenticationApi().signUpOTP({
-                    email: form.email,
-                })
-                console.log("otep", otp)
-                if (otp.status === 200) {
-                    router.push({
-                        pathname: '/(auth)/signUpOTP',
-                        params: { email: form.email, userDataForm: JSON.stringify(form) },
-                    })
-                }
+                
+                console.log("form", form)
+                console.log("base 64", base64Image)
+                signUp({ ...form, userImage: base64Image });
+                // const otp = await authenticationApi().signUpOTP({
+                //     email: form.email,
+                // })
+                // if (otp.status === 200) {
+                //     router.push({
+                //         pathname: '/(auth)/signUpOTP',
+                //         params: { email: form.email, userDataForm: JSON.stringify(Object.fromEntries(formData.entries())) },
+                //     })
+                // }
             }
         } catch {
             console.log(error);
@@ -190,110 +210,110 @@ const SignUpCustomer = () => {
     );
 
     return (
-            <AuthLayout headerContent={headerContent} footerContent={footerContent} isScrollable>
-                <View className="w-full items-center">
-                    {form.userImage ? (
-                        <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
-                            <Image
-                                source={{ uri: form.userImage }}
-                                className="w-full h-full rounded-full"
-                            />
-                        </View>
-                    ) : (
-                        <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
-                            <Image
-                                source={images.profile}
-                                className="w-full h-full rounded-full"
-                                resizeMode='cover'
-                            />
-                        </View>
-                    )}
-                    <UploadButton label="Unggah Foto" handlePress={pickImage} />
-                </View>
+        <AuthLayout headerContent={headerContent} footerContent={footerContent} isScrollable>
+            <View className="w-full items-center">
+                {form.userImage ? (
+                    <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
+                        <Image
+                            source={{ uri: form.userImage }}
+                            className="w-full h-full rounded-full"
+                        />
+                    </View>
+                ) : (
+                    <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
+                        <Image
+                            source={images.profile}
+                            className="w-full h-full rounded-full"
+                            resizeMode='cover'
+                        />
+                    </View>
+                )}
+                <UploadButton label="Unggah Foto" handlePress={pickImage} />
+            </View>
 
-                <FormField
-                    label='Nama Pengguna'
-                    value={form.userName}
-                    placeholder='Masukkan nama'
-                    onChangeText={(text) => {
-                        setForm({ ...form, userName: text });
-                        setError((prevError) => ({ ...prevError, userName: null }));
-                    }}
-                    keyboardType='default'
-                    moreStyles='mt-7'
-                    error={error.userName}
-                />
-                <FormField
-                    label='Nomor Telepon'
-                    value={form.userPhoneNumber}
-                    placeholder='Masukkan nomor telepon'
-                    onChangeText={(text) => {
-                        setForm({ ...form, userPhoneNumber: text });
-                        setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
-                    }}
-                    keyboardType='phone-pad'
-                    moreStyles='mt-7'
-                    error={error.userPhoneNumber}
-                />
-                <InputLocationField
-                    label='Alamat'
-                    value={userAddress}
-                    placeholder='Cari lokasi Anda'
-                    onChangeText={(text) => {
-                        setUserAddress(text);
-                        setError((prevError) => ({ ...prevError, address: null }));
-                    }}
-                    moreStyles='mt-7'
-                    suggestions={suggestions}
-                    error={error.address}
-                    onSearch={() => handleGetLocationSuggestionsAPI()}
-                    onSelectSuggestion={handleSelectSuggestion}
-                />
-                <FormField
-                    label='Email'
-                    value={form.email}
-                    onChangeText={(text) => {
-                        setForm({ ...form, email: text });
-                        setError((prevError) => ({ ...prevError, email: null }));
-                    }}
-                    keyboardType='email-address'
-                    moreStyles='mt-7'
-                    error={error.email}
-                    placeholder='Masukkan email'
-                />
-                <FormField
-                    label='Kata Sandi'
-                    value={form.password}
-                    onChangeText={(text) => {
-                        setForm({ ...form, password: text });
-                        setError((prevError) => ({ ...prevError, password: null }));
-                    }}
-                    keyboardType='default'
-                    moreStyles='mt-7'
-                    error={error.password}
-                    placeholder='Masukkan kata sandi'
-                />
-                <FormField
-                    label='Konfirmasi Kata Sandi'
-                    value={confirmPassword}
-                    onChangeText={(text) => {
-                        setConfirmPassword(text);
-                        setError((prevError) => ({ ...prevError, confirmPassword: null }));
-                    }}
-                    keyboardType='default'
-                    moreStyles='mt-7'
-                    error={error.confirmPassword}
-                    placeholder='Konfirmasi kata sandi'
-                />
+            <FormField
+                label='Nama Pengguna'
+                value={form.userName}
+                placeholder='Masukkan nama'
+                onChangeText={(text) => {
+                    setForm({ ...form, userName: text });
+                    setError((prevError) => ({ ...prevError, userName: null }));
+                }}
+                keyboardType='default'
+                moreStyles='mt-7'
+                error={error.userName}
+            />
+            <FormField
+                label='Nomor Telepon'
+                value={form.userPhoneNumber}
+                placeholder='Masukkan nomor telepon'
+                onChangeText={(text) => {
+                    setForm({ ...form, userPhoneNumber: text });
+                    setError((prevError) => ({ ...prevError, userPhoneNumber: null }));
+                }}
+                keyboardType='phone-pad'
+                moreStyles='mt-7'
+                error={error.userPhoneNumber}
+            />
+            <InputLocationField
+                label='Alamat'
+                value={userAddress}
+                placeholder='Cari lokasi Anda'
+                onChangeText={(text) => {
+                    setUserAddress(text);
+                    setError((prevError) => ({ ...prevError, address: null }));
+                }}
+                moreStyles='mt-7'
+                suggestions={suggestions}
+                error={error.address}
+                onSearch={() => handleGetLocationSuggestionsAPI()}
+                onSelectSuggestion={handleSelectSuggestion}
+            />
+            <FormField
+                label='Email'
+                value={form.email}
+                onChangeText={(text) => {
+                    setForm({ ...form, email: text });
+                    setError((prevError) => ({ ...prevError, email: null }));
+                }}
+                keyboardType='email-address'
+                moreStyles='mt-7'
+                error={error.email}
+                placeholder='Masukkan email'
+            />
+            <FormField
+                label='Kata Sandi'
+                value={form.password}
+                onChangeText={(text) => {
+                    setForm({ ...form, password: text });
+                    setError((prevError) => ({ ...prevError, password: null }));
+                }}
+                keyboardType='default'
+                moreStyles='mt-7'
+                error={error.password}
+                placeholder='Masukkan kata sandi'
+            />
+            <FormField
+                label='Konfirmasi Kata Sandi'
+                value={confirmPassword}
+                onChangeText={(text) => {
+                    setConfirmPassword(text);
+                    setError((prevError) => ({ ...prevError, confirmPassword: null }));
+                }}
+                keyboardType='default'
+                moreStyles='mt-7'
+                error={error.confirmPassword}
+                placeholder='Konfirmasi kata sandi'
+            />
 
-                <CustomButton
-                    label='Daftar'
-                    handlePress={() => handleSignUpAPI()}
-                    buttonStyles='mt-10 w-full'
-                    isLoading={isSubmitting}
-                />
+            <CustomButton
+                label='Daftar'
+                handlePress={() => handleSignUpAPI()}
+                buttonStyles='mt-10 w-full'
+                isLoading={isSubmitting}
+            />
 
-            </AuthLayout>
+        </AuthLayout>
     )
 }
 

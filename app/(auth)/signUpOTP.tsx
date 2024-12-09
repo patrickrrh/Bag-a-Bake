@@ -33,8 +33,19 @@ const SignUpOTP = () => {
     const { signUp } = useAuth();
 
     const { email, userDataForm } = useLocalSearchParams();
-    const parsedUserDataForm = JSON.parse(userDataForm as string);
-
+    const userDataFormObject = userDataForm ? typeof userDataForm === 'string' ? JSON.parse(userDataForm) : userDataForm : {};
+    const newUserDataForm = new FormData();
+    for (const [key, value] of Object.entries(userDataFormObject)) {
+      if (key === 'userImage' && typeof value === 'object' && value !== null && '_data' in value) {
+        const blob = new Blob([value._data], { type: value._data.type });
+        newUserDataForm.append(key, blob);
+      } else if (typeof value === 'string' || value instanceof Blob) {
+        newUserDataForm.append(key, value);
+      } else {
+        console.error(`Invalid value type for key ${key}: ${typeof value}`);
+      }
+    }
+    
     const emptyForm = {
         otp: '',
     }
@@ -65,7 +76,7 @@ const SignUpOTP = () => {
             })
 
             if (res.status === 200) {
-                signUp(parsedUserDataForm);
+                signUp(newUserDataForm);
             } else {
                 showToast('error', res.error)
             }
@@ -91,9 +102,9 @@ const SignUpOTP = () => {
 
     const handleResendOTP = async () => {
         try {
-            const res = await authenticationApi().signUpOTP({ 
-                email: parsedUserDataForm.email,
-                userName: parsedUserDataForm.userName
+            const res = await authenticationApi().signUpOTP({
+                email: newUserDataForm.get('email'),
+                userName: newUserDataForm.get('userName'),
             })
 
             if (res.status === 200) {
@@ -107,7 +118,7 @@ const SignUpOTP = () => {
             console.log(error);
         }
     }
-    
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View className='bg-background px-5 flex-1'>
