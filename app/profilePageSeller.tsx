@@ -876,7 +876,7 @@ const ProfilePageSeller = () => {
               <>
                 <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
                   <Image
-                    source={isBakeryImageUpdated ? { uri: bakeryForm.bakeryImage } : { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-picture/${bakeryForm.bakeryImage}` }}
+                    source={isBakeryImageUpdated ? { uri: bakeryForm.bakeryImage } : { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-image/${bakeryForm.bakeryImage}` }}
                     className="w-full h-full rounded-full"
                   />
                 </View>

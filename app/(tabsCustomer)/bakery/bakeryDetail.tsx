@@ -218,7 +218,7 @@ const BakeryDetail = () => {
         <View className="mx-5">
           <View className="rounded-lg">
             <LargeImage
-              image={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-picture/${bakeryDetail?.bakery.bakeryImage}` }}
+              image={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-image/${bakeryDetail?.bakery.bakeryImage}` }}
             />
           </View>
 
