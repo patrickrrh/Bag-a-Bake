@@ -15,7 +15,7 @@ import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
 import { useAuth } from '@/app/context/AuthContext'
 import CustomDropdown from '@/components/CustomDropdown'
-import { checkEmptyForm } from '@/utils/commonFunctions'
+import { checkEmptyForm, encodeImage } from '@/utils/commonFunctions'
 import authenticationApi from '@/api/authenticationApi';
 import { showToast } from '@/utils/toastUtils'
 import BackButton from '@/components/BackButton'
@@ -94,42 +94,29 @@ const SignUpCustomer = () => {
                 email: form.email,
             })
 
-            
             if (res.error) {
                 showToast('error', res.error);
                 return
             } else {
-                
-                let base64Image = null;
 
-                if (form.userImage) {
-                    try {
-                        base64Image = await FileSystem.readAsStringAsync(form.userImage, {
-                            encoding: FileSystem.EncodingType.Base64
-                        })
-                    } catch (error) {
-                        console.log(error);
-                        return;
-                    }
+                let encodedUserImage = null;
+                if (form.userImage !== '') {
+                    encodedUserImage = await encodeImage(form.userImage)
                 }
-
                 const token = await requestNotificationPermission();
                 if (token) {
                     form.pushToken = token.data
                 }
-                
-                console.log("form", form)
-                console.log("base 64", base64Image)
-                signUp({ ...form, userImage: base64Image });
-                // const otp = await authenticationApi().signUpOTP({
-                //     email: form.email,
-                // })
-                // if (otp.status === 200) {
-                //     router.push({
-                //         pathname: '/(auth)/signUpOTP',
-                //         params: { email: form.email, userDataForm: JSON.stringify(Object.fromEntries(formData.entries())) },
-                //     })
-                // }
+                const otp = await authenticationApi().signUpOTP({
+                    email: form.email,
+                })
+                const updatedForm = { ...form, userImage: encodedUserImage };
+                if (otp.status === 200) {
+                    router.push({
+                        pathname: '/(auth)/signUpOTP',
+                        params: { email: form.email, userDataForm: JSON.stringify(updatedForm) },
+                    })
+                }
             }
         } catch {
             console.log(error);

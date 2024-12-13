@@ -33,18 +33,7 @@ const SignUpOTP = () => {
     const { signUp } = useAuth();
 
     const { email, userDataForm } = useLocalSearchParams();
-    const userDataFormObject = userDataForm ? typeof userDataForm === 'string' ? JSON.parse(userDataForm) : userDataForm : {};
-    const newUserDataForm = new FormData();
-    for (const [key, value] of Object.entries(userDataFormObject)) {
-      if (key === 'userImage' && typeof value === 'object' && value !== null && '_data' in value) {
-        const blob = new Blob([value._data], { type: value._data.type });
-        newUserDataForm.append(key, blob);
-      } else if (typeof value === 'string' || value instanceof Blob) {
-        newUserDataForm.append(key, value);
-      } else {
-        console.error(`Invalid value type for key ${key}: ${typeof value}`);
-      }
-    }
+    const parsedUserDataForm = JSON.parse(userDataForm as string);
     
     const emptyForm = {
         otp: '',
@@ -76,7 +65,7 @@ const SignUpOTP = () => {
             })
 
             if (res.status === 200) {
-                signUp(newUserDataForm);
+                signUp(parsedUserDataForm);
             } else {
                 showToast('error', res.error)
             }
@@ -103,8 +92,8 @@ const SignUpOTP = () => {
     const handleResendOTP = async () => {
         try {
             const res = await authenticationApi().signUpOTP({
-                email: newUserDataForm.get('email'),
-                userName: newUserDataForm.get('userName'),
+                email: parsedUserDataForm.email,
+                userName: parsedUserDataForm.userName
             })
 
             if (res.status === 200) {

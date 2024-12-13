@@ -116,12 +116,10 @@ const RatingBakerySeller = () => {
             <View style={{ height: insets.top }} />
 
             <View className="flex-row items-center px-5 relative">
-                {/* Back Button */}
                 <View>
                     <BackButton />
                 </View>
 
-                {/* Title */}
                 <View
                     style={{
                         position: "absolute",

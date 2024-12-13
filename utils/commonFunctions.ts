@@ -2,9 +2,10 @@ import { UserImageType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as EmailValidator from "email-validator";
 import { ExpoPushToken } from "expo-notifications";
+import * as FileSystem from 'expo-file-system';
 
 export const checkEmptyForm = (
-  form: Record<string, string | number | ExpoPushToken | null | UserImageType>,
+  form: Record<string, string | number | ExpoPushToken | null | UserImageType | undefined>,
   confirmPassword?: string
 ) => {
   const errors: Record<string, string | null> = {};
@@ -388,4 +389,18 @@ export const convertPhoneNumberFormat = (phoneNumber: string): string => {
     return `62${phoneNumber.slice(1)}`;
   }
   return phoneNumber;
+};
+
+export const encodeImage = async (imageUri: string | null) => {
+  if (!imageUri) return null;
+
+  try {
+    const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    return base64Image;
+  } catch (error) {
+    console.log("Failed to encode image:", error);
+    return null;
+  }
 };

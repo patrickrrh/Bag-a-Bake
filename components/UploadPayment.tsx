@@ -32,7 +32,7 @@ const UploadPayment: React.FC<Props> = ({ handlePress, buttonStyles, proofOfPaym
             {
                 proofOfPayment !== '' ? (
                     <Image
-                        source={ isDisabled ? { uri: encodeURI(proofOfPayment) } : { uri: proofOfPayment } }
+                        source={ isDisabled ? { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/proof-of-payment/${proofOfPayment}` } : { uri: proofOfPayment } }
                         style={{
                             width: '100%',
                             height: '100%',

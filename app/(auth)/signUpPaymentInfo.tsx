@@ -17,6 +17,8 @@ import CustomButton from '@/components/CustomButton'
 import authenticationApi from '@/api/authenticationApi';
 import { Ionicons } from '@expo/vector-icons'
 import ModalAction from '@/components/ModalAction'
+import * as FileSystem from 'expo-file-system';
+import { encodeImage } from '@/utils/commonFunctions'
 
 type ErrorState = {
     paymentMethod: string | null;
@@ -146,7 +148,7 @@ const SignUpPaymentInfo = () => {
                 method.paymentDetail = method.paymentDetail.trim();
             });
 
-            
+
             if (form.paymentMethods.length === 0) {
                 setError((prevError) => ({
                     ...prevError,
@@ -154,30 +156,38 @@ const SignUpPaymentInfo = () => {
                 }));
                 return;
             }
-            
+
             const incompleteMethods = form.paymentMethods.filter(
                 (method) => !method.paymentService || !method.paymentDetail
             );
-            
+
             if (incompleteMethods.length > 0) {
                 const errorMessage = incompleteMethods
-                .map((method) => method.paymentMethod)
-                .join(', ');
-                
+                    .map((method) => method.paymentMethod)
+                    .join(', ');
+
                 setError((prevError) => ({
                     ...prevError,
                     paymentMethod: `Silakan lengkapi detail untuk metode pembayaran: ${errorMessage}`,
                 }));
                 return;
             }
-            
+
+            let encodedQrisImage: string | null = null;
+            const qrisMethod = form.paymentMethods.find((method) => method.paymentMethod === 'QRIS');
+
+            if (qrisMethod) {
+                encodedQrisImage = await encodeImage(qrisMethod.paymentDetail);
+                if (encodedQrisImage) {
+                    qrisMethod.paymentDetail = encodedQrisImage;
+                }
+            }
+
             const res = await authenticationApi().signUpBakery({
                 ...form,
                 userId: userData?.userId
             });
 
-            console.log("res", res)
-            
             if (res.status === 201) {
                 refreshUserStatus();
             }
@@ -218,6 +228,7 @@ const SignUpPaymentInfo = () => {
                     selectDropdown={handleDropdownSelect}
                     onChangeText={handleTextChange}
                     pickImage={pickImage}
+                    isLoadQris={false}
                 />
             </View>
             {

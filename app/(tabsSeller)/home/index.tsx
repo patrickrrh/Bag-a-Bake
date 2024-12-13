@@ -191,8 +191,8 @@ const Home = () => {
             className="flex-row items-center gap-x-3"
           >
             <View className="w-10 h-10 border border-gray-200 rounded-full">
-              <Image
-                source={userData?.userImage ? { uri: encodeURI(userData?.userImage) } : images.profile}
+            <Image
+                source={userData?.userImage ? { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/profile/${userData?.userImage}` } : images.profile}
                 className="w-full h-full rounded-full"
               />
             </View>

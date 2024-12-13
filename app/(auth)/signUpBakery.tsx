@@ -15,7 +15,7 @@ import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
 import { useAuth } from '@/app/context/AuthContext'
 import CustomDropdown from '@/components/CustomDropdown'
-import { checkEmptyForm } from '@/utils/commonFunctions'
+import { checkEmptyForm, encodeImage } from '@/utils/commonFunctions'
 import TextAreaField from '@/components/TextAreaField'
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { format, toZonedTime } from 'date-fns-tz';
@@ -33,6 +33,7 @@ import { Ionicons } from '@expo/vector-icons'
 import ModalAction from '@/components/ModalAction'
 import TextFormLabel from '@/components/texts/TextFormLabel'
 import TextTitle5 from '@/components/texts/TextTitle5'
+import * as FileSystem from 'expo-file-system';
 
 type ErrorState = {
   bakeryName: string | null;
@@ -191,9 +192,21 @@ const SignUpBakery = () => {
         return;
       }
 
+      let encodedBakeryImage = null;
+      if (form.bakeryImage !== '') {
+        encodedBakeryImage = await encodeImage(form.bakeryImage);
+      }
+
+      let encodedHalalCertificate = null;
+      if (form.halalCertificate !== '') {
+        encodedHalalCertificate = await encodeImage(form.halalCertificate);
+      }
+
+      const updatedForm = { ...form, bakeryImage: encodedBakeryImage, halalCertificate: encodedHalalCertificate };
+
       router.push({
         pathname: '/(auth)/signUpPaymentInfo' as any,
-        params: { prevForm: JSON.stringify(form) },
+        params: { prevForm: JSON.stringify(updatedForm) },
       })
     } catch (error) {
       console.log(error);

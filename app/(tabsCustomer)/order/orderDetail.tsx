@@ -8,7 +8,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Image, FlatList, Animated, TouchableOpacity, Linking, ScrollView, Alert } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { calculateTotalOrderPrice, calculateValidPaymentTime, convertPhoneNumberFormat, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, calculateValidPaymentTime, convertPhoneNumberFormat, encodeImage, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import bakeryApi from '@/api/bakeryApi';
 import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
@@ -138,17 +138,18 @@ const OrderDetail = () => {
 
     const handleSubmitProofOfPaymentAPI = async () => {
         try {
+            let encodedProofOfPayment = null;
+            if (proofOfPayment) {
+                encodedProofOfPayment = await encodeImage(proofOfPayment);
+            }
+
             const response = await orderCustomerApi().submitProofOfPayment({
                 orderId: orderData.orderId,
-                proofOfPayment: proofOfPayment,
+                proofOfPayment: encodedProofOfPayment,
                 bakeryId: orderData.bakery.bakeryId
             })
 
             if (response.status === 200) {
-                // router.push({
-                //     pathname: '/order',
-                // })
-                // setLocalStorage('orderCustomerParams', JSON.stringify({ status: 2 }))
                 router.back();
             }
         } catch (error) {
@@ -253,17 +254,17 @@ const OrderDetail = () => {
                                                             <TextTitle5 label='• ' />
                                                             <TextTitle4 label={item.paymentMethod} />
                                                             <TouchableOpacity className='ml-1 pb-1'>
-                                                                <Ionicons name='download-outline' size={18} color="gray" onPress={() => handleDownloadImage(item.paymentDetail)} />
+                                                                <Ionicons name='download-outline' size={18} color="gray" onPress={() => handleDownloadImage('images/bakery-qris', item.paymentDetail)} />
                                                             </TouchableOpacity>
                                                         </View>
                                                         <TouchableOpacity onPress={() => setIsPreviewQRIS(true)}>
                                                             <Image
-                                                                source={{ uri: item.paymentDetail }}
+                                                                source={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-qris/${item.paymentDetail}` }}
                                                                 className='ml-2 mt-1 w-28 h-28'
                                                             />
                                                         </TouchableOpacity>
                                                         <ImageView
-                                                            images={[{ uri: item.paymentDetail }]}
+                                                            images={[{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-qris/${item.paymentDetail}` }]}
                                                             imageIndex={0}
                                                             visible={isPreviewQRIS}
                                                             onRequestClose={() => setIsPreviewQRIS(false)}

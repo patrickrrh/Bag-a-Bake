@@ -19,7 +19,7 @@ import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
 import PriceInputField from "@/components/PriceInputField";
 import DiscountInputField from "@/components/DiscountInputField";
-import { checkProductForm, formatDate } from "@/utils/commonFunctions";
+import { checkProductForm, encodeImage, formatDate } from "@/utils/commonFunctions";
 import ErrorMessage from "@/components/texts/ErrorMessage";
 import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
@@ -84,10 +84,10 @@ const CreateProduct = () => {
         return true;
       }
     }
-  
+
     return false;
   };
-  
+
   const productError: ErrorState = {
     productName: null,
     productDescription: null,
@@ -182,7 +182,6 @@ const CreateProduct = () => {
         setIsDiscountModalVisible(true);
         return;
       } else {
-        console.log("masuk else");
         setIsConfirmationModalVisible(true);
         return;
       }
@@ -206,6 +205,13 @@ const CreateProduct = () => {
           discountDate: new Date(disc.discountDate),
         })),
       };
+
+      if (formData.productImage) {
+        const encodedProductImage = await encodeImage(formData.productImage);
+        if (encodedProductImage) {
+          formData.productImage = encodedProductImage;
+        }
+      }
 
       const response = await productApi().createProduct(formData);
       if (response.error) {

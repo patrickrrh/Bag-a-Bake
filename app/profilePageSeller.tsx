@@ -32,7 +32,7 @@ import paymentApi from "@/api/paymentApi";
 import bakeryApi from "@/api/bakeryApi";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
-import { checkEmptyForm } from "@/utils/commonFunctions";
+import { checkEmptyForm, encodeImage } from "@/utils/commonFunctions";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import ModalAction from "@/components/ModalAction";
@@ -85,16 +85,19 @@ interface PaymentForm {
 const ProfilePageSeller = () => {
   const insets = useSafeAreaInsets();
   const { userData, refreshUserData, signOut } = useAuth();
-  const GOOGLE_MAPS_API_KEY = process.env
-    .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
+  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
 
   const [nextRoute, setNextRoute] = useState<Href | null>(null);
   const [isSubmitting, setisSubmitting] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTabVisible, setModalTabVisible] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
-
   const [selectedStatus, setSelectedStatus] = useState<number>(1);
+
+  const [isUserImageUpdated, setIsUserImageUpdated] = useState(false);
+  const [isBakeryImageUpdated, setIsBakeryImageUpdated] = useState(false);
+  const [isPaymentQrisUpdated, setIsPaymentQrisUpdated] = useState(false);
+
   useEffect(() => {
     const loadStoredStatus = async () => {
       const storedStatus = await getLocalStorage("selectedStatusProfile");
@@ -133,14 +136,17 @@ const ProfilePageSeller = () => {
 
     if (selectedStatus === 1) {
       if (!result.canceled) {
+        setIsUserImageUpdated(true);
         setForm({ ...form, userImage: result.assets[0].uri });
       }
     } else if (selectedStatus === 2) {
       if (!result.canceled) {
+        setIsBakeryImageUpdated(true);
         setBakeryForm({ ...bakeryForm, bakeryImage: result.assets[0].uri });
       }
     } else if (selectedStatus === 3) {
       if (!result.canceled) {
+        setIsPaymentQrisUpdated(true);
         setPaymentForm((prevPaymentForm) => {
           const updatedPaymentMethods = prevPaymentForm.paymentMethods.map(
             (method) => {
@@ -158,11 +164,74 @@ const ProfilePageSeller = () => {
   };
 
   const [form, setForm] = useState({
-    userName: userData?.userName || "",
-    userPhoneNumber: userData?.userPhoneNumber || "",
-    userImage: userData?.userImage || "",
+    userName: '',
+    userPhoneNumber: '',
+    userImage: '' as string | undefined,
     roleId: 2,
   });
+
+  const [bakeryForm, setBakeryForm] = useState({
+    bakeryName: '',
+    bakeryImage: '' as string | undefined,
+    bakeryDescription: '',
+    bakeryPhoneNumber: '',
+    openingTime: '',
+    closingTime: '',
+    bakeryAddress: '',
+    bakeryLatitude: 0,
+    bakeryLongitude: 0,
+  });
+
+  const [paymentForm, setPaymentForm] = useState({
+    paymentMethods: [
+      {
+        paymentId: 0,
+        bakeryId: 0,
+        paymentMethod: '',
+        paymentService: '',
+        paymentDetail: '',
+      },
+    ],
+  });
+
+  useEffect(() => {
+    setForm({
+      userName: userData?.userName || '',
+      userPhoneNumber: userData?.userPhoneNumber || '',
+      userImage: userData?.userImage || '',
+      roleId: 2,
+    });
+
+    setBakeryForm({
+      bakeryName: userData?.bakery.bakeryName || "",
+      bakeryImage: userData?.bakery.bakeryImage || "",
+      bakeryDescription: userData?.bakery.bakeryDescription || "",
+      bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
+      openingTime: userData?.bakery.openingTime || "",
+      closingTime: userData?.bakery.closingTime || "",
+      bakeryAddress: userData?.bakery.bakeryAddress || "",
+      bakeryLatitude: userData?.bakery.bakeryLatitude || 0,
+      bakeryLongitude: userData?.bakery.bakeryLongitude || 0,
+    });
+
+    setPaymentForm({
+      paymentMethods:
+        userData?.bakery?.payment?.map((payment: any) => ({
+          paymentId: payment.paymentId || 0,
+          bakeryId: payment.bakeryId || 0,
+          paymentMethod: payment.paymentMethod || "",
+          paymentService: payment.paymentService || "",
+          paymentDetail: payment.paymentDetail || "",
+        })) || [],
+    });
+
+    const defaultSelectedMethods = userData?.bakery?.payment?.map((method) => method.paymentMethod) || [];
+    setSelectedMethods(defaultSelectedMethods);
+    setHasAutoSelected(true);
+  }, [userData]);
+
+  console.log("FORM", JSON.stringify(paymentForm, null, 2));
+
 
   const emptyError: ErrorState = {
     userName: null,
@@ -179,18 +248,6 @@ const ProfilePageSeller = () => {
       router.push("/changePassword" as Href);
     }
   };
-
-  const [bakeryForm, setBakeryForm] = useState({
-    bakeryName: userData?.bakery.bakeryName || "",
-    bakeryImage: userData?.bakery.bakeryImage || "",
-    bakeryDescription: userData?.bakery.bakeryDescription || "",
-    bakeryPhoneNumber: userData?.bakery.bakeryPhoneNumber || "",
-    openingTime: userData?.bakery.openingTime || "",
-    closingTime: userData?.bakery.closingTime || "",
-    bakeryAddress: userData?.bakery.bakeryAddress || "",
-    bakeryLatitude: userData?.bakery.bakeryLatitude || 0,
-    bakeryLongitude: userData?.bakery.bakeryLongitude || 0,
-  });
 
   const emptyBakeryError: BakeryErrorState = {
     bakeryName: null,
@@ -295,17 +352,6 @@ const ProfilePageSeller = () => {
     setSuggestions([]);
     handleGeocoding(item.description);
   };
-
-  const [paymentForm, setPaymentForm] = useState<PaymentForm>({
-    paymentMethods:
-      userData?.bakery?.payment?.map((payment: any) => ({
-        paymentId: payment.paymentId || 0,
-        bakeryId: payment.bakeryId || 0,
-        paymentMethod: payment.paymentMethod || "",
-        paymentService: payment.paymentService || "",
-        paymentDetail: payment.paymentDetail || "",
-      })) || [],
-  });
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -419,26 +465,6 @@ const ProfilePageSeller = () => {
     }));
   }, [prevPaymentForm]);
 
-  useEffect(() => {
-    if (paymentForm?.paymentMethods?.length > 0 && !hasAutoSelected) {
-      const defaultSelectedMethods = paymentForm.paymentMethods
-        .filter((method) => method.paymentMethod)
-        .map((method) => method.paymentMethod);
-
-      setSelectedMethods(defaultSelectedMethods);
-      setHasAutoSelected(true);
-    }
-  }, [paymentForm, hasAutoSelected]);
-
-  useEffect(() => {
-    if (selectedMethods.length > 0 && !hasAutoSelected) {
-      selectedMethods.forEach((method) => {
-        handlePaymentMethodSelect(method);
-      });
-      setHasAutoSelected(true);
-    }
-  }, [selectedMethods, hasAutoSelected]);
-
   const hasUnsavedChanges = () => {
     return (
       form.userName !== userData?.userName ||
@@ -550,31 +576,71 @@ const ProfilePageSeller = () => {
   const handleSaveChanges = async () => {
     try {
       setisSubmitting(true);
+
+      let userFormData = null;
+      if (isUserImageUpdated && form.userImage) {
+        const encodedUserImage = await encodeImage(form.userImage);
+        if (encodedUserImage) {
+          userFormData = {
+            ...form,
+            userImage: encodedUserImage,
+          };
+        }
+      } else {
+        userFormData = {
+          ...form,
+          userImage: isUserImageUpdated ? form.userImage : undefined,
+        }
+      }
+
       if (selectedStatus === 1) {
-        await authenticationApi().updateUser({
+        const response = await authenticationApi().updateUser({
+          ...userFormData,
           userId: userData?.userId,
-          userName: form.userName.trim(),
-          userPhoneNumber: form.userPhoneNumber,
-          userImage: form.userImage,
         });
 
-        showToast("success", "Data pengguna berhasil diperbarui");
+        if (response.status === 200) {
+          showToast("success", "Data pengguna berhasil diperbarui");
+          setIsUserImageUpdated(false);
+        }
       } else if (selectedStatus === 2) {
-        await bakeryApi().updateBakery({
+
+        let bakeryFormData = null;
+        if (isBakeryImageUpdated && bakeryForm.bakeryImage) {
+          const encodedBakeryImage = await encodeImage(bakeryForm.bakeryImage);
+          if (encodedBakeryImage) {
+            bakeryFormData = {
+              ...bakeryForm,
+              bakeryImage: encodedBakeryImage,
+            };
+          }
+        } else {
+          bakeryFormData = {
+            ...bakeryForm,
+            bakeryImage: isBakeryImageUpdated ? bakeryForm.bakeryImage : undefined,
+          }
+        }
+
+        const response = await bakeryApi().updateBakery({
+          ...bakeryFormData,
           bakeryId: userData?.bakery.bakeryId,
-          bakeryName: bakeryForm.bakeryName.trim(),
-          bakeryImage: bakeryForm.bakeryImage,
-          bakeryDescription: bakeryForm.bakeryDescription.trim(),
-          bakeryPhoneNumber: bakeryForm.bakeryPhoneNumber,
-          openingTime: bakeryForm.openingTime,
-          closingTime: bakeryForm.closingTime,
-          bakeryAddress: bakeryForm.bakeryAddress,
-          bakeryLatitude: bakeryForm.bakeryLatitude,
-          bakeryLongitude: bakeryForm.bakeryLongitude,
         });
 
-        showToast("success", "Data bakeri berhasil diperbarui");
+        if (response.status === 200) {
+          showToast("success", "Data bakeri berhasil diperbarui");
+          setIsBakeryImageUpdated(false);
+        }
       } else if (selectedStatus === 3) {
+        let encodedQrisImage: string | null = null;
+        const qrisMethod = paymentForm.paymentMethods.find((method) => method.paymentMethod === 'QRIS');
+
+        if (qrisMethod) {
+          encodedQrisImage = await encodeImage(qrisMethod.paymentDetail);
+          if (encodedQrisImage) {
+            qrisMethod.paymentDetail = encodedQrisImage;
+          }
+        }
+
         const paymentUpdates = paymentForm.paymentMethods.map((payment) => ({
           paymentId: payment.paymentId,
           bakeryId: userData?.bakery.bakeryId,
@@ -583,9 +649,12 @@ const ProfilePageSeller = () => {
           paymentDetail: payment.paymentDetail.trim(),
         }));
 
-        await paymentApi().updatePayments(paymentUpdates);
+        const response = await paymentApi().updatePayments(paymentUpdates);
 
-        showToast("success", "Data pembayaran berhasil diperbarui");
+        if (response.status === 200) {
+          showToast("success", "Data pembayaran berhasil diperbarui");
+          setIsPaymentQrisUpdated(false);
+        }
       }
 
       const paymentDatabase = await paymentApi().getPaymentByBakery({
@@ -638,14 +707,13 @@ const ProfilePageSeller = () => {
   }, [paymentForm, userData]);
 
   const resetForms = () => {
-    
     setForm({
       userName: userData?.userName || "",
       userPhoneNumber: userData?.userPhoneNumber || "",
       userImage: userData?.userImage || "",
       roleId: 2,
     });
-  
+
     setBakeryForm({
       bakeryName: userData?.bakery?.bakeryName || "",
       bakeryImage: userData?.bakery?.bakeryImage || "",
@@ -657,7 +725,7 @@ const ProfilePageSeller = () => {
       bakeryLatitude: userData?.bakery?.bakeryLatitude || 0,
       bakeryLongitude: userData?.bakery?.bakeryLongitude || 0,
     });
-  
+
     setPaymentForm({
       paymentMethods:
         userData?.bakery?.payment?.map((payment: any) => ({
@@ -668,14 +736,8 @@ const ProfilePageSeller = () => {
           paymentDetail: payment.paymentDetail || "",
         })) || [],
     });
-  
-    setTimeout(() => {
-      console.log(form);
-      console.log(bakeryForm);
-      console.log(paymentForm);
-    }, 0);
   };
-  
+
   const [tempStatus, setTempStatus] = useState<number>(0);
 
   const handleStatusChange = (status: number) => {
@@ -690,7 +752,7 @@ const ProfilePageSeller = () => {
       resetForms();
     }
   };
-  
+
   const handleNavigateStatus = () => {
     if (tempStatus !== null) {
       setSelectedStatus(tempStatus);
@@ -700,7 +762,7 @@ const ProfilePageSeller = () => {
     resetForms();
     setModalTabVisible(false);
   };
-  
+
   return (
     <View className="bg-background h-full flex-1">
       <View
@@ -725,10 +787,10 @@ const ProfilePageSeller = () => {
             selectedStatus === 1
               ? () => hasUnsavedChanges()
               : selectedStatus === 2
-              ? () => hasBakeryUnsavedChanges()
-              : selectedStatus === 3
-              ? () => hasPaymentUnsavedChanges()
-              : () => false
+                ? () => hasBakeryUnsavedChanges()
+                : selectedStatus === 3
+                  ? () => hasPaymentUnsavedChanges()
+                  : () => false
           }
         />
 
@@ -762,7 +824,7 @@ const ProfilePageSeller = () => {
               <>
                 <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
                   <Image
-                    source={{ uri: form.userImage }}
+                    source={isUserImageUpdated ? { uri: form.userImage } : { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/profile/${form.userImage}` }}
                     className="w-full h-full rounded-full"
                   />
                 </View>
@@ -814,7 +876,7 @@ const ProfilePageSeller = () => {
               <>
                 <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
                   <Image
-                    source={{ uri: bakeryForm.bakeryImage }}
+                    source={isBakeryImageUpdated ? { uri: bakeryForm.bakeryImage } : { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-picture/${bakeryForm.bakeryImage}` }}
                     className="w-full h-full rounded-full"
                   />
                 </View>
@@ -905,7 +967,7 @@ const ProfilePageSeller = () => {
                 <CustomButton
                   label="Simpan Perubahan"
                   handlePress={handleSubmitChange}
-                  buttonStyles="mt-10 w-full"
+                  buttonStyles="mt-10 mb-5 w-full"
                   isLoading={isSubmitting}
                   disabled={isDisabledBakery}
                 />
@@ -928,6 +990,7 @@ const ProfilePageSeller = () => {
                     selectDropdown={handleDropdownSelect}
                     onChangeText={handleTextChange}
                     pickImage={pickImage}
+                    isLoadQris={isPaymentQrisUpdated}
                   />
                 </View>
                 {paymentError.paymentMethod && (

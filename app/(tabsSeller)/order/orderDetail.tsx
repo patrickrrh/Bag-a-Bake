@@ -219,16 +219,16 @@ const OrderDetail = () => {
                     <View className='flex-row items-end'>
                       <TouchableOpacity onPress={() => setIsPreviewPayment(true)}>
                         <Image
-                          source={{ uri: encodeURI(orderData.proofOfPayment) }}
+                          source={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/proof-of-payment/${orderData.proofOfPayment}` }}
                           style={{ width: 150, height: 240, borderRadius: 8, aspectRatio: 9 / 16, resizeMode: 'cover', marginTop: 10 }}
                         />
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={() => handleDownloadImage(orderData.proofOfPayment)} className='ml-1'>
+                      <TouchableOpacity onPress={() => handleDownloadImage('images/proof-of-payment', orderData.proofOfPayment)} className='ml-1'>
                         <Ionicons name="download-outline" size={18} color="gray" />
                       </TouchableOpacity>
                     </View>
                     <ImageView
-                      images={[{ uri: encodeURI(orderData.proofOfPayment) }]}
+                      images={[{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/proof-of-payment/${orderData.proofOfPayment}` }]}
                       imageIndex={0}
                       visible={isPreviewPayment}
                       onRequestClose={() => setIsPreviewPayment(false)}
