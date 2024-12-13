@@ -95,7 +95,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         try {
             const response = await authenticationApi().signUpUser(data);
-            console.log("response here", response)
             if (response.error) {
                 throw new Error(response.error);
             } else {
@@ -127,21 +126,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
     };
 
-    const refreshUserData = async () => {
-        try {
-            setIsEditProfile(true);
-            const updatedUserData = await SecureStore.getItemAsync("userData");
-            const parsedUserData = JSON.parse(updatedUserData || "{}");
-            if (parsedUserData) {
-                setUserData(parsedUserData);
-              } else {
-                console.error("No user data found after refresh");
-              }
-        } catch (error) {
-            console.error("Error refreshing user data:", error);
-        }
-    };
-
     const refreshUserStatus = async () => {
         try {
             const refreshToken = await SecureStore.getItemAsync("refreshToken");
@@ -162,6 +146,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
             console.error("Error refreshing user status:", error);
         }
     }
+
+    const refreshUserData = async () => {
+        try {
+            setIsEditProfile(true);
+            refreshUserStatus();
+        } catch (error) {
+            console.error("Error refreshing user data:", error);
+        }
+    };
     
     return (
         <AuthContext.Provider value={{ signIn, signUp, signOut, isAuthenticated, isLoading, justSignedIn, userData, refreshUserData, isEditProfile, refreshUserStatus }}>

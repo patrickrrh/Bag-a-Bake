@@ -221,7 +221,7 @@ const InputOrder = () => {
     <ScrollView className='bg-background' contentContainerStyle={{ flexGrow: 1 }}>
       <View>
         <Image
-          source={{ uri: product?.productImage as string }}
+          source={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/product/${product?.productImage}` }}
           style={{ width: '100%', height: 280 }}
         />
         <View style={{ position: 'absolute', top: 60, left: 30 }}>

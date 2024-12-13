@@ -1,9 +1,11 @@
+import { UserImageType } from "@/types/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as EmailValidator from "email-validator";
 import { ExpoPushToken } from "expo-notifications";
+import * as FileSystem from 'expo-file-system';
 
 export const checkEmptyForm = (
-  form: Record<string, string | number | ExpoPushToken | null>,
+  form: Record<string, string | number | ExpoPushToken | null | UserImageType | undefined>,
   confirmPassword?: string
 ) => {
   const errors: Record<string, string | null> = {};
@@ -25,6 +27,7 @@ export const checkEmptyForm = (
     bakeryDescription: "Deskripsi Toko",
     bakeryImage: "Gambar Toko",
     address: "Alamat",
+    halalCertificate: "Sertifikat Halal",
   };
 
   for (const value in form) {
@@ -33,6 +36,10 @@ export const checkEmptyForm = (
     }
 
     const fieldLabel = fieldLabels[value] || value;
+
+    if ((value === "halalCertificate" || value === "isHalal") && (form.isHalal === 0)) {
+      continue;
+    }
 
     if (form[value] === "" || form[value] === 0) {
       errors[value] = `${fieldLabel} tidak boleh kosong`;
@@ -78,9 +85,9 @@ export const checkEmptyForm = (
       } else if (value === "bakeryName") {
         if ((form[value] as string).length < 3) {
           errors[value] = `${fieldLabel} tidak boleh kurang dari 3 huruf`;
-        }  else if ((form[value] as string).length > 50) {
+        } else if ((form[value] as string).length > 50) {
           errors[value] = `${fieldLabel} tidak boleh lebih dari 50 huruf`;
-        }else {
+        } else {
           errors[value] = null;
         }
       } else if (value === "bakeryImage") {
@@ -195,7 +202,7 @@ export const checkProductForm = (form: Record<string, unknown>) => {
       errors.discount = `Harga Hari ke-1 tidak boleh lebih besar atau sama dengan Harga Awal`;
     } else {
       const discountPercentage = (((form.productPrice as number) - discountAmounts[0]) / (form.productPrice as number)) * 100;
- 
+
       if (discountPercentage < 10) {
         errors.discount = `Harga Hari ke-1 harus minimal 10% dari Harga Awal`;
       }
@@ -203,9 +210,8 @@ export const checkProductForm = (form: Record<string, unknown>) => {
 
     discountAmounts.forEach((amount, index) => {
       if (index > 0 && amount > discountAmounts[index - 1]) {
-        errors.discount = `Harga Hari ke-${
-          index + 1
-        } harus lebih kecil atau sama dengan Diskon ${index}`;
+        errors.discount = `Harga Hari ke-${index + 1
+          } harus lebih kecil atau sama dengan Diskon ${index}`;
       }
     });
 
@@ -383,4 +389,18 @@ export const convertPhoneNumberFormat = (phoneNumber: string): string => {
     return `62${phoneNumber.slice(1)}`;
   }
   return phoneNumber;
+};
+
+export const encodeImage = async (imageUri: string | null) => {
+  if (!imageUri) return null;
+
+  try {
+    const base64Image = await FileSystem.readAsStringAsync(imageUri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+    return base64Image;
+  } catch (error) {
+    console.log("Failed to encode image:", error);
+    return null;
+  }
 };

@@ -13,8 +13,6 @@ type Props = {
 };
 
 const ListProductCard: React.FC<Props> = ({ item, onPress }) => {
-
-  console.log("item list product", JSON.stringify(item, null, 2))
   
   return (
     <TouchableOpacity
@@ -24,7 +22,7 @@ const ListProductCard: React.FC<Props> = ({ item, onPress }) => {
       <View className="flex-row items-start justify-between">
         <View className="flex-row p-1">
           <Image
-            source={{ uri: item.productImage }}
+            source={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/product/${item.productImage}` }}
             style={{
               width: 68,
               height: 68,

@@ -27,7 +27,7 @@ import TextFormLabel from "@/components/texts/TextFormLabel";
 import ExpirationDatePicker from "@/components/ExpirationDatePicker";
 import PriceInputField from "@/components/PriceInputField";
 import DiscountInputField from "@/components/DiscountInputField";
-import { checkProductForm, formatDate } from "@/utils/commonFunctions";
+import { checkProductForm, encodeImage, formatDate } from "@/utils/commonFunctions";
 import ErrorMessage from "@/components/texts/ErrorMessage";
 import categoryApi from "@/api/categoryApi";
 import productApi from "@/api/productApi";
@@ -94,9 +94,9 @@ const EditProduct = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [isDiscountModalVisible, setIsDiscountModalVisible] = useState(false);
-  const [isConfirmationModalVisible, setIsConfirmationModalVisible] =
-    useState(false);
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
   const [originalForm, setOriginalForm] = useState({ ...form });
+  const [isImageUpdated, setIsImageUpdated] = useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -107,6 +107,7 @@ const EditProduct = () => {
     });
 
     if (!result.canceled) {
+      setIsImageUpdated(true);
       setForm({ ...form, productImage: result.assets[0].uri });
     }
   };
@@ -140,7 +141,6 @@ const EditProduct = () => {
         setIsDiscountModalVisible(true);
         return;
       } else {
-        console.log("masuk else");
         setIsConfirmationModalVisible(true);
         return;
       }
@@ -164,20 +164,28 @@ const EditProduct = () => {
           discountAmount: new Decimal(disc.discountAmount),
           discountDate: new Date(disc.discountDate),
         })),
+        productImage: isImageUpdated ? form.productImage : undefined,
       };
 
-      const response = await productApi().updateProductById(formData);
-      console.log("response", response);
-      if (response.error) {
-        throw new Error(response.error);
+      if (isImageUpdated && formData.productImage) {
+        const encodedProductImage = await encodeImage(formData.productImage);
+        if (encodedProductImage) {
+          formData.productImage = encodedProductImage;
+        }
       }
 
-      showToast("success", "Produk berhasil diperbarui!");
-      router.back();
+      const response = await productApi().updateProductById(formData);
+      if (response.error) {
+        throw new Error(response.error);
+      } else if (response.status === 200) {
+        showToast("success", "Produk berhasil diperbarui!");
+        router.back();
+      } 
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
       setIsConfirmationModalVisible(false);
+      setIsImageUpdated(false);
     }
   };
 
@@ -208,7 +216,6 @@ const EditProduct = () => {
   const handleGetProductById = async () => {
     try {
       const response = await productApi().getProductById({ productId });
-      console.log("product id", productId);
       console.log(response.data);
 
       if (response.status === 200) {
@@ -221,22 +228,22 @@ const EditProduct = () => {
           productPrice: response.data.productPrice.toString(),
           discount: response.data.discount?.length
             ? response.data.discount.map(
-                (discount: {
-                  discountAmount: string;
-                  discountDate: string;
-                }) => ({
-                  ...discount,
-                  discountAmount: discount.discountAmount.toString(),
-                  discountDate:
-                    discount.discountDate || new Date().toISOString(),
-                })
-              )
+              (discount: {
+                discountAmount: string;
+                discountDate: string;
+              }) => ({
+                ...discount,
+                discountAmount: discount.discountAmount.toString(),
+                discountDate:
+                  discount.discountDate || new Date().toISOString(),
+              })
+            )
             : [
-                {
-                  discountAmount: "",
-                  discountDate: new Date().toISOString(),
-                },
-              ],
+              {
+                discountAmount: "",
+                discountDate: new Date().toISOString(),
+              },
+            ],
           productStock: response.data.productStock,
           productImage: response.data.productImage,
           bakeryId: response.data.bakeryId,
@@ -432,12 +439,10 @@ const EditProduct = () => {
       />
 
       <View className="flex-row items-center px-4 mb-5 relative">
-        {/* Back Button */}
         <View>
           <BackButtonWithModal hasUnsavedChanges={hasUnsavedChanges} />
         </View>
 
-        {/* Title */}
         <View
           style={{
             position: "absolute",
@@ -460,11 +465,10 @@ const EditProduct = () => {
 
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={{ paddingHorizontal: 20, flex: 1 }}>
-          {/* Preview Upload Photo */}
           <View className="items-center">
             {form.productImage ? (
               <Image
-                source={{ uri: form.productImage }}
+                source={isImageUpdated ? { uri: form.productImage } : { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/product/${form.productImage}` }}
                 className="w-48 h-48 rounded-md"
                 resizeMode="cover"
               />
@@ -475,7 +479,6 @@ const EditProduct = () => {
           <View className="mb-4 w-full items-center">
             {error.productImage && <ErrorMessage label={error.productImage} />}
           </View>
-          {/* Upload Photo Button */}
           <View className="w-full items-center">
             <UploadButton
               label="Unggah Foto"
@@ -660,7 +663,6 @@ const EditProduct = () => {
             )}
           </View>
 
-          {/* Add Product Button */}
           <CustomButton
             label="Perbarui"
             handlePress={handleEditProduct}
@@ -723,7 +725,7 @@ const EditProduct = () => {
           onSecondaryAction={() => {
             handleDeleteProduct();
           }}
-          onPrimaryAction={() => {}}
+          onPrimaryAction={() => { }}
         />
       )}
     </View>

@@ -33,14 +33,24 @@ const BakeryCard: React.FC<Props> = ({ item, onPress, onFavorite, userId, isCanc
             style={{ opacity: isDisabled ? 0.2 : 1 }}
         >
             <View className="flex-row items-start justify-between">
-                <View className="flex-row p-1">
+                <View className="flex-row p-1 items-center">
                     <Image
-                        source={{ uri: item.bakeryImage }}
+                        source={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-picture/${item.bakeryImage}` }}
                         style={{ width: 68, height: 68, borderRadius: 10, borderColor: '#000', borderWidth: 1 }}
                     />
                     <View className="ml-5" style={{ flex: 1 }}>
-                        <View className="flex-row justify-between w-full">
-                            <TextTitle3 label={item.bakeryName} />
+                        <View className="flex-row justify-between items-center w-full">
+                            <View className='flex-row items-center'>
+                                <TextTitle3 label={item.bakeryName} />
+                                {
+                                    item.isHalal === 1 && (
+                                        <Image
+                                            source={icons.halalLogo}
+                                            className='w-8 h-8'
+                                        />
+                                    )
+                                }
+                            </View>
                             <TouchableOpacity onPress={onFavorite}>
                                 <Ionicons
                                     name={item.favorite.some((fav: Favorite) => fav.bakeryId === item.bakeryId) ? "heart" : "heart-outline"}

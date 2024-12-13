@@ -25,8 +25,6 @@ type Props = {
 
 const ListRatingCard: React.FC<Props> = ({ item }) => {
 
-  console.log("iitem here ", JSON.stringify(item, null, 2))
-
   const createdDate = new Date(item.createdDate);
   const formattedDate = createdDate.toLocaleDateString("id-ID", {
     day: "2-digit",
@@ -38,7 +36,7 @@ const ListRatingCard: React.FC<Props> = ({ item }) => {
     <View className="bg-white rounded-lg shadow-sm mt-4 p-4">
       <View className="flex-row items-center">
         <Image
-          source={{ uri: item.order.user.userImage }}
+          source={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/profile/${item.order.user.userImage}` }}
           style={{
             width: 32,
             height: 32,

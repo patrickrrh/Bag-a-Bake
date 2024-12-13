@@ -34,7 +34,7 @@ const SignUpOTP = () => {
 
     const { email, userDataForm } = useLocalSearchParams();
     const parsedUserDataForm = JSON.parse(userDataForm as string);
-
+    
     const emptyForm = {
         otp: '',
     }
@@ -91,7 +91,7 @@ const SignUpOTP = () => {
 
     const handleResendOTP = async () => {
         try {
-            const res = await authenticationApi().signUpOTP({ 
+            const res = await authenticationApi().signUpOTP({
                 email: parsedUserDataForm.email,
                 userName: parsedUserDataForm.userName
             })
@@ -107,7 +107,7 @@ const SignUpOTP = () => {
             console.log(error);
         }
     }
-    
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View className='bg-background px-5 flex-1'>

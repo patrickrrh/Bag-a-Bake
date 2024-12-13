@@ -180,15 +180,15 @@ const Order = () => {
           selectedStatus === 4 && (
             <View className="mt-5 mb-3 ml-5 flex-row items-center">
               <FilterButton
-              label="Selesai"
-              isSelected={filterStatus === 4}
-              onPress={() => handleFilter(4)}
-            />
-            <FilterButton
-              label="Dibatalkan"
-              isSelected={filterStatus === 5}
-              onPress={() => handleFilter(5)}
-            />
+                label="Selesai"
+                isSelected={filterStatus === 4}
+                onPress={() => handleFilter(4)}
+              />
+              <FilterButton
+                label="Dibatalkan"
+                isSelected={filterStatus === 5}
+                onPress={() => handleFilter(5)}
+              />
             </View>
           )
         }

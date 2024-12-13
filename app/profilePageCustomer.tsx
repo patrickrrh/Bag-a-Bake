@@ -24,7 +24,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import CustomDropdown from "@/components/CustomDropdown";
 import authenticationApi from "@/api/authenticationApi";
 import { showToast } from "@/utils/toastUtils";
-import { checkEmptyForm } from "@/utils/commonFunctions";
+import { checkEmptyForm, encodeImage } from "@/utils/commonFunctions";
 import * as SecureStore from "expo-secure-store";
 import { Ionicons } from "@expo/vector-icons";
 import ModalAction from "@/components/ModalAction";
@@ -34,6 +34,8 @@ import axios from "axios";
 import Geocoder from "react-native-geocoding";
 import BackButton from "@/components/BackButton";
 import BackButtonWithModal from "@/components/BackButtonModal";
+import * as FileSystem from 'expo-file-system';
+import { images } from "@/constants/images";
 
 type ErrorState = {
   userName: string | null;
@@ -44,23 +46,36 @@ type ErrorState = {
 const ProfilePageCustomer = () => {
   const insets = useSafeAreaInsets();
   const { userData, refreshUserData, signOut } = useAuth();
-  const GOOGLE_MAPS_API_KEY = process.env
-    .EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
+  const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY as string;
   const [isDisabled, setIsDisabled] = useState(false);
 
   const [form, setForm] = useState({
-    userName: userData?.userName || "",
-    userPhoneNumber: userData?.userPhoneNumber || "",
-    email: userData?.email || "",
-    userImage: userData?.userImage || "",
-    address: userData?.address || "",
-    latitude: userData?.latitude || 0,
-    longitude: userData?.longitude || 0,
+    userName: '',
+    userPhoneNumber: '',
+    email: '',
+    userImage: '' as string | undefined,
+    address: '',
+    latitude: 0,
+    longitude: 0,
     roleId: 1,
   });
 
+  useEffect(() => {
+    setForm({
+      userName: userData?.userName || '',
+      userPhoneNumber: userData?.userPhoneNumber || '',
+      email: userData?.email || '',
+      userImage: userData?.userImage || '',
+      address: userData?.address || '',
+      latitude: userData?.latitude || 0,
+      longitude: userData?.longitude || 0,
+      roleId: 1,
+    });
+  }, [userData]);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+  const [isImageUpdated, setIsImageUpdated] = useState(false);
 
   const emptyError: ErrorState = {
     userName: null,
@@ -78,13 +93,12 @@ const ProfilePageCustomer = () => {
     });
 
     if (!result.canceled) {
+      setIsImageUpdated(true);
       setForm({ ...form, userImage: result.assets[0].uri });
     }
   };
 
   const hasUnsavedChanges = () => {
-    console.log("form", form.userName);
-    console.log("form", userData?.userName);
     return (
       form.userName !== userData?.userName ||
       form.userPhoneNumber !== userData?.userPhoneNumber ||
@@ -132,28 +146,28 @@ const ProfilePageCustomer = () => {
         return;
       }
 
+      let formData = null;
+      if (isImageUpdated && form.userImage) {
+        const encodedUserImage = await encodeImage(form.userImage);
+        if (encodedUserImage) {
+          formData = {
+            ...form,
+            userImage: encodedUserImage,
+          };
+        }
+      } else {
+        formData = {
+          ...form,
+          userImage: isImageUpdated ? form.userImage : undefined,
+        }
+      }
+
       await authenticationApi().updateUser({
+        ...formData,
         userId: userData?.userId,
-        userName: form.userName,
-        userPhoneNumber: form.userPhoneNumber,
-        email: form.email,
-        userImage: form.userImage,
-        address: form.address,
-        latitude: form.latitude,
-        longitude: form.longitude,
       });
 
       showToast("success", "Data pengguna berhasil diperbarui");
-
-      const userDataToStore = {
-        ...form,
-        userId: userData?.userId,
-      };
-
-      await SecureStore.setItemAsync(
-        "userData",
-        JSON.stringify(userDataToStore)
-      );
 
       await refreshUserData();
     } catch (error) {
@@ -161,6 +175,7 @@ const ProfilePageCustomer = () => {
       showToast("error", "An unexpected error occurred");
     } finally {
       setisSubmitting(false);
+      setIsImageUpdated(false);
     }
   };
 
@@ -218,8 +233,6 @@ const ProfilePageCustomer = () => {
     handleGeocoding(item.description);
   };
 
-  console.log("Form", JSON.stringify(form, null, 2));
-
   return (
     <View className="bg-background h-full flex-1">
       <View
@@ -264,7 +277,7 @@ const ProfilePageCustomer = () => {
           <View className="w-full items-center">
             <View className="w-24 h-24 border border-gray-200 rounded-full mb-4">
               <Image
-                source={{ uri: form.userImage }}
+                source={isImageUpdated ? { uri: form.userImage } : { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/profile/${form.userImage}` }}
                 className="w-full h-full rounded-full"
               />
             </View>

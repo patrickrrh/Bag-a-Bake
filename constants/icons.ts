@@ -14,4 +14,5 @@ export const icons = {
     noFile: require('../assets/images/nofile.png'),
     brokenSearch: require('../assets/images/brokensearch.png'),
     noStar: require('../assets/images/noStar.png'),
-}
+    halalLogo: require('../assets/icons/Halal.png'),
+}   

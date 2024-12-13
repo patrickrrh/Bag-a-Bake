@@ -12,9 +12,10 @@ interface Props {
     pickImage: () => void;
     form: any;
     paymentMethods: any[];
+    isLoadQris?: boolean
 }
 
-const PaymentInput: React.FC<Props> = ({ selectedMethods, selectMethod, pickImage, form, paymentMethods, selectDropdown, onChangeText }) => {
+const PaymentInput: React.FC<Props> = ({ selectedMethods, selectMethod, pickImage, form, paymentMethods, selectDropdown, onChangeText, isLoadQris }) => {
 
     const formattedPaymentServices = paymentMethods.map(item => ({
         ...item,
@@ -23,7 +24,7 @@ const PaymentInput: React.FC<Props> = ({ selectedMethods, selectMethod, pickImag
             value: option
         }))
     }));
-
+    
     return (
         <View>
             {paymentMethods.map((item, index) => (
@@ -48,7 +49,7 @@ const PaymentInput: React.FC<Props> = ({ selectedMethods, selectMethod, pickImag
                                     return (
                                         <View className="w-32 h-32">
                                             <Image
-                                                source={{ uri: qrisPayment.paymentDetail }}
+                                                source={ isLoadQris === true ? { uri: qrisPayment.paymentDetail } : { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/bakery-qris/${qrisPayment.paymentDetail}`}}
                                                 className="w-full h-full rounded-md"
                                             />
                                         </View>

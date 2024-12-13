@@ -149,9 +149,8 @@ const Home = () => {
             <Announcement
               message="Akun Anda diblokir karena telah membatalkan pesanan lebih dari 3 kali."
               visible={announcementVisible}
-              onClose={() => setAnnouncementVisible(false)} // Menyembunyikan pengumuman saat ditutup
+              onClose={() => setAnnouncementVisible(false)}
             />
-            {/* Konten lainnya */}
           </ScrollView>
         </View>
 
@@ -163,7 +162,7 @@ const Home = () => {
           <View className='flex-row justify-between w-full my-8'>
             <View className="w-10 h-10 border border-gray-200 rounded-full">
               <Image
-                source={userData?.userImage ? { uri: userData?.userImage } : images.profile}
+                source={userData?.userImage ? { uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/profile/${userData?.userImage}` } : images.profile}
                 className="w-full h-full rounded-full"
               />
             </View>

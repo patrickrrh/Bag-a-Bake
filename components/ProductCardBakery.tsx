@@ -29,7 +29,7 @@ const ProductCardBakery: React.FC<Props> = ({ product, isClosed, onPress, isCanc
             <View className='p-4'>
                 <View style={{ position: 'relative' }}>
                     <Image
-                        source={{ uri: product.productImage }}
+                        source={{ uri: `${process.env.EXPO_PUBLIC_LOCAL_SERVER}/images/product/${product.productImage}` }}
                         style={{ width: '100%', height: 134, borderRadius: 8, marginBottom: 10 }}
                         resizeMode="cover"
                     />

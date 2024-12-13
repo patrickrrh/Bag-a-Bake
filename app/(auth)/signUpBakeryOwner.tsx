@@ -13,12 +13,13 @@ import * as ImagePicker from 'expo-image-picker';
 import UploadButton from '@/components/UploadButton'
 import { images } from '@/constants/images'
 import AuthLayout from './authLayout'
-import { checkEmptyForm } from '@/utils/commonFunctions'
+import { checkEmptyForm, encodeImage } from '@/utils/commonFunctions'
 import ProgressBar from '@/components/ProgressBar'
 import authenticationApi from '@/api/authenticationApi';
 import { showToast } from '@/utils/toastUtils'
 import BackButton from '@/components/BackButton'
 import { requestNotificationPermission } from '@/utils/notificationUtils'
+import * as FileSystem from 'expo-file-system';
 
 type ErrorState = {
     userName: string | null;
@@ -79,6 +80,10 @@ const SignUpBakeryOwner = () => {
                 showToast('error', res.error);
                 return
             } else {
+                let encodedUserImage = null;
+                if (form.userImage !== '') {
+                    encodedUserImage = await encodeImage(form.userImage)
+                }
                 const token = await requestNotificationPermission();
                 if (token) {
                     form.pushToken = token.data
@@ -87,10 +92,11 @@ const SignUpBakeryOwner = () => {
                     email: form.email,
                     userName: form.userName
                 })
+                const updatedForm = { ...form, userImage: encodedUserImage };
                 if (otp.status === 200) {
                     router.push({
                         pathname: '/(auth)/signUpOTP' as any,
-                        params: { email: form.email, userDataForm: JSON.stringify(form) },
+                        params: { email: form.email, userDataForm: JSON.stringify(updatedForm) },
                     })
                 }
             }
