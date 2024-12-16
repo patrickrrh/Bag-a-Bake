@@ -13,14 +13,18 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.bagabakefrontend"
     },
     "android": {
+      "permissions": ["INTERNET"],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logoBagABake.png",
+        "foregroundImage": "./assets/images/foregroundBagabake.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.bagabakefrontend"
+      "package": "com.anonymous.bagabakefrontend",
+      "minSdkVersion": 24,
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
@@ -30,13 +34,21 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "baseURL": "http://bagabake.com/api",
+      "baseURL": "http://192.168.1.11:3000/api",
       "router": {
         "origin": false
       },
@@ -44,6 +56,6 @@
         "projectId": "72d58b53-4510-4d53-84df-a915eb3f0bde"
       }
     },
-    "owner": "patrick_roberto"
+    "owner": "bag_a_bake"
   }
 }

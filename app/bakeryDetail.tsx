@@ -122,8 +122,6 @@ const BakeryDetail = () => {
         bakeryId: parseInt(bakeryId as string),
       });
 
-      console.log("Bakery Detail", response);
-
       if (response.status === 200) {
         setBakeryDetail(response.data ? response.data : {});
       }
@@ -257,7 +255,7 @@ const BakeryDetail = () => {
             <TouchableOpacity
               onPress={() =>
                 router.push({
-                  pathname: "/bakery/ratingBakeryCustomer" as any,
+                  pathname: "/ratingBakeryCustomer" as any,
                   params: {
                     bakeryId,
                     bakeryName: bakeryDetail?.bakery.bakeryName as string,
@@ -329,7 +327,7 @@ const BakeryDetail = () => {
                   onPress={() =>
                     !bakeryDetail.isClosed &&
                     router.push({
-                      pathname: "/bakery/inputOrder",
+                      pathname: "/inputOrder",
                       params: {
                         productId: product.productId,
                       },
@@ -368,7 +366,7 @@ const BakeryDetail = () => {
 
       {orderData && orderData.bakeryId == bakeryDetail?.bakery.bakeryId && (
         isCancelled <= 3 && (
-          <View className="w-full flex justify-end p-5">
+          <View className="w-full flex justify-end p-5 mb-5">
             <OpenCartButton
               label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
               handlePress={() => {

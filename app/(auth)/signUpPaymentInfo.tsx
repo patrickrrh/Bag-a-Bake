@@ -55,6 +55,7 @@ const SignUpPaymentInfo = () => {
 
     const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
     const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+    const [isPaymentQrisUpdated, setIsPaymentQrisUpdated] = useState(false);
 
     useEffect(() => {
         setForm((prevForm) => ({
@@ -73,6 +74,7 @@ const SignUpPaymentInfo = () => {
 
 
         if (!result.canceled) {
+            setIsPaymentQrisUpdated(true);
             setForm((prevForm) => {
                 const updatedPaymentMethods = prevForm.paymentMethods.map((method) => {
                     if (method.paymentMethod === 'QRIS') {
@@ -188,6 +190,8 @@ const SignUpPaymentInfo = () => {
                 userId: userData?.userId
             });
 
+            console.log("res", res)
+
             if (res.status === 201) {
                 refreshUserStatus();
             }
@@ -228,7 +232,7 @@ const SignUpPaymentInfo = () => {
                     selectDropdown={handleDropdownSelect}
                     onChangeText={handleTextChange}
                     pickImage={pickImage}
-                    isLoadQris={false}
+                    isLoadQris={isPaymentQrisUpdated}
                 />
             </View>
             {

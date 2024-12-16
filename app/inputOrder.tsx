@@ -136,7 +136,7 @@ const InputOrder = () => {
       await AsyncStorage.setItem('orderData', JSON.stringify(newOrder));
 
       router.push({
-        pathname: '/bakery/bakeryDetail' as any,
+        pathname: '/bakeryDetail' as any,
         params: { bakeryId: bakery?.bakery.bakeryId },
       })
     } catch (error) {
@@ -185,7 +185,7 @@ const InputOrder = () => {
         }
       }
       router.push({
-        pathname: '/bakery/bakeryDetail' as any,
+        pathname: '/bakeryDetail' as any,
         params: { bakeryId: bakery?.bakery.bakeryId },
       })
     } catch (error) {
@@ -228,7 +228,7 @@ const InputOrder = () => {
           <TouchableOpacity
             onPress={() => {
               router.push({
-                pathname: "/bakery/bakeryDetail",
+                pathname: "/bakeryDetail",
                 params: { bakeryId: bakery?.bakery.bakeryId },
               });
             }}

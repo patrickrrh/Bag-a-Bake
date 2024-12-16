@@ -66,7 +66,7 @@ const SignIn = () => {
         if (token) {
           signIn({
             userId: res.data.userId,
-            pushToken: token.data
+            pushToken: token.data,
           });
         }
       }
