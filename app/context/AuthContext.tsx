@@ -16,7 +16,7 @@ const AuthContext = createContext<{
     justSignedIn: boolean;
     userData: UserType | null;
     refreshUserData: () => Promise<void>;
-        refreshUserStatus: () => Promise<void>;
+    refreshUserStatus: () => Promise<void>;
 }>({
     signIn: (data: object) => null,
     signUp: (data: object) => null,
@@ -95,6 +95,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         try {
             const response = await authenticationApi().signUpUser(data);
+            console.log("response", response)
             if (response.error) {
                 throw new Error(response.error);
             } else {
@@ -130,6 +131,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
         try {
             const refreshToken = await SecureStore.getItemAsync("refreshToken");
             const userData = await authenticationApi().refreshUserStatus({ refreshToken: refreshToken })
+
+            console.log("refresh user status", JSON.stringify(userData, null, 2))
 
             if (userData.status === 200) {
                 await SecureStore.setItemAsync("userData", JSON.stringify(userData.user));

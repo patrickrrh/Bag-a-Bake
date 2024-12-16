@@ -129,7 +129,7 @@ const InputOrderDetail = () => {
                     <TouchableOpacity
                         onPress={() => {
                             router.replace({
-                                pathname: '/(tabsCustomer)/bakery/bakeryDetail' as any,
+                                pathname: '/bakeryDetail' as any,
                                 params: { bakeryId: bakeryDetail?.bakery.bakeryId }
                             })
                         }}
@@ -202,7 +202,7 @@ const InputOrderDetail = () => {
                         handlePress={() => {
                             removeLocalStorage('orderData');
                             router.replace({
-                                pathname: '/(tabsCustomer)/bakery/bakeryDetail' as any,
+                                pathname: '/bakeryDetail' as any,
                                 params: { bakeryId: bakeryDetail?.bakery.bakeryId }
                             })
                         }}

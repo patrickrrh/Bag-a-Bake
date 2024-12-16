@@ -209,7 +209,7 @@ const Home = () => {
             <TouchableOpacity
               onPress={() => {
                 router.push({
-                  pathname: "/home/ratingBakerySeller" as any,
+                  pathname: "/ratingBakerySeller" as any,
                   params: {
                     bakeryId: userData?.bakery?.bakeryId,
                     bakeryName: userData?.bakery.bakeryName as string,

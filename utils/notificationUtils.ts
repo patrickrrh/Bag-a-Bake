@@ -1,10 +1,14 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import Constants from "expo-constants";
 
 export const requestNotificationPermission = async () => {
     const { status } = await Notifications.requestPermissionsAsync();
     if (status === 'granted') {
-        const token = await Notifications.getExpoPushTokenAsync();
+        const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+        const token = await Notifications.getExpoPushTokenAsync({
+            projectId
+        });
         return token;
     }
     return null;

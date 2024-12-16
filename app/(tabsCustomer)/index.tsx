@@ -262,7 +262,7 @@ const Home = () => {
                             isCancelled={isCancelled}
                             onPress={() => {
                               router.replace({
-                                pathname: '/bakery/bakeryDetail' as any,
+                                pathname: '/bakeryDetail' as any,
                                 params: { bakeryId: item.bakery.bakeryId },
                               })
                             }}
@@ -322,7 +322,7 @@ const Home = () => {
                             isCancelled={isCancelled}
                             onPress={() => {
                               router.replace({
-                                pathname: '/bakery/bakeryDetail' as any,
+                                pathname: '/bakeryDetail' as any,
                                 params: { bakeryId: item.bakery.bakeryId },
                               })
                             }}

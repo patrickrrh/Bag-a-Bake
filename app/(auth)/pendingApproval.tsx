@@ -20,6 +20,8 @@ const PendingApproval = () => {
     const [refreshedUserData, setRefreshedUserData] = useState(userData);
     const [isLoading, setIsLoading] = useState(false);
 
+    console.log("user data active", refreshedUserData)
+
     const handleContactPress = () => {
         const email = 'example@gmail.com'
         const subject = 'Bantuan Akun Bakeri'
@@ -65,7 +67,7 @@ const PendingApproval = () => {
             <View style={{ height: insets.top, backgroundColor: '#FEFAF9' }} />
 
             {
-                refreshedUserData?.bakery.isActive !== 1 && (
+                (refreshedUserData?.bakery && refreshedUserData.bakery.isActive !== 1) && (
                     <View className='flex-row justify-end'>
                         <TouchableOpacity onPress={handleRefreshPress}>
                             <Ionicons name='refresh' size={24} color='#B0795A' />
@@ -73,6 +75,7 @@ const PendingApproval = () => {
                     </View>
                 )
             }
+
 
             <View className='absolute top-0 bottom-0 left-0 right-0 justify-center'>
                 <View className='items-center mx-10'>
@@ -83,7 +86,9 @@ const PendingApproval = () => {
                             <>
                                 <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
                                 {
-                                    refreshedUserData?.bakery.isActive === 2 ? (
+                                    refreshedUserData?.bakery === null ? (
+                                        <TextTitle3 label='Akun bakeri Anda ditolak' textStyle={{ textAlign: 'center', marginTop: 20 }} />
+                                    ) : refreshedUserData?.bakery.isActive === 2 ? (
                                         <TextTitle3 label='Akun bakeri Anda telah dinonaktifkan' textStyle={{ textAlign: 'center', marginTop: 20 }} />
                                     ) : refreshedUserData?.bakery.isActive === 0 ? (
                                         <TextTitle3 label='Harap menunggu, akun bakeri Anda sedang diproses' textStyle={{ textAlign: 'center', marginTop: 20 }} />
@@ -92,26 +97,47 @@ const PendingApproval = () => {
                                     )
                                 }
                                 {
-                                    refreshedUserData?.bakery.isActive !== 1 ? (
+                                    refreshedUserData?.bakery === null ? (
                                         <View className='items-center w-full'>
-                                            <TextTitle5Gray label='Untuk informasi lebih lanjut silakan hubungi tim kami melalui tombol di bawah ini' textStyle={{ textAlign: 'center', marginTop: 10 }} />
-                                            <ContactButton
-                                                label='Hubungi Kami'
-                                                handlePress={handleContactPress}
+                                            <TextTitle5Gray
+                                                label='Silakan daftar kembali melalui tombol di bawah ini'
+                                                textStyle={{ textAlign: 'center', marginTop: 10 }}
+                                            />
+                                            <CustomButton
+                                                label='Daftar Bakeri Ulang'
+                                                handlePress={() => router.replace("/(auth)/signUpBakery")}
                                                 isLoading={false}
                                                 buttonStyles='mt-5 w-full'
                                             />
                                         </View>
                                     ) : (
-                                        <View className='items-center w-full'>
-                                            <TextTitle5Gray label='Silakan masuk kembali melalui tombol di bawah ini' textStyle={{ textAlign: 'center', marginTop: 10 }} />
-                                            <CustomButton
-                                                label='Masuk'
-                                                handlePress={signOut}
-                                                isLoading={false}
-                                                buttonStyles='mt-5 w-full'
-                                            />
-                                        </View>
+                                        (refreshedUserData?.bakery.isActive === 2 || refreshedUserData?.bakery.isActive === 0) ? (
+                                            <View className='items-center w-full'>
+                                                <TextTitle5Gray
+                                                    label='Untuk informasi lebih lanjut silakan hubungi tim kami melalui tombol di bawah ini'
+                                                    textStyle={{ textAlign: 'center', marginTop: 10 }}
+                                                />
+                                                <ContactButton
+                                                    label='Hubungi Kami'
+                                                    handlePress={handleContactPress}
+                                                    isLoading={false}
+                                                    buttonStyles='mt-5 w-full'
+                                                />
+                                            </View>
+                                        ) : (
+                                            <View className='items-center w-full'>
+                                                <TextTitle5Gray
+                                                    label='Silakan masuk kembali melalui tombol di bawah ini'
+                                                    textStyle={{ textAlign: 'center', marginTop: 10 }}
+                                                />
+                                                <CustomButton
+                                                    label='Masuk'
+                                                    handlePress={signOut}
+                                                    isLoading={false}
+                                                    buttonStyles='mt-5 w-full'
+                                                />
+                                            </View>
+                                        )
                                     )
                                 }
                             </>

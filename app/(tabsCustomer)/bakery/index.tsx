@@ -374,7 +374,7 @@ const Bakery = () => {
                 isCancelled={isCancelled}
                 onPress={() =>
                   router.push({
-                    pathname: "/bakery/bakeryDetail" as any,
+                    pathname: "/bakeryDetail" as any,
                     params: { bakeryId: item.bakeryId, isClosed: item.isClosed.toString() },
                   })
                 }
@@ -408,7 +408,7 @@ const Bakery = () => {
           }}
           onPress={() => {
             router.push({
-              pathname: "/bakery/bakeryDetail",
+              pathname: "/bakeryDetail",
               params: { bakeryId: orderData.bakeryId },
             });
           }}
