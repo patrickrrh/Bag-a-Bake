@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "798655763057",
+    "project_id": "bag-a-bake-1a254",
+    "storage_bucket": "bag-a-bake-1a254.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:798655763057:android:e4c800fbaf439b560a41d0",
+        "android_client_info": {
+          "package_name": "com.anonymous.bagabakefrontend"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAppgnSZfvAgTKaB1BF8FYheRSYF_O3hNk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -146,11 +146,6 @@ const SignUpPaymentInfo = () => {
         try {
             setisSubmitting(true);
 
-            form.paymentMethods.forEach((method) => {
-                method.paymentDetail = method.paymentDetail.trim();
-            });
-
-
             if (form.paymentMethods.length === 0) {
                 setError((prevError) => ({
                     ...prevError,
@@ -189,8 +184,6 @@ const SignUpPaymentInfo = () => {
                 ...form,
                 userId: userData?.userId
             });
-
-            console.log("res", res)
 
             if (res.status === 201) {
                 refreshUserStatus();

@@ -132,8 +132,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
             const refreshToken = await SecureStore.getItemAsync("refreshToken");
             const userData = await authenticationApi().refreshUserStatus({ refreshToken: refreshToken })
 
-            console.log("refresh user status", JSON.stringify(userData, null, 2))
-
             if (userData.status === 200) {
                 await SecureStore.setItemAsync("userData", JSON.stringify(userData.user));
                 setUserData(userData.user);
