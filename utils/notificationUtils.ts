@@ -5,10 +5,7 @@ import Constants from "expo-constants";
 export const requestNotificationPermission = async () => {
     const { status } = await Notifications.requestPermissionsAsync();
     if (status === 'granted') {
-        const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-        const token = await Notifications.getExpoPushTokenAsync({
-            projectId
-        });
+        const token = await Notifications.getDevicePushTokenAsync();
         return token;
     }
     return null;
@@ -23,14 +20,14 @@ export const setupNotificationListeners = () => {
         })
     })
 
-    if (Platform.OS === 'android') {
-        Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-        });
-    }
+    // if (Platform.OS === 'android') {
+    //     Notifications.setNotificationChannelAsync('default', {
+    //         name: 'default',
+    //         importance: Notifications.AndroidImportance.MAX,
+    //         vibrationPattern: [0, 250, 250, 250],
+    //         lightColor: '#FF231F7C',
+    //     });
+    // }
 
     Notifications.addNotificationReceivedListener(notification => {
         console.log('Notification received:', notification);

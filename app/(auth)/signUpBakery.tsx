@@ -181,8 +181,8 @@ const SignUpBakery = () => {
 
       setForm((prevForm) => ({
         ...prevForm,
-        bakeryName: prevForm.bakeryName.trim(),
-        bakeryDescription: prevForm.bakeryDescription.trim(),
+        bakeryName: prevForm.bakeryName,
+        bakeryDescription: prevForm.bakeryDescription,
       }));
 
       const errors = checkEmptyForm(form);
