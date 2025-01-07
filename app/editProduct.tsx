@@ -337,8 +337,13 @@ const EditProduct = () => {
 
   const handleDeleteProduct = async () => {
     try {
-      await productApi().deleteProductById({ productId });
-      router.back();
+      const res = await productApi().deleteProductById({ productId });
+      if (res.status === 200) {
+        showToast("success", res.message);
+        router.back();
+      } else {
+        showToast("error", "Gagal menghapus produk");
+      }
     } catch (error) {
       console.error("Error deleting product", error);
     }

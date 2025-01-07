@@ -42,6 +42,7 @@ import RatingInput from "@/components/RatingInput";
 import { getLocalStorage, removeLocalStorage } from "@/utils/commonFunctions";
 import { icons } from "@/constants/icons";
 import { useAuth } from "@/app/context/AuthContext";
+import { showToast } from "@/utils/toastUtils";
 
 type RatingErrorState = {
   rating: string | null;
@@ -119,6 +120,7 @@ const Order = () => {
       });
 
       if (response.status === 201) {
+        showToast("success", "Penilaian berhasil dikirim");
         setRatingModal(false);
         setRatingOrderId(0);
         setRatingError(emptyRatingError);
@@ -217,7 +219,7 @@ const Order = () => {
                     item={item}
                     onPress={() => {
                       router.push({
-                        pathname: "/order/orderDetail" as any,
+                        pathname: "/orderDetailCustomer" as any,
                         params: { order: JSON.stringify(item) },
                       });
                     }}
@@ -231,7 +233,7 @@ const Order = () => {
                     item={item}
                     onPress={() => {
                       router.push({
-                        pathname: "/order/orderDetail" as any,
+                        pathname: "/orderDetailCustomer" as any,
                         params: { order: JSON.stringify(item) },
                       });
                     }}

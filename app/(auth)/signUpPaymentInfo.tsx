@@ -141,6 +141,8 @@ const SignUpPaymentInfo = () => {
         });
     };
 
+    console.log("form payment", form.paymentMethods)
+
 
     const handleSignUpBakeryAPI = async () => {
         try {
@@ -184,6 +186,8 @@ const SignUpPaymentInfo = () => {
                 ...form,
                 userId: userData?.userId
             });
+
+            console.log("res", res)
 
             if (res.status === 201) {
                 refreshUserStatus();

@@ -68,6 +68,7 @@ const ChangePassword = () => {
         password: form.password
       })
       if (res.status === 200) {
+        showToast('success', 'Kata Sandi berhasil diubah');
         router.replace('/(auth)/signIn')
       } else {
         showToast('error', res.error)

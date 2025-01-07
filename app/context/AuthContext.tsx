@@ -78,6 +78,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
             if (response.error) {
                 throw new Error(response.error);
             } else {
+                showToast('success', 'Berhasil masuk');
                 await SecureStore.setItemAsync("accessToken", response.accessToken);
                 await SecureStore.setItemAsync("refreshToken", response.refreshToken);
                 await SecureStore.setItemAsync("userData", JSON.stringify(response.user));
@@ -95,10 +96,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
         setIsLoading(true);
         try {
             const response = await authenticationApi().signUpUser(data);
-            console.log("response", response)
             if (response.error) {
                 throw new Error(response.error);
             } else {
+                showToast('success', 'Akun berhasil dibuat');
                 await SecureStore.setItemAsync("accessToken", response.accessToken);
                 await SecureStore.setItemAsync("refreshToken", response.refreshToken);
                 await SecureStore.setItemAsync("userData", JSON.stringify(response.user));

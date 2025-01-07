@@ -366,7 +366,10 @@ const ProfilePageCustomer = () => {
           title="Apakah Anda yakin ingin keluar?"
           secondaryButtonLabel="Iya"
           primaryButtonLabel="Tidak"
-          onSecondaryAction={() => signOut()}
+          onSecondaryAction={() => {
+            signOut();
+            showToast('success', 'Berhasil keluar');
+          }}
           onPrimaryAction={() => console.log("Cancel Log Out")}
         />
       )}

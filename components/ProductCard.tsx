@@ -41,9 +41,13 @@ const ProductCard: React.FC<Props> = ({ product, onPress, isCancelled }) => {
                 <View className='flex-row justify-between items-center w-full'>
                     <TextTitle4 label={product.productName} />
                 </View>
-                <View className='flex-row'>
-                <TextTitle5 label={product.bakery.bakeryName} />
-                <TextTitle5Gray label={`  ${product.distanceInKm} km`} />
+                <View className="flex-row items-center">
+                    <View style={{ flex: 0.6 }}>
+                        <TextTitle5 label={product.bakery.bakeryName} ellipsis={true} />
+                    </View>
+                    <View style={{ flex: 0.4 }}>
+                        <TextTitle5Gray label={` ${product.distanceInKm} km`} />
+                    </View>
                 </View>
                 <View className='mt-2'>
                     <View className='flex-row mb-1'>

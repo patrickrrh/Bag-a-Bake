@@ -31,8 +31,9 @@ import TextTitle5Bold from '@/components/texts/TextTitle5Bold';
 import { generateInvoice, printPDF } from '@/utils/printUtils';
 import { useAuth } from '@/app/context/AuthContext';
 import FilterButton from '@/components/FilterButton';
+import { showToast } from '@/utils/toastUtils';
 
-const OrderDetail = () => {
+const OrderDetailSeller = () => {
 
   const { userData } = useAuth();
   const insets = useSafeAreaInsets();
@@ -44,6 +45,7 @@ const OrderDetail = () => {
   const [paymentInfoModal, setPaymentInfoModal] = useState(false);
   const [isPreviewPayment, setIsPreviewPayment] = useState(false);
   const [cancelOrderModal, setCancelOrderModal] = useState(false);
+  const [rejectOrderModal, setRejectOrderModal] = useState(false);
 
   const handleActionOrder = async (orderStatus: number) => {
     try {
@@ -60,8 +62,15 @@ const OrderDetail = () => {
 
       const response = await orderSellerApi().actionOrder(payload)
       if (response.status === 200) {
+        if (orderStatus === 2) {
+          showToast('success', 'Pesanan telah diterima');
+        } else if (orderStatus === 3) {
+          showToast('success', 'Pembayaran telah dikonfirmasi');
+        } else if (orderStatus === 4) {
+          showToast('success', 'Pesanan telah diselesaikan');
+        }
         router.replace({
-          pathname: '/order',
+          pathname: '/(tabsSeller)/order',
         })
         setLocalStorage('orderSellerParams', JSON.stringify({ status: orderStatus }))
       }
@@ -80,8 +89,9 @@ const OrderDetail = () => {
         orderId: orderData.orderId
       })
       if (response.status === 200) {
+        showToast('success', 'Pesanan telah dibatalkan');
         router.replace({
-          pathname: '/order',
+          pathname: '/(tabsSeller)/order',
         })
         setLocalStorage('orderSellerParams', JSON.stringify({ status: 4 }))
       }
@@ -130,7 +140,7 @@ const OrderDetail = () => {
         <TouchableOpacity
           onPress={() => {
             router.replace({
-              pathname: '/order',
+              pathname: '/(tabsSeller)/order',
             });
             setLocalStorage('orderSellerParams', JSON.stringify({ status: orderData.orderStatus }));
           }}
@@ -269,51 +279,63 @@ const OrderDetail = () => {
             handleCancelOrder();
           }}
         />
+
+        <ModalAction
+          modalVisible={rejectOrderModal}
+          setModalVisible={setRejectOrderModal}
+          title="Apakah Anda yakin ingin menolak pesanan ini?"
+          primaryButtonLabel="Kembali"
+          secondaryButtonLabel="Tolak Pesanan"
+          onPrimaryAction={() => { setRejectOrderModal(false) }}
+          onSecondaryAction={() => {
+            handleCancelOrder();
+          }}
+        />
       </ScrollView>
 
       {
-          orderData.orderStatus === 1 ? (
-            <View className='mx-5 my-5'>
-              <CustomButton
-                label="Terima Pesanan"
-                handlePress={() => handleActionOrder(2)}
-                isLoading={isSubmitting}
-              />
-              <ContactButton
-                label="Tolak Pesanan"
-                handlePress={() => setCancelOrderModal(true)}
-                buttonStyles='mt-3'
-                isLoading={isSubmitting}
-              />
-            </View>
-          ) : (orderData.orderStatus === 2 && orderData.proofOfPayment) ? (
-            <View className='mx-5 my-5'>
-              <CustomButton
-                label="Konfirmasi Pembayaran"
-                handlePress={() => handleActionOrder(3)}
-                isLoading={isSubmitting}
-              />
-              <ContactButton
-                label="Batalkan Pesanan"
-                handlePress={() => setCancelOrderModal(true)}
-                buttonStyles='mt-3'
-                isLoading={isSubmitting}
-              />
-            </View>
-          ) : orderData.orderStatus === 3 && (
-            <View className='mx-5 my-5'>
-              <CustomButton
-                label="Selesaikan Pesanan"
-                handlePress={() => handleActionOrder(4)}
-                isLoading={isSubmitting}
-              />
-            </View>
-          )
-        }
+        orderData.orderStatus === 1 ? (
+          <View className='mx-5 my-5'>
+            <CustomButton
+              label="Terima Pesanan"
+              handlePress={() => handleActionOrder(2)}
+              isLoading={isSubmitting}
+            />
+            <ContactButton
+              label="Tolak Pesanan"
+              handlePress={() => setRejectOrderModal(true)}
+              buttonStyles='mt-3'
+              isLoading={isSubmitting}
+            />
+          </View>
+        ) : (orderData.orderStatus === 2 && orderData.proofOfPayment) ? (
+          <View className='mx-5 my-5'>
+            <CustomButton
+              label="Konfirmasi Pembayaran"
+              handlePress={() => handleActionOrder(3)}
+              isLoading={isSubmitting}
+            />
+            <ContactButton
+              label="Batalkan Pesanan"
+              handlePress={() => setCancelOrderModal(true)}
+              buttonStyles='mt-3'
+              isLoading={isSubmitting}
+            />
+          </View>
+        ) : orderData.orderStatus === 3 && (
+          <View className='mx-5 my-5'>
+            <CustomButton
+              label="Selesaikan Pesanan"
+              handlePress={() => handleActionOrder(4)}
+              isLoading={isSubmitting}
+            />
+          </View>
+        )
+      }
 
     </View>
 
   )
 }
 
-export default OrderDetail
+export default OrderDetailSeller

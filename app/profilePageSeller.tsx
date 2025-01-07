@@ -325,7 +325,7 @@ const ProfilePageSeller = () => {
     if (address === "") {
       setError((prevError) => ({
         ...prevError,
-        address: "Alamat toko tidak boleh kosong",
+        address: "Alamat bakeri tidak boleh kosong",
       }));
       return;
     }
@@ -883,7 +883,7 @@ const ProfilePageSeller = () => {
                 <UploadButton label="Unggah Foto" handlePress={pickImage} />
 
                 <FormField
-                  label="Nama Toko"
+                  label="Nama Bakeri"
                   value={bakeryForm.bakeryName}
                   onChangeText={(text) =>
                     setBakeryForm({ ...bakeryForm, bakeryName: text })
@@ -892,9 +892,9 @@ const ProfilePageSeller = () => {
                   error={bakeryError.bakeryName}
                 />
                 <InputLocationField
-                  label="Alamat Toko"
+                  label="Alamat Bakeri"
                   value={address}
-                  placeholder="Cari lokasi toko Anda"
+                  placeholder="Cari lokasi bakeri Anda"
                   onChangeText={(text) => {
                     setAddress(text);
                     setError((prevError) => ({
@@ -930,7 +930,7 @@ const ProfilePageSeller = () => {
                 </View>
 
                 <FormField
-                  label="Nomor Telepon Toko"
+                  label="Nomor Telepon Bakeri"
                   value={bakeryForm.bakeryPhoneNumber}
                   onChangeText={(text) => {
                     setBakeryForm((prevBakeryForm) => ({
@@ -947,7 +947,7 @@ const ProfilePageSeller = () => {
                   error={bakeryError.bakeryPhoneNumber}
                 />
                 <TextAreaField
-                  label="Deskripsi Toko"
+                  label="Deskripsi Bakeri"
                   value={bakeryForm.bakeryDescription}
                   onChangeText={(text) => {
                     setBakeryForm((prevBakeryForm) => ({
@@ -1051,7 +1051,10 @@ const ProfilePageSeller = () => {
           title="Apakah Anda yakin ingin keluar?"
           secondaryButtonLabel="Iya"
           primaryButtonLabel="Tidak"
-          onSecondaryAction={() => signOut()}
+          onSecondaryAction={() => {
+            signOut();
+            showToast('success', 'Berhasil keluar');
+          }}
           onPrimaryAction={() => console.log("Cancel Log Out")}
         />
       )}
