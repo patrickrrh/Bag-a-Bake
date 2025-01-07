@@ -150,7 +150,6 @@ const SignIn = () => {
         buttonStyles='mt-8'
         isLoading={isSubmitting}
       />
-
     </AuthLayout>
   );
 };

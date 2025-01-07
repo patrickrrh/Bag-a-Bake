@@ -24,6 +24,7 @@ import TextTitle5 from '@/components/texts/TextTitle5';
 import { useAuth } from '@/app/context/AuthContext';
 import ModalAction from '@/components/ModalAction';
 import { icons } from '@/constants/icons';
+import { showToast } from '@/utils/toastUtils';
 
 const Home = () => {
 
@@ -132,6 +133,11 @@ const Home = () => {
 
       const response = await orderSellerApi().actionOrder(payload)
       if (response.status === 200) {
+        if (orderStatus === 2) {
+          showToast('success', 'Pesanan telah diterima');
+        } else if (orderStatus === 5) {
+          showToast('success', 'Pesanan telah dibatalkan');
+        }
         handleGetLatestPendingOrderApi();
         handleGetLatestPaymentOrderApi();
         handleGetLatestOngoingOrderApi();
@@ -254,7 +260,7 @@ const Home = () => {
                   order={latestPendingOrder}
                   onPress={() => {
                     router.push({
-                      pathname: '/order/orderDetail',
+                      pathname: '/orderDetailSeller',
                       params: { order: JSON.stringify(latestPendingOrder) }
                     })
                   }}
@@ -294,7 +300,7 @@ const Home = () => {
                   order={latestPaymentOrder}
                   onPress={() => {
                     router.push({
-                      pathname: '/order/orderDetail',
+                      pathname: '/orderDetailSeller',
                       params: { order: JSON.stringify(latestPaymentOrder) }
                     })
                   }}
@@ -332,7 +338,7 @@ const Home = () => {
                   order={latestOngoingOrder}
                   onPress={() => {
                     router.push({
-                      pathname: '/order/orderDetail',
+                      pathname: '/orderDetailSeller',
                       params: { order: JSON.stringify(latestOngoingOrder) }
                     })
                   }}

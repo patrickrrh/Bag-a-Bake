@@ -93,8 +93,9 @@ const InputOrderDetail = () => {
             const response = await orderCustomerApi().createOrder(formData);
 
             if (response.status === 200) {
-                router.push('/order');
+                router.push('/(tabsCustomer)/order');
                 removeLocalStorage('orderData');
+                showToast('success', 'Pesanan berhasil dibuat');
             } else if (response.status === 404) {
                 showToast('error', 'Bakeri sudah tutup. Silakan coba lagi selama jam operasional.');
             } else if (response.status === 403) {
@@ -151,7 +152,7 @@ const InputOrderDetail = () => {
 
             <ScrollView>
                 <View className='p-5 gap-y-3 bg-white'>
-                    <TextTitle3 label="Detail Toko" />
+                    <TextTitle3 label="Detail Bakeri" />
                     <View className='flex-row'>
                         <TextTitle5 label={`Jam pengambilan terakhir: `} />
                         <TextTitle5Bold label={bakeryDetail?.bakery.closingTime as string} color='#FA6F33' />
@@ -200,6 +201,7 @@ const InputOrderDetail = () => {
                     <ContactButton
                         label="Hapus Keranjang"
                         handlePress={() => {
+                            showToast('success', 'Keranjang berhasil dihapus');
                             removeLocalStorage('orderData');
                             router.replace({
                                 pathname: '/bakeryDetail' as any,

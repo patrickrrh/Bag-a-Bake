@@ -41,6 +41,7 @@ import TextTitle3 from "@/components/texts/TextTitle3";
 import { icons } from "@/constants/icons";
 import ModalAction from "@/components/ModalAction";
 import FilterButton from "@/components/FilterButton";
+import { showToast } from "@/utils/toastUtils";
 
 const Order = () => {
   const { userData } = useAuth();
@@ -135,6 +136,11 @@ const Order = () => {
 
       const response = await orderSellerApi().actionOrder(payload);
       if (response.status === 200) {
+        if (orderStatus === 2) {
+          showToast("success", "Pesanan telah diterima");
+        } else if (orderStatus === 5) {
+          showToast("success", "Pesanan telah dibatalkan");
+        }
         handleGetAllOrderByStatusApi();
       }
     } catch (error) {
@@ -236,7 +242,7 @@ const Order = () => {
                     order={item}
                     onPress={() => {
                       router.push({
-                        pathname: "/order/orderDetail",
+                        pathname: "/orderDetailSeller",
                         params: { order: JSON.stringify(item) },
                       });
                     }}
@@ -248,7 +254,7 @@ const Order = () => {
                     order={item}
                     onPress={() => {
                       router.push({
-                        pathname: "/order/orderDetail",
+                        pathname: "/orderDetailSeller",
                         params: { order: JSON.stringify(item) },
                       });
                     }}

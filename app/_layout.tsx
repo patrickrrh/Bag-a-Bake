@@ -10,7 +10,7 @@ function RootLayout() {
   useEffect(() => {
     if (!isLoading) {
       if (isAuthenticated === null) return;
-
+      
       if (isAuthenticated === true && isEditProfile === false && userData && userData.roleId === 1) {
         router.replace("/(tabsCustomer)");
       } else if (isAuthenticated === true && isEditProfile === false && userData && userData.roleId === 2 && userData.bakery === null) {

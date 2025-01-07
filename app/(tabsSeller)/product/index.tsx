@@ -113,7 +113,7 @@ const ListProduct = () => {
             <TextHeader label="DAFTAR PRODUK" />
             <TouchableOpacity
               onPress={() => {
-                router.push("/product/createProduct");
+                router.push("/createProduct" as any);
               }}
             >
               <Ionicons name="add-outline" size={24} color="#b0795a" />
@@ -180,7 +180,7 @@ const ListProduct = () => {
                       item={item}
                       onPress={() => {
                         router.push({
-                          pathname: "/product/editProduct",
+                          pathname: "/editProduct" as any,
                           params: { productId: item.productId },
                         });
                       }}

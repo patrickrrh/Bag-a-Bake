@@ -27,6 +27,7 @@ import {
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { FontAwesome } from "@expo/vector-icons";
 import {
+  calculateTotalOrderItem,
   convertPhoneNumberFormat,
   formatRupiah,
   getLocalStorage,
@@ -174,11 +175,13 @@ const BakeryDetail = () => {
     try {
       if (favoriteItem) {
         await favoriteApi().removeFavorite(favoriteItem.favoriteId);
+        showToast("success", "Bakeri berhasil dihapus dari favorit");
       } else {
         await favoriteApi().addFavorite({
           userId: userData?.userId,
           bakeryId: bakeryId,
         });
+        showToast("success", "Bakeri berhasil ditambahkan ke favorit");
       }
 
       handleGetBakeryByIdApi();
@@ -186,6 +189,8 @@ const BakeryDetail = () => {
       console.log(error);
     }
   };
+
+  console.log("order data", orderData)
 
   return (
     <View className="flex-1 bg-background">
@@ -276,7 +281,7 @@ const BakeryDetail = () => {
             </TouchableOpacity>
 
             <View className="mt-3">
-              <TextTitle4 label={"Deskripsi Toko"} />
+              <TextTitle4 label={"Deskripsi Bakeri"} />
               <TextTitle5
                 label={bakeryDetail?.bakery.bakeryDescription as string}
               />
@@ -355,7 +360,8 @@ const BakeryDetail = () => {
                 fontFamily: "poppinsRegular",
                 fontSize: 14,
                 textAlign: "center",
-                marginInline: 40,
+                marginLeft: 40,
+                marginRight: 40
               }}
             >
               Bakeri ini sedang tidak menjual produk, silakan coba lagi nanti
@@ -368,7 +374,7 @@ const BakeryDetail = () => {
         isCancelled <= 3 && (
           <View className="w-full flex justify-end p-5 mb-5">
             <OpenCartButton
-              label={`Lihat Keranjang (${orderData.items.length} item)  •  ${totalPrice}`}
+              label={`Lihat Keranjang (${calculateTotalOrderItem(orderData.items)} item)  •  ${totalPrice}`}
               handlePress={() => {
                 router.push({
                   pathname: "/inputOrderDetail" as any,

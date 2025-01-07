@@ -148,7 +148,7 @@ const SignUpBakery = () => {
   const handleGetLocationSuggestionsAPI = () => {
 
     if (address === '') {
-      setError((prevError) => ({ ...prevError, bakeryAddress: 'Alamat Toko tidak boleh kosong' }));
+      setError((prevError) => ({ ...prevError, bakeryAddress: 'Alamat Bakeri tidak boleh kosong' }));
       return;
     }
 
@@ -251,7 +251,7 @@ const SignUpBakery = () => {
       </View>
       <View className="w-full items-center">
         <UploadButton
-          label="Unggah Foto Toko"
+          label="Unggah Foto Bakeri"
           handlePress={() => {
             setError((prevError) => ({ ...prevError, bakeryImage: null }));
             pickImage("bakeryImage");
@@ -259,7 +259,7 @@ const SignUpBakery = () => {
         />
       </View>
       <FormField
-        label="Nama Toko"
+        label="Nama Bakeri"
         value={form.bakeryName}
         onChangeText={(text) => {
           setForm((prevForm) => ({ ...prevForm, bakeryName: text }));
@@ -268,7 +268,7 @@ const SignUpBakery = () => {
         keyboardType="default"
         moreStyles='mt-7'
         error={error.bakeryName}
-        placeholder="Masukkan nama toko"
+        placeholder="Masukkan nama bakeri"
       />
       <View className="flex-row space-x-4">
         <View className="flex-1">
@@ -291,9 +291,9 @@ const SignUpBakery = () => {
         </View>
       </View>
       <InputLocationField
-        label="Alamat Toko"
+        label="Alamat Bakeri"
         value={address}
-        placeholder="Cari lokasi toko"
+        placeholder="Cari lokasi bakeri"
         onChangeText={(text) => {
           setAddress(text);
           setError((prevError) => ({ ...prevError, bakeryAddress: null }));
@@ -305,7 +305,7 @@ const SignUpBakery = () => {
         onSelectSuggestion={handleSelectSuggestion}
       />
       <FormField
-        label="Nomor Telepon Toko"
+        label="Nomor Telepon Bakeri"
         value={form.bakeryPhoneNumber}
         onChangeText={(text) => {
           setForm((prevForm) => ({ ...prevForm, bakeryPhoneNumber: text }));
@@ -317,10 +317,10 @@ const SignUpBakery = () => {
         keyboardType="phone-pad"
         moreStyles="mt-7"
         error={error.bakeryPhoneNumber}
-        placeholder="Masukkan nomor telepon toko"
+        placeholder="Masukkan nomor telepon bakeri"
       />
       <TextAreaField
-        label="Deskripsi Toko"
+        label="Deskripsi Bakeri"
         value={form.bakeryDescription}
         onChangeText={(text) => {
           setForm((prevForm) => ({ ...prevForm, bakeryDescription: text }));
@@ -332,10 +332,10 @@ const SignUpBakery = () => {
         keyboardType="default"
         moreStyles="mt-7"
         error={error.bakeryDescription}
-        placeholder="Masukkan deskripsi toko"
+        placeholder="Masukkan deskripsi bakeri"
       />
       <View className='mt-7 space-y-1'>
-        <TextFormLabel label="Status halal" />
+        <TextFormLabel label="Status Halal" />
         <View className='flex-row items-center'>
           <TextTitle5 label="Tidak" />
           <Switch

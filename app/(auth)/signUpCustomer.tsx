@@ -85,7 +85,7 @@ const SignUpCustomer = () => {
             if (form.password !== confirmPassword) {
                 setError((prevError) => ({
                     ...prevError,
-                    confirmPassword: 'Password tidak cocok',
+                    confirmPassword: 'Kata sandi tidak cocok',
                 }));
                 return;
             }
@@ -109,6 +109,7 @@ const SignUpCustomer = () => {
                 }
                 const otp = await authenticationApi().signUpOTP({
                     email: form.email,
+                    userName: form.userName
                 })
                 const updatedForm = { ...form, userImage: encodedUserImage };
                 if (otp.status === 200) {

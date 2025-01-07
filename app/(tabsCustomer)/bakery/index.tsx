@@ -39,6 +39,7 @@ import { set } from "date-fns";
 import { icons } from "@/constants/icons";
 import Announcement from '@/components/Announcement';
 import TextLink from "@/components/texts/TextLink";
+import { showToast } from "@/utils/toastUtils";
 
 const Bakery = () => {
   const { userData } = useAuth();
@@ -159,9 +160,6 @@ const Bakery = () => {
     }
 
     return filtered.sort((a, b) => (a.isClosed === b.isClosed ? 0 : a.isClosed ? 1 : -1));
-    // return bakery.filter((item) =>
-    //   item.bakeryName.toLowerCase().includes(searchQuery.toLowerCase())
-    // );
   };
 
   const toggleFavorite = async (bakeryId: number) => {
@@ -173,11 +171,13 @@ const Bakery = () => {
     try {
       if (favoriteItem) {
         await favoriteApi().removeFavorite(favoriteItem.favoriteId);
+        showToast("success", "Bakeri berhasil dihapus dari favorit");
       } else {
         await favoriteApi().addFavorite({
           userId: userData?.userId,
           bakeryId: bakeryId,
         });
+        showToast("success", "Bakeri berhasil ditambahkan ke favorit");
       }
 
       handleGetBakeryApi();
@@ -260,7 +260,7 @@ const Bakery = () => {
       <Announcement
         message="Akun Anda diblokir karena telah membatalkan pesanan lebih dari 3 kali."
         visible={announcementVisible}
-        onClose={() => setAnnouncementVisible(false)} // Menyembunyikan pengumuman saat ditutup
+        onClose={() => setAnnouncementVisible(false)}
       />
       <View className="mx-5 mb-5">
         <View className="flex-row align-center justify-between">
@@ -293,9 +293,9 @@ const Bakery = () => {
         </View>
 
         <ScrollView
-          horizontal={true} // Enables horizontal scrolling
-          showsHorizontalScrollIndicator={false} // Hides the scrollbar (optional)
-          contentContainerStyle={{ flexGrow: 1, alignItems: "center" }} // Ensures proper alignment
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1, alignItems: "center" }}
         >
           <View className="mt-5 flex-row items-center">
             <FilterButton

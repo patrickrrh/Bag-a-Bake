@@ -29,6 +29,7 @@ import TextAfterPrice from '@/components/texts/TextAfterPrice';
 import ModalAction from '@/components/ModalAction';
 import ErrorMessage from '@/components/texts/ErrorMessage';
 import TextEllipsis from '@/components/TextEllipsis';
+import { showToast } from '@/utils/toastUtils';
 
 type StockInputErrorState = {
   productQuantity: string | null;
@@ -54,8 +55,6 @@ const InputOrder = () => {
   const [isProduct, setIsProduct] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-  // New
   const [hasExistingOrder, setHasExistingOrder] = useState(false);
 
   const handleGetProductByIdApi = async () => {
@@ -115,9 +114,9 @@ const InputOrder = () => {
     const index = currentOrder.findIndex(item => item.productId === newOrder.productId);
 
     if (index !== -1) {
-      currentOrder[index].productQuantity = newOrder.productQuantity; // Update quantity
+      currentOrder[index].productQuantity = newOrder.productQuantity;
     } else {
-      currentOrder.push(newOrder); // Add new product
+      currentOrder.push(newOrder);
     }
 
     return currentOrder;
@@ -128,12 +127,12 @@ const InputOrder = () => {
       removeLocalStorage('orderData');
 
       const newOrder = {
-        bakeryId: bakery?.bakery.bakeryId, // Assuming bakeryId comes from bakery object
+        bakeryId: bakery?.bakery.bakeryId,
         items: [form]
       };
 
-      // Save the new order with bakeryId
       await AsyncStorage.setItem('orderData', JSON.stringify(newOrder));
+      showToast('success', 'Produk ditambahkan ke keranjang');
 
       router.push({
         pathname: '/bakeryDetail' as any,
@@ -162,6 +161,7 @@ const InputOrder = () => {
         };
 
         await AsyncStorage.setItem('orderData', JSON.stringify(newOrder));
+        showToast('success', 'Produk ditambahkan ke keranjang');
       } else {
         const currentBakeryId = orderData.bakeryId;
 
@@ -182,6 +182,7 @@ const InputOrder = () => {
           } else {
             await AsyncStorage.setItem('orderData', JSON.stringify({ bakeryId: currentBakeryId, items: updatedItems }));
           }
+          showToast('success', 'Keranjang telah diperbarui');
         }
       }
       router.push({
@@ -304,7 +305,7 @@ const InputOrder = () => {
           <AddOrderProductButton
             label={
               form.productQuantity === 0 && isProduct
-                ? "Back to Menu"
+                ? "Kembali ke Bakeri"
                 : `Tambahkan Pesanan  •  ${formatRupiah(totalPrice)}`
             }
             handlePress={

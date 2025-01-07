@@ -16,16 +16,16 @@ export const checkEmptyForm = (
   const fieldLabels: Record<string, string> = {
     userName: "Nama Pengguna",
     email: "Email",
-    password: "Password",
-    userPhoneNumber: "Nomor HP",
+    password: "Kata Sandi",
+    userPhoneNumber: "Nomor Telepon",
     regionId: "Lokasi",
     openingTime: "Jam Buka",
     closingTime: "Jam Tutup",
-    bakeryName: "Nama Toko",
-    bakeryAddress: "Alamat Toko",
-    bakeryPhoneNumber: "Nomor HP Toko",
-    bakeryDescription: "Deskripsi Toko",
-    bakeryImage: "Gambar Toko",
+    bakeryName: "Nama Bakeri",
+    bakeryAddress: "Alamat Bakeri",
+    bakeryPhoneNumber: "Nomor Telepon Bakeri",
+    bakeryDescription: "Deskripsi Bakeri",
+    bakeryImage: "Gambar Bakeri",
     address: "Alamat",
     halalCertificate: "Sertifikat Halal",
   };
@@ -124,7 +124,7 @@ export const checkEmptyForm = (
   }
 
   if (confirmPassword === "") {
-    errors.confirmPassword = "Konfirmasi Password tidak boleh kosong";
+    errors.confirmPassword = "Konfirmasi Kata Sandi tidak boleh kosong";
   } else {
     errors.confirmPassword = null;
   }
@@ -204,7 +204,7 @@ export const checkProductForm = (form: Record<string, unknown>) => {
       const discountPercentage = (((form.productPrice as number) - discountAmounts[0]) / (form.productPrice as number)) * 100;
 
       if (discountPercentage < 10) {
-        errors.discount = `Harga Hari ke-1 harus minimal 10% dari Harga Awal`;
+        errors.discount = `Harga Hari ke-1 harus minimal diskon 10% dari Harga Awal`;
       }
     }
 
@@ -339,7 +339,7 @@ export const checkPasswordErrors = async (
   const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
   if (!form.oldPassword) {
-    errors.oldPassword = "Password lama tidak boleh kosong";
+    errors.oldPassword = "Kata Sandi lama tidak boleh kosong";
   } else {
     const resCheck = await authenticationApi().checkAccount({
       email: userEmail,
@@ -347,15 +347,15 @@ export const checkPasswordErrors = async (
     });
 
     if (resCheck.error) {
-      errors.oldPassword = "Password lama tidak valid";
+      errors.oldPassword = "Kata Sandi lama tidak valid";
     } else if (!form.password) {
-      errors.password = "Password baru tidak boleh kosong";
+      errors.password = "Kata Sandi baru tidak boleh kosong";
     } else if (!passwordRegex.test(form.password)) {
-      errors.password = "Password baru minimal 8 karakter & 1 karakter spesial";
+      errors.password = "Kata Sandi baru minimal 8 karakter & 1 karakter spesial";
     } else if (form.oldPassword === form.password) {
-      errors.password = "Password baru tidak boleh sama dengan password lama";
+      errors.password = "Kata Sandi baru tidak boleh sama dengan Kata Sandi lama";
     } else if (form.password !== confirmPassword) {
-      errors.confirmPassword = "Password tidak cocok";
+      errors.confirmPassword = "Kata Sandi tidak cocok";
     } else {
       errors.password = null;
       errors.confirmPassword = null;

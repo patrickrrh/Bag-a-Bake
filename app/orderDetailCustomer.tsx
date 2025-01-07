@@ -41,7 +41,7 @@ type ErrorState = {
     proofOfPayment: string | null;
 }
 
-const OrderDetail = () => {
+const OrderDetailCustomer = () => {
 
     const insets = useSafeAreaInsets();
 
@@ -86,7 +86,8 @@ const OrderDetail = () => {
         try {
             const isUpdateStock = orderData.orderStatus === 2 ? true : false
             await orderCustomerApi().cancelOrder({ orderId: orderData.orderId, bakeryId: orderData.bakery.bakeryId, isUpdateStock: isUpdateStock });
-            router.push("/order");
+            showToast("success", "Pesanan dibatalkan");
+            router.push("/(tabsCustomer)/order");
         } catch (error) {
             console.log("Error canceling order ", error)
         }
@@ -150,6 +151,7 @@ const OrderDetail = () => {
             })
 
             if (response.status === 200) {
+                showToast("success", "Bukti pembayaran berhasil dikirim");
                 router.back();
             }
         } catch (error) {
@@ -158,7 +160,7 @@ const OrderDetail = () => {
     }
 
     return (
-        <View className="bg-background h-full flex-1">
+        <View className="bg-background h-full flex-1 pb-5">
 
             <View style={{ height: insets.top }} />
 
@@ -167,7 +169,7 @@ const OrderDetail = () => {
                     <TouchableOpacity
                         onPress={() => {
                             router.replace({
-                                pathname: '/order' as any,
+                                pathname: '/(tabsCustomer)/order' as any,
                             })
                             setLocalStorage('orderCustomerParams', JSON.stringify({ status: orderData.orderStatus }))
                         }}
@@ -190,7 +192,7 @@ const OrderDetail = () => {
             <ScrollView>
 
                 <View className='p-5 gap-y-3 bg-white'>
-                    <TextTitle3 label="Detail Toko" />
+                    <TextTitle3 label="Detail Bakeri" />
                     <View className='flex-row'>
                         <TextTitle5 label={`Jam pengambilan terakhir: `} />
                         <TextTitle5Bold label={orderData.bakery.closingTime as string} color='#FA6F33' />
@@ -326,7 +328,7 @@ const OrderDetail = () => {
                 orderData.orderStatus === 1 ? (
                     <View className='mx-5 my-5'>
                         <CustomButton
-                            label="Hubungi Penjual"
+                            label="Hubungi Bakeri"
                             handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
                             isLoading={isSubmitting}
                         />
@@ -345,7 +347,7 @@ const OrderDetail = () => {
                                     label="Konfirmasi Pembayaran"
                                     handlePress={() => handleSubmitProofOfPaymentAPI()}
                                     isLoading={isSubmitting}
-                                    disabled={proofOfPayment === ''}
+                                    disabled={proofOfPayment === '' || isSubmitting}
                                 />
                             )
                         }
@@ -356,7 +358,7 @@ const OrderDetail = () => {
                             isLoading={isSubmitting}
                         />
                         <ContactButton
-                            label="Hubungi Penjual"
+                            label="Hubungi Bakeri"
                             handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
                             buttonStyles='mt-3'
                             isLoading={isSubmitting}
@@ -365,7 +367,7 @@ const OrderDetail = () => {
                 ) : orderData.orderStatus === 3 && (
                     <View className='mx-5 my-5'>
                         <ContactButton
-                            label="Hubungi Penjual"
+                            label="Hubungi Bakeri"
                             handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
                             buttonStyles='mt-3'
                             isLoading={isSubmitting}
@@ -379,4 +381,4 @@ const OrderDetail = () => {
     )
 }
 
-export default OrderDetail
+export default OrderDetailCustomer
