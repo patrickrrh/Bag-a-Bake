@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as EmailValidator from "email-validator";
 import { ExpoPushToken } from "expo-notifications";
 import * as FileSystem from 'expo-file-system';
+import { Linking } from "react-native";
 
 export const checkEmptyForm = (
   form: Record<string, string | number | ExpoPushToken | null | UserImageType | undefined>,
@@ -389,6 +390,19 @@ export const convertPhoneNumberFormat = (phoneNumber: string): string => {
     return `62${phoneNumber.slice(1)}`;
   }
   return phoneNumber;
+};
+
+export const redirectToGoogleMaps = (latitude: number, longitude: number): void => {
+  if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+    console.error("Invalid latitude or longitude");
+    return;
+  }
+
+  const googleMapsUrl = `https://maps.google.com/?q=${latitude},${longitude}`;
+  
+  Linking.openURL(googleMapsUrl).catch((err) =>
+    console.error("Failed to open Google Maps", err)
+  );
 };
 
 export const encodeImage = async (imageUri: string | null) => {

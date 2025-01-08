@@ -31,6 +31,7 @@ import {
   convertPhoneNumberFormat,
   formatRupiah,
   getLocalStorage,
+  redirectToGoogleMaps,
   removeLocalStorage,
 } from "@/utils/commonFunctions";
 import { calculateTotalOrderPrice } from "@/utils/commonFunctions";
@@ -165,6 +166,18 @@ const BakeryDetail = () => {
       .catch((err) => console.error("An error occurred", err));
   };
 
+  const handleLocationClick = () => {
+    const latitude = bakeryDetail?.bakery?.bakeryLatitude;
+    const longitude = bakeryDetail?.bakery?.bakeryLongitude;
+
+    if (latitude === undefined || longitude === undefined) {
+      console.error("Latitude or longitude is undefined");
+      return;
+    }
+
+    redirectToGoogleMaps(latitude, longitude);
+  };
+
   console.log("User Data", userData);
 
   const toggleFavorite = async (bakeryId: number) => {
@@ -228,6 +241,7 @@ const BakeryDetail = () => {
           <View className="mt-5">
             <View className="flex-row justify-between items-start w-full">
               <View className="w-1/2">
+              <TouchableOpacity onPress={handleLocationClick}>
                 <View className="flex-row mb-2">
                   <Ionicons
                     name="location-sharp"
@@ -240,6 +254,7 @@ const BakeryDetail = () => {
                     />
                   </View>
                 </View>
+                </TouchableOpacity>
               </View>
 
               <View>

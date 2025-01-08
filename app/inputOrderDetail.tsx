@@ -8,7 +8,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Image, FlatList, Animated, TouchableOpacity, ScrollView } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { calculateTotalOrderPrice, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, formatRupiah, redirectToGoogleMaps, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import bakeryApi from '@/api/bakeryApi';
 import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
@@ -120,6 +120,18 @@ const InputOrderDetail = () => {
         }
     }, [bakeryDetail]);
 
+    const handleLocationClick = () => {
+        const latitude = bakeryDetail?.bakery?.bakeryLatitude;
+        const longitude = bakeryDetail?.bakery?.bakeryLongitude;
+    
+        if (latitude === undefined || longitude === undefined) {
+          console.error("Latitude or longitude is undefined");
+          return;
+        }
+    
+        redirectToGoogleMaps(latitude, longitude);
+      };
+
     return (
         <View className="bg-background h-full flex-1">
 
@@ -159,7 +171,9 @@ const InputOrderDetail = () => {
                     </View>
                     <View className='flex-row w-4/5'>
                         <TextTitle5 label={`Lokasi: `} />
-                        <TextTitle5Bold label={bakeryDetail?.bakery.bakeryAddress as string} />
+                        <TouchableOpacity onPress={handleLocationClick}>
+                            <TextTitle5Bold label={bakeryDetail?.bakery.bakeryAddress as string} />
+                        </TouchableOpacity>
                     </View>
                 </View>
 

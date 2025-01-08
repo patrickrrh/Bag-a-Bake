@@ -17,7 +17,7 @@ import { BakeryDetailType, BakeryType, ProductType } from '@/types/types';
 import AddOrderProductButton from '@/components/AddOrderProductButton';
 import BackButton from '@/components/BackButton';
 import CircleBackButton from '@/components/CircleBackButton';
-import { getLocalStorage, removeLocalStorage, updateLocalStorage, calculateTotalOrderPrice, formatRupiah } from '@/utils/commonFunctions';
+import { getLocalStorage, removeLocalStorage, updateLocalStorage, calculateTotalOrderPrice, formatRupiah, formatDate } from '@/utils/commonFunctions';
 import { Route } from 'expo-router/build/Route';
 import { images } from '@/constants/images';
 import { FontAwesome } from '@expo/vector-icons';
@@ -253,14 +253,10 @@ const InputOrder = () => {
           <CustomTag count={product?.productStock as number} />
         </View>
 
-        <View className='my-2'>
-          <TextTitle4 label={bakery?.bakery.bakeryName as string} />
+        <View className='flex-row items-center mt-2'>
+          <TextTitle5 label={"Tanggal Kedaluwarsa: "}></TextTitle5>
+          <TextTitle5Bold label={formatDate(product?.productExpirationDate as string)} color='#FA6F33' />
         </View>
-
-        <TextRating
-          rating={bakery?.prevRating.averageRating as string}
-          reviewCount={bakery?.prevRating.reviewCount as string}
-        />
 
         <View className='flex-row items-center mt-2'>
           <TextTitle5 label={"Jam Pengambilan Terakhir: "}></TextTitle5>

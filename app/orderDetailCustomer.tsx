@@ -8,7 +8,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, Image, FlatList, Animated, TouchableOpacity, Linking, ScrollView, Alert } from 'react-native'
 import { Stack, HStack, VStack } from 'react-native-flex-layout';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { calculateTotalOrderPrice, calculateValidPaymentTime, convertPhoneNumberFormat, encodeImage, formatDatewithtime, formatRupiah, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
+import { calculateTotalOrderPrice, calculateValidPaymentTime, convertPhoneNumberFormat, encodeImage, formatDatewithtime, formatRupiah, redirectToGoogleMaps, removeLocalStorage, setLocalStorage } from '@/utils/commonFunctions';
 import { getLocalStorage } from '@/utils/commonFunctions';
 import bakeryApi from '@/api/bakeryApi';
 import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
@@ -76,6 +76,18 @@ const OrderDetailCustomer = () => {
             })
             .catch((err) => console.error('An error occurred', err));
     }
+
+    const handleLocationClick = () => {
+        const latitude = orderData.bakery.bakeryLatitude;
+        const longitude = orderData.bakery.bakeryLongitude;
+    
+        if (latitude === undefined || longitude === undefined) {
+          console.error("Latitude or longitude is undefined");
+          return;
+        }
+    
+        redirectToGoogleMaps(latitude, longitude);
+      };
 
     const handleCopyToClipboard = async (text: string) => {
         await Clipboard.setStringAsync(text);
@@ -199,7 +211,7 @@ const OrderDetailCustomer = () => {
                     </View>
                     <View className='flex-row w-4/5'>
                         <TextTitle5 label={`Lokasi: `} />
-                        <TextTitle5Bold label={orderData.bakery.bakeryAddress as string} />
+                        <TouchableOpacity onPress={handleLocationClick}><TextTitle5Bold label={orderData.bakery.bakeryAddress as string} /></TouchableOpacity>
                     </View>
                 </View>
 

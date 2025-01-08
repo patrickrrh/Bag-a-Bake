@@ -266,7 +266,7 @@ const CreateProduct = () => {
       const newDiscounts: DiscountItem[] = [];
 
       for (let i = 0; i <= daysToExpiration; i++) {
-        const discountDate = today.add(i, "day").startOf("day");
+        const discountDate = today.add(i + 1, "day").startOf("day");
         const discountDateString = discountDate.toISOString();
 
         const existingDiscount = existingDiscounts.find((discount) => {
@@ -450,7 +450,7 @@ const CreateProduct = () => {
                   >
                     Hari ke-{index + 1}{" "}
                     <Text style={{ fontSize: 12 }}>
-                      ({formatDate(discount.discountDate.toString())})
+                      ({formatDate(dayjs(discount.discountDate).subtract(1, "day").toString())})
                     </Text>
                   </Text>
                   <DiscountInputField
