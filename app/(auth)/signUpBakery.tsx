@@ -352,7 +352,7 @@ const SignUpBakery = () => {
             thumbColor={form.isHalal === 1 ? "#b0795a" : "gray"}
             className='mx-2'
           />
-          <TextTitle5 label="Ya" />
+          <TextTitle5 label="Iya" />
         </View>
       </View>
 
