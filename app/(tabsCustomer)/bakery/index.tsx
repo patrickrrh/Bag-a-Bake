@@ -171,13 +171,13 @@ const Bakery = () => {
     try {
       if (favoriteItem) {
         await favoriteApi().removeFavorite(favoriteItem.favoriteId);
-        showToast("success", "Bakeri berhasil dihapus dari favorit");
+        showToast("success", "Bakery berhasil dihapus dari favorit");
       } else {
         await favoriteApi().addFavorite({
           userId: userData?.userId,
           bakeryId: bakeryId,
         });
-        showToast("success", "Bakeri berhasil ditambahkan ke favorit");
+        showToast("success", "Bakery berhasil ditambahkan ke favorit");
       }
 
       handleGetBakeryApi();
@@ -264,7 +264,7 @@ const Bakery = () => {
       />
       <View className="mx-5 mb-5">
         <View className="flex-row align-center justify-between">
-          <TextHeader label="BAKERI" />
+          <TextHeader label="BAKERY" />
           <TouchableOpacity
             onPress={() => {
               setShowFavorite(!showFavorite);
@@ -288,7 +288,7 @@ const Bakery = () => {
           <SearchBar
             value={searchQuery}
             onChange={(text) => setSearchQuery(text)}
-            placeholder="Cari bakeri"
+            placeholder="Cari bakery"
           />
         </View>
 
@@ -360,7 +360,7 @@ const Bakery = () => {
                 textAlign: "center",
               }}
             >
-              Bakeri tidak tersedia
+              Bakery tidak tersedia
             </Text>
           </View>
         ) : (

@@ -301,7 +301,7 @@ const InputOrder = () => {
           <AddOrderProductButton
             label={
               form.productQuantity === 0 && isProduct
-                ? "Kembali ke Bakeri"
+                ? "Kembali ke Bakery"
                 : `Tambahkan Pesanan  •  ${formatRupiah(totalPrice)}`
             }
             handlePress={
@@ -318,7 +318,7 @@ const InputOrder = () => {
       <ModalAction
         setModalVisible={setChangeOrderModal}
         modalVisible={changeOrderModal}
-        title='Ingin membeli dari bakeri ini?'
+        title='Ingin membeli dari bakery ini?'
         primaryButtonLabel='Iya'
         secondaryButtonLabel='Tidak'
         onPrimaryAction={() => handleCreateNewOrder()}

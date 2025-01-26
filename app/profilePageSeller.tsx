@@ -325,7 +325,7 @@ const ProfilePageSeller = () => {
     if (address === "") {
       setError((prevError) => ({
         ...prevError,
-        address: "Alamat bakeri tidak boleh kosong",
+        address: "Alamat bakery tidak boleh kosong",
       }));
       return;
     }
@@ -627,7 +627,7 @@ const ProfilePageSeller = () => {
         });
 
         if (response.status === 200) {
-          showToast("success", "Data bakeri berhasil diperbarui");
+          showToast("success", "Data bakery berhasil diperbarui");
           setIsBakeryImageUpdated(false);
         }
       } else if (selectedStatus === 3) {
@@ -883,7 +883,7 @@ const ProfilePageSeller = () => {
                 <UploadButton label="Unggah Foto" handlePress={pickImage} />
 
                 <FormField
-                  label="Nama Bakeri"
+                  label="Nama Bakery"
                   value={bakeryForm.bakeryName}
                   onChangeText={(text) =>
                     setBakeryForm({ ...bakeryForm, bakeryName: text })
@@ -892,9 +892,9 @@ const ProfilePageSeller = () => {
                   error={bakeryError.bakeryName}
                 />
                 <InputLocationField
-                  label="Alamat Bakeri"
+                  label="Alamat Bakery"
                   value={address}
-                  placeholder="Cari lokasi bakeri Anda"
+                  placeholder="Cari lokasi bakery Anda"
                   onChangeText={(text) => {
                     setAddress(text);
                     setError((prevError) => ({
@@ -930,7 +930,7 @@ const ProfilePageSeller = () => {
                 </View>
 
                 <FormField
-                  label="Nomor Telepon Bakeri"
+                  label="Nomor Telepon Bakery"
                   value={bakeryForm.bakeryPhoneNumber}
                   onChangeText={(text) => {
                     setBakeryForm((prevBakeryForm) => ({
@@ -947,7 +947,7 @@ const ProfilePageSeller = () => {
                   error={bakeryError.bakeryPhoneNumber}
                 />
                 <TextAreaField
-                  label="Deskripsi Bakeri"
+                  label="Deskripsi Bakery"
                   value={bakeryForm.bakeryDescription}
                   onChangeText={(text) => {
                     setBakeryForm((prevBakeryForm) => ({
