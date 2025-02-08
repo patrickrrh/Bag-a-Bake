@@ -97,7 +97,7 @@ const InputOrderDetail = () => {
                 removeLocalStorage('orderData');
                 showToast('success', 'Pesanan berhasil dibuat');
             } else if (response.status === 404) {
-                showToast('error', 'Bakeri sudah tutup. Silakan coba lagi selama jam operasional.');
+                showToast('error', 'Bakery sudah tutup. Silakan coba lagi selama jam operasional.');
             } else if (response.status === 403) {
                 showToast('error', 'Akun Anda sedang diblokir karena telah membatalkan lebih dari 3 kali.');
             }
@@ -164,7 +164,7 @@ const InputOrderDetail = () => {
 
             <ScrollView>
                 <View className='p-5 gap-y-3 bg-white'>
-                    <TextTitle3 label="Detail Bakeri" />
+                    <TextTitle3 label="Detail Bakery" />
                     <View className='flex-row'>
                         <TextTitle5 label={`Jam pengambilan terakhir: `} />
                         <TextTitle5Bold label={bakeryDetail?.bakery.closingTime as string} color='#FA6F33' />

@@ -41,7 +41,7 @@ const TabsCustomerLayout = () => {
       <Tabs.Screen
         name="bakery"
         options={{
-          title: "Bakeri",
+          title: "Bakery",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? "storefront" : "storefront-outline"} color={color} size={18} />
           ),

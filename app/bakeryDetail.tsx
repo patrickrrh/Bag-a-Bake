@@ -188,13 +188,13 @@ const BakeryDetail = () => {
     try {
       if (favoriteItem) {
         await favoriteApi().removeFavorite(favoriteItem.favoriteId);
-        showToast("success", "Bakeri berhasil dihapus dari favorit");
+        showToast("success", "Bakery berhasil dihapus dari favorit");
       } else {
         await favoriteApi().addFavorite({
           userId: userData?.userId,
           bakeryId: bakeryId,
         });
-        showToast("success", "Bakeri berhasil ditambahkan ke favorit");
+        showToast("success", "Bakery berhasil ditambahkan ke favorit");
       }
 
       handleGetBakeryByIdApi();
@@ -259,7 +259,7 @@ const BakeryDetail = () => {
 
               <View>
                 <CustomClickableButton
-                  label={"Hubungi Bakeri"}
+                  label={"Hubungi Bakery"}
                   handlePress={() =>
                     handleContactSeller(
                       bakeryDetail?.bakery.bakeryPhoneNumber as string
@@ -296,7 +296,7 @@ const BakeryDetail = () => {
             </TouchableOpacity>
 
             <View className="mt-3">
-              <TextTitle4 label={"Deskripsi Bakeri"} />
+              <TextTitle4 label={"Deskripsi Bakery"} />
               <TextTitle5
                 label={bakeryDetail?.bakery.bakeryDescription as string}
               />
@@ -324,7 +324,7 @@ const BakeryDetail = () => {
             <View className="h-px bg-gray-200 my-4" />
 
             <View>
-              <TextTitle3 label={"Produk Bakeri"} />
+              <TextTitle3 label={"Produk Bakery"} />
             </View>
           </View>
         </View>
@@ -379,7 +379,7 @@ const BakeryDetail = () => {
                 marginRight: 40
               }}
             >
-              Bakeri ini sedang tidak menjual produk, silakan coba lagi nanti
+              Bakery ini sedang tidak menjual produk, silakan coba lagi nanti
             </Text>
           </View>
         )}

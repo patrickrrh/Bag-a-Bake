@@ -14,7 +14,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
 }) => {
   const statusMapping: Record<number, string> = {
     1: "Pengguna",
-    2: "Bakeri",
+    2: "Bakery",
     3: "Pembayaran",
   };
 

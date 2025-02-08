@@ -57,7 +57,7 @@ const SignUp = () => {
           }}
         />
         <RoleCard
-          label="Pemilik Bakeri"
+          label="Pemilik Bakery"
           isSelected={selectedRole === 2}
           onPress={() => {
             setSelectedRole(2);

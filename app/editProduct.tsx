@@ -179,7 +179,7 @@ const EditProduct = () => {
         throw new Error(response.error);
       } else if (response.status === 200) {
         showToast("success", "Produk berhasil diperbarui!");
-        router.back();
+        router.replace("/(tabsSeller)/product")
       } 
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -340,7 +340,7 @@ const EditProduct = () => {
       const res = await productApi().deleteProductById({ productId });
       if (res.status === 200) {
         showToast("success", res.message);
-        router.back();
+        router.replace("/(tabsSeller)/product")
       } else {
         showToast("error", "Gagal menghapus produk");
       }

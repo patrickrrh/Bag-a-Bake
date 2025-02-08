@@ -24,7 +24,7 @@ const PendingApproval = () => {
 
     const handleContactPress = () => {
         const email = 'example@gmail.com'
-        const subject = 'Bantuan Akun Bakeri'
+        const subject = 'Bantuan Akun Bakery'
         const body = "Halo, saya membutuhkan bantuan terkait akun bakery saya.";
 
         const emailUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -87,13 +87,13 @@ const PendingApproval = () => {
                                 <CustomLogo imageWidth={60} imageHeight={60} fontSize={16} />
                                 {
                                     refreshedUserData?.bakery === null ? (
-                                        <TextTitle3 label='Akun bakeri Anda ditolak' textStyle={{ textAlign: 'center', marginTop: 20 }} />
+                                        <TextTitle3 label='Akun bakery Anda ditolak' textStyle={{ textAlign: 'center', marginTop: 20 }} />
                                     ) : refreshedUserData?.bakery.isActive === 2 ? (
-                                        <TextTitle3 label='Akun bakeri Anda telah dinonaktifkan' textStyle={{ textAlign: 'center', marginTop: 20 }} />
+                                        <TextTitle3 label='Akun bakery Anda telah dinonaktifkan' textStyle={{ textAlign: 'center', marginTop: 20 }} />
                                     ) : refreshedUserData?.bakery.isActive === 0 ? (
-                                        <TextTitle3 label='Harap menunggu, akun bakeri Anda sedang diproses' textStyle={{ textAlign: 'center', marginTop: 20 }} />
+                                        <TextTitle3 label='Harap menunggu, akun bakery Anda sedang diproses' textStyle={{ textAlign: 'center', marginTop: 20 }} />
                                     ) : (
-                                        <TextTitle3 label='Akun bakeri Anda telah diaktifkan' textStyle={{ textAlign: 'center', marginTop: 20 }} />
+                                        <TextTitle3 label='Akun bakery Anda telah diaktifkan' textStyle={{ textAlign: 'center', marginTop: 20 }} />
                                     )
                                 }
                                 {
@@ -104,7 +104,7 @@ const PendingApproval = () => {
                                                 textStyle={{ textAlign: 'center', marginTop: 10 }}
                                             />
                                             <CustomButton
-                                                label='Daftar Bakeri Ulang'
+                                                label='Daftar Bakery Ulang'
                                                 handlePress={() => router.replace("/(auth)/signUpBakery")}
                                                 isLoading={false}
                                                 buttonStyles='mt-5 w-full'

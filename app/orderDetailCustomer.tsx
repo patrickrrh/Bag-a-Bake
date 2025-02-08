@@ -204,7 +204,7 @@ const OrderDetailCustomer = () => {
             <ScrollView>
 
                 <View className='p-5 gap-y-3 bg-white'>
-                    <TextTitle3 label="Detail Bakeri" />
+                    <TextTitle3 label="Detail Bakery" />
                     <View className='flex-row'>
                         <TextTitle5 label={`Jam pengambilan terakhir: `} />
                         <TextTitle5Bold label={orderData.bakery.closingTime as string} color='#FA6F33' />
@@ -340,7 +340,7 @@ const OrderDetailCustomer = () => {
                 orderData.orderStatus === 1 ? (
                     <View className='mx-5 my-5'>
                         <CustomButton
-                            label="Hubungi Bakeri"
+                            label="Hubungi Bakery"
                             handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
                             isLoading={isSubmitting}
                         />
@@ -370,7 +370,7 @@ const OrderDetailCustomer = () => {
                             isLoading={isSubmitting}
                         />
                         <ContactButton
-                            label="Hubungi Bakeri"
+                            label="Hubungi Bakery"
                             handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
                             buttonStyles='mt-3'
                             isLoading={isSubmitting}
@@ -379,7 +379,7 @@ const OrderDetailCustomer = () => {
                 ) : orderData.orderStatus === 3 && (
                     <View className='mx-5 my-5'>
                         <ContactButton
-                            label="Hubungi Bakeri"
+                            label="Hubungi Bakery"
                             handlePress={() => handleContactSeller(orderData.bakery.bakeryPhoneNumber as string)}
                             buttonStyles='mt-3'
                             isLoading={isSubmitting}
