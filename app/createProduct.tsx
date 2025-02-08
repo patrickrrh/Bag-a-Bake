@@ -218,7 +218,7 @@ const CreateProduct = () => {
         throw new Error(response.error);
       } else if (response.status === 201) {
         showToast("success", "Produk berhasil ditambahkan!");
-        router.back();
+        router.replace("/(tabsSeller)/product")
       }
     } catch (error) {
       console.error("Error submitting form:", error);
