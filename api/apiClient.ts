@@ -36,8 +36,8 @@ apiClient.interceptors.response.use(
                 
                 const { data } = await apiClient.post("/refresh_token", { refreshToken });
 
-                await SecureStore.getItemAsync("accessToken", data.accessToken);
-                await SecureStore.getItemAsync("refreshToken", data.refreshToken);
+                await SecureStore.setItemAsync("accessToken", data.accessToken);
+                await SecureStore.setItemAsync("refreshToken", data.refreshToken);
 
                 if (error.config) {
                     error.config.headers.Authorization = `Bearer ${data.accessToken}`;
